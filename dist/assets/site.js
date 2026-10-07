@@ -293,3 +293,10 @@
   }), { threshold: 0.5 });
   stats.forEach(s => { io.observe(s); s.addEventListener('click', () => s.classList.toggle('play')); });
 })();
+
+// Services: draw the top line and pop the icon once each card is in view
+(function () {
+  const svcs = document.querySelectorAll('.svc');
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('drawn'); io.unobserve(e.target); } }), { threshold: 0.4 });
+  svcs.forEach(s => io.observe(s));
+})();

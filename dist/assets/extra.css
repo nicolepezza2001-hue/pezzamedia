@@ -270,3 +270,17 @@
 .case-top { align-items: center; min-height: 96px; }
 @media (max-width: 767px) { .case-art.product { height: 76px; } .case-top { min-height: 76px; } }
 .case-art.product img[src*="product-lw"] { height: 118%; margin-top: -10%; }
+/* Services: icons, colour and motion */
+.svc { position: relative; border-top: 2px solid rgba(20,27,65,.15); padding: 18px 16px 16px; border-radius: 0 0 12px 12px; transition: background-color .35s ease, transform .35s ease; }
+.svc::before { content: ""; position: absolute; left: 0; top: -2px; height: 3px; width: 0; background: var(--navy); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+.svc.drawn::before, .svc:hover::before { width: 100%; }
+.svc:hover { background: var(--green); transform: translateY(-4px); }
+.svc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.svc-head h3 { margin: 0; }
+.svc-ico { flex: 0 0 auto; transition: transform .4s cubic-bezier(.2,.8,.2,1.4); }
+.svc:hover .svc-ico { transform: rotate(-10deg) scale(1.18); }
+.anim .svc.drawn .svc-ico { animation: pop .5s cubic-bezier(.2,.8,.2,1) both; }
+.anim .svc:nth-child(2).drawn .svc-ico { animation-delay: .12s; } .anim .svc:nth-child(3).drawn .svc-ico { animation-delay: .24s; }
+.anim .svc:nth-child(4).drawn .svc-ico { animation-delay: .36s; } .anim .svc:nth-child(5).drawn .svc-ico { animation-delay: .48s; } .anim .svc:nth-child(6).drawn .svc-ico { animation-delay: .6s; }
+/* Review faces: coloured ring */
+.review-card .avatar { box-shadow: 0 0 0 3px var(--green), 0 0 0 5px var(--navy); }
