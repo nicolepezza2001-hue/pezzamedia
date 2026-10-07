@@ -134,3 +134,4 @@
   .anim .versus-table i { transform: none; }
   .sticky-cta:not(.away) { animation: none; }
 }
+.proof-icon { display: inline-flex; height: 22px; align-items: center; }
