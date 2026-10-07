@@ -181,3 +181,25 @@
 .case-card h3 { border-top-color: rgba(20,27,65,.2); }
 .case-card .tags li { background: var(--green); color: var(--navy); }
 .case-card:hover { box-shadow: 0 18px 36px rgba(20,27,65,.18); }
+/* Email section: pink ground, navy as accent */
+.journey { background: var(--pink); color: var(--navy); }
+.journey .section-title, .journey-lead, .results-note { color: var(--navy); }
+.journey-label { color: var(--navy); }
+.journey-map li { background: var(--cream); color: var(--navy); }
+.journey-map li:not(:last-child)::after { color: var(--navy); }
+.journey-map li.lit { background: var(--navy); color: var(--cream); box-shadow: 0 0 0 3px var(--green), 0 14px 30px rgba(20,27,65,.25); }
+.journey-map li.lit b, .journey-map li.lit span, .journey-map li.lit small { color: var(--cream); opacity: 1; }
+.chips li { border-color: var(--navy); color: var(--navy); }
+.chips li:hover { background: var(--navy); color: var(--cream); }
+.result-card { background: var(--navy); border: 0; color: var(--cream); }
+.result-card:hover { background: var(--navy); box-shadow: 0 14px 30px rgba(20,27,65,.25); }
+.offer { background: var(--cream); color: var(--navy); }
+/* Review avatars */
+.review-card footer { display: flex; align-items: center; gap: 14px; }
+.review-card .avatar { flex: 0 0 auto; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--navy); font-style: normal; font-size: 19px; letter-spacing: 1px; box-shadow: 0 0 0 3px var(--cream), 0 0 0 4px rgba(20,27,65,.2); }
+.review-card:nth-child(3n+2) .avatar { background: var(--pink); }
+.review-card:nth-child(3n) .avatar { background: var(--navy); color: var(--cream); }
+/* Required marks */
+.field .req { color: #b4234a; font-weight: 700; }
+.review-card:nth-child(3n+2) .avatar { background: var(--cream); }
+.review-card footer .who span { text-transform: none; }
