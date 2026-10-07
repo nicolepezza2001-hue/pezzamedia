@@ -1,0 +1,2002 @@
+<!doctype html>
+<html lang="en-US">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<link rel="stylesheet" href="https://pezzamedia.com/wp-content/themes/hello-elementor/css/slick.css" />
+   <link rel="stylesheet" href="https://pezzamedia.com/wp-content/themes/hello-elementor/css/slick-theme.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+(function () {
+  // ===== 1) Debounce form submit (no disabling, no locking) =====
+  var lastSubmitAt = new WeakMap();
+
+  // Run in the capture phase so we see the submit before CF7,
+  // but DO NOT block the first one.
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form || !form.closest('.wpcf7')) return;
+
+    var now  = performance.now ? performance.now() : Date.now();
+    var last = lastSubmitAt.get(form) || 0;
+
+    // If a second submit happens within 800ms, cancel it.
+    if (now - last < 800) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+    lastSubmitAt.set(form, now);
+  }, true);
+
+  // ===== 2) Prevent iOS "touch→synthetic click" double fire =====
+  var lastTapAt = new WeakMap();
+  function tapGuard(ev) {
+    var btn = ev.target && ev.target.closest('.wpcf7 form input[type="submit"], .wpcf7 form button[type="submit"]');
+    if (!btn) return;
+    var form = btn.form || btn.closest('form');
+
+    var now  = performance.now ? performance.now() : Date.now();
+    var last = lastTapAt.get(form) || 0;
+
+    if (now - last < 700) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      return false;
+    }
+    lastTapAt.set(form, now);
+  }
+  // iOS needs passive:false so preventDefault() actually works
+  document.addEventListener('touchstart', tapGuard, { capture: true, passive: false });
+
+  // ===== 3) De-duplicate CF7 tips (keep only the first per field) =====
+  function dedupe(root) {
+    (root || document).querySelectorAll('.wpcf7-form-control-wrap').forEach(function (wrap) {
+      var tips = wrap.querySelectorAll('.wpcf7-not-valid-tip');
+      for (var i = 1; i < tips.length; i++) tips[i].remove();
+    });
+  }
+
+  // After CF7 finishes validating
+  document.addEventListener('wpcf7invalid', function (e) { dedupe(e.target); }, true);
+
+  // If any script injects tips later, clean them up
+  var obs = new MutationObserver(function () {
+    if (obs._raf) cancelAnimationFrame(obs._raf);
+    obs._raf = requestAnimationFrame(function () { dedupe(document); });
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.wpcf7').forEach(function (f) {
+      obs.observe(f, { childList: true, subtree: true });
+    });
+  });
+})();
+</script>
+
+<style>
+.wpcf7 form input[type="submit"],
+.wpcf7 form button[type="submit"] { touch-action: manipulation; }
+.wpcf7 form.submitting input[type="submit"],
+.wpcf7 form.submitting button[type="submit"] { pointer-events: none; opacity: .7; }
+/* If more than one tip appears in the same wrapper, show only the first */
+.wpcf7 .wpcf7-form-control-wrap .wpcf7-not-valid-tip ~ .wpcf7-not-valid-tip { display: none !important; }
+
+</style>
+	<title>Nicole</title>
+<meta name='robots' content='max-image-preview:large' />
+	<style>img:is([sizes="auto" i], [sizes^="auto," i]) { contain-intrinsic-size: 3000px 1500px }</style>
+	<link rel="alternate" type="application/rss+xml" title="Nicole &raquo; Feed" href="https://pezzamedia.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Nicole &raquo; Comments Feed" href="https://pezzamedia.com/comments/feed/" />
+<script>
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/16.0.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/16.0.1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/pezzamedia.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=6.8.10"}};
+/*! This file is auto-generated */
+!function(s,n){var o,i,e;function c(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function p(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data),a=(e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0),new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data));return t.every(function(e,t){return e===a[t]})}function u(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);for(var n=e.getImageData(16,16,1,1),a=0;a<n.data.length;a++)if(0!==n.data[a])return!1;return!0}function f(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\udedf")}return!1}function g(e,t,n,a){var r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):s.createElement("canvas"),o=r.getContext("2d",{willReadFrequently:!0}),i=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(function(e){i[e]=t(o,e,n,a)}),i}function t(e){var t=s.createElement("script");t.src=e,t.defer=!0,s.head.appendChild(t)}"undefined"!=typeof Promise&&(o="wpEmojiSettingsSupports",i=["flag","emoji"],n.supports={everything:!0,everythingExceptFlag:!0},e=new Promise(function(e){s.addEventListener("DOMContentLoaded",e,{once:!0})}),new Promise(function(t){var n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+g.toString()+"("+[JSON.stringify(i),f.toString(),p.toString(),u.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"}),r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=function(e){c(n=e.data),r.terminate(),t(n)})}catch(e){}c(n=g(i,f,p,u))}t(n)}).then(function(e){for(var t in e)n.supports[t]=e[t],n.supports.everything=n.supports.everything&&n.supports[t],"flag"!==t&&(n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&n.supports[t]);n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&!n.supports.flag,n.DOMReady=!1,n.readyCallback=function(){n.DOMReady=!0}}).then(function(){return e}).then(function(){var e;n.supports.everything||(n.readyCallback(),(e=n.source||{}).concatemoji?t(e.concatemoji):e.wpemoji&&e.twemoji&&(t(e.twemoji),t(e.wpemoji)))}))}((window,document),window._wpemojiSettings);
+</script>
+<style id='wp-emoji-styles-inline-css'>
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+</style>
+<style id='global-styles-inline-css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:root { --wp--style--global--content-size: 800px;--wp--style--global--wide-size: 1200px; }:where(body) { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }:where(.wp-site-blocks) > * { margin-block-start: 24px; margin-block-end: 0; }:where(.wp-site-blocks) > :first-child { margin-block-start: 0; }:where(.wp-site-blocks) > :last-child { margin-block-end: 0; }:root { --wp--style--block-gap: 24px; }:root :where(.is-layout-flow) > :first-child{margin-block-start: 0;}:root :where(.is-layout-flow) > :last-child{margin-block-end: 0;}:root :where(.is-layout-flow) > *{margin-block-start: 24px;margin-block-end: 0;}:root :where(.is-layout-constrained) > :first-child{margin-block-start: 0;}:root :where(.is-layout-constrained) > :last-child{margin-block-end: 0;}:root :where(.is-layout-constrained) > *{margin-block-start: 24px;margin-block-end: 0;}:root :where(.is-layout-flex){gap: 24px;}:root :where(.is-layout-grid){gap: 24px;}.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){max-width: var(--wp--style--global--content-size);margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignwide{max-width: var(--wp--style--global--wide-size);}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}a:where(:not(.wp-element-button)){text-decoration: underline;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;line-height: inherit;padding: calc(0.667em + 2px) calc(1.333em + 2px);text-decoration: none;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel='stylesheet' id='contact-form-7-css' href='https://pezzamedia.com/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=6.1.1' media='all' />
+<link rel='stylesheet' id='hello-elementor-css' href='https://pezzamedia.com/wp-content/themes/hello-elementor/assets/css/reset.css?ver=3.4.4' media='all' />
+<link rel='stylesheet' id='hello-elementor-theme-style-css' href='https://pezzamedia.com/wp-content/themes/hello-elementor/assets/css/theme.css?ver=3.4.4' media='all' />
+<link rel='stylesheet' id='hello-elementor-header-footer-css' href='https://pezzamedia.com/wp-content/themes/hello-elementor/assets/css/header-footer.css?ver=3.4.4' media='all' />
+<link rel='stylesheet' id='elementor-frontend-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/frontend.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='elementor-post-6-css' href='https://pezzamedia.com/wp-content/uploads/elementor/css/post-6.css?ver=1791317575' media='all' />
+<link rel='stylesheet' id='dashicons-css' href='https://pezzamedia.com/wp-includes/css/dashicons.min.css?ver=6.8.10' media='all' />
+<link rel='stylesheet' id='widget-icon-list-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/widget-icon-list.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='widget-heading-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/widget-heading.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='widget-image-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/widget-image.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='swiper-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css?ver=8.4.5' media='all' />
+<link rel='stylesheet' id='e-swiper-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/conditionals/e-swiper.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='widget-image-carousel-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/css/widget-image-carousel.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='e-animation-slideInUp-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/lib/animations/styles/slideInUp.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='e-animation-zoomIn-css' href='https://pezzamedia.com/wp-content/plugins/elementor/assets/lib/animations/styles/zoomIn.min.css?ver=3.31.1' media='all' />
+<link rel='stylesheet' id='elementor-post-12-css' href='https://pezzamedia.com/wp-content/uploads/elementor/css/post-12.css?ver=1791317575' media='all' />
+<link rel='stylesheet' id='eael-general-css' href='https://pezzamedia.com/wp-content/plugins/essential-addons-for-elementor-lite/assets/front-end/css/view/general.min.css?ver=6.2.2' media='all' />
+<script src="https://pezzamedia.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script src="https://pezzamedia.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<link rel="https://api.w.org/" href="https://pezzamedia.com/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://pezzamedia.com/wp-json/wp/v2/pages/12" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://pezzamedia.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.8.10" />
+<link rel="canonical" href="https://pezzamedia.com/" />
+<link rel='shortlink' href='https://pezzamedia.com/' />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://pezzamedia.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fpezzamedia.com%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://pezzamedia.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fpezzamedia.com%2F&#038;format=xml" />
+<style id="essential-blocks-global-styles">
+            :root {
+                --eb-global-primary-color: #101828;
+--eb-global-secondary-color: #475467;
+--eb-global-tertiary-color: #98A2B3;
+--eb-global-text-color: #475467;
+--eb-global-heading-color: #1D2939;
+--eb-global-link-color: #444CE7;
+--eb-global-background-color: #F9FAFB;
+--eb-global-button-text-color: #FFFFFF;
+--eb-global-button-background-color: #101828;
+--eb-gradient-primary-color: linear-gradient(90deg, hsla(259, 84%, 78%, 1) 0%, hsla(206, 67%, 75%, 1) 100%);
+--eb-gradient-secondary-color: linear-gradient(90deg, hsla(18, 76%, 85%, 1) 0%, hsla(203, 69%, 84%, 1) 100%);
+--eb-gradient-tertiary-color: linear-gradient(90deg, hsla(248, 21%, 15%, 1) 0%, hsla(250, 14%, 61%, 1) 100%);
+--eb-gradient-background-color: linear-gradient(90deg, rgb(250, 250, 250) 0%, rgb(233, 233, 233) 49%, rgb(244, 243, 243) 100%);
+
+                --eb-tablet-breakpoint: 1024px;
+--eb-mobile-breakpoint: 767px;
+
+            }
+            
+            
+        </style><meta name="generator" content="Elementor 3.31.1; features: e_font_icon_svg, additional_custom_breakpoints, e_element_cache; settings: css_print_method-external, google_font-enabled, font_display-swap">
+			<style>
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload),
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload) * {
+					background-image: none !important;
+				}
+				@media screen and (max-height: 1024px) {
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+				@media screen and (max-height: 640px) {
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+			</style>
+			<link rel="icon" href="https://pezzamedia.com/wp-content/uploads/2025/08/cropped-image-30-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://pezzamedia.com/wp-content/uploads/2025/08/cropped-image-30-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://pezzamedia.com/wp-content/uploads/2025/08/cropped-image-30-180x180.png" />
+<meta name="msapplication-TileImage" content="https://pezzamedia.com/wp-content/uploads/2025/08/cropped-image-30-270x270.png" />
+		<style id="wp-custom-css">
+			body {
+	  font-family: "EB Garamond", serif !important;
+  font-style: normal;
+}
+/* popup styling */
+.popup-overlay {
+	position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.58);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.popup {
+background: #FBF4D7;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: popupFade 0.3s ease forwards;
+}
+
+.popup .icon {
+	font-size: 48px;
+	margin-bottom: 15px;
+	color: #7DE282;
+}
+
+.popup.warning .icon {
+	color: #eab308;
+}
+
+.popup h2 {
+	font-family: 'EB Garamond';
+	font-style: normal;
+	font-weight: 700;
+	font-size: 24px;
+	color: #141B41;
+	margin: 15px 0 10px 0;
+}
+
+.popup p {
+	font-family: 'EB Garamond';
+	font-style: normal;
+	font-size: 16px;
+	font-weight:400;
+	color: #141B41;
+	margin-bottom: 20px;
+	margin-top: 0;
+}
+
+.popup button {
+	font-family: 'EB Garamond';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 32px;
+	letter-spacing: 0.02em;
+	color: #141B41;
+	background-color: #9CDE9F;
+	height: 46px;
+	border-radius: 12px;
+	border: none;
+	padding: 7px 32px 10px 32px;
+	transition: background 0.2s;
+	cursor: pointer;
+}
+
+.popup button:hover {
+	background: #7DE282;
+}
+
+.popup.warning button {
+	background: #eab308;
+}
+
+.popup.warning button:hover {
+	background: #ecb308;
+}
+
+.popup .close {
+	position: absolute;
+	top: 5px;
+	right: 17px;
+	font-size: 32px;
+	cursor: pointer;
+	color: #141B41;
+	transition: 0.2s;
+}
+
+.popup .close:hover {
+	opacity: 0.9;
+}
+
+@keyframes popupFade {
+	from {
+		transform: translateY(-20px);
+		opacity: 0;
+	}
+
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+/* end of popup styling */
+.contact-btn .elementor-button {
+	display:block;
+	height: 48px;
+	width: 145px;
+	margin-left:auto;
+}
+.footer-container{
+	overflow: hidden;
+width: 100%;
+}
+.banner-title .elementor-heading-title  {
+    max-width: 800px;
+    margin: auto;
+}
+.banner-title .elementor-heading-title span {
+	text-transform: lowercase;
+}
+.home-banner-box, .service-strategies-wrap .strategies-box, .business-container {
+	position: relative;
+}
+.freelance-title-underline, .greet-name-underline, .services-title-underline, .business-title-underline, .busy-title-underline, .saying-title-underline {
+  position: relative;
+	z-index: 9;
+}
+
+.freelance-title-underline::after {
+    position: absolute;
+    content: "";
+    top: 75%;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/Vector-1.png");
+    width: 110%;
+    height: 100%;
+    background-repeat: no-repeat;
+    left: -7px;
+    z-index: -1;
+    pointer-events: none;
+}
+.greet-name-underline::after {
+    position: absolute;
+    content: "";
+    top: 87%;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/Vector-5.png");
+    height: 100%;
+    background-repeat: no-repeat;
+    left: -27px;
+    width: 160px;
+    z-index: -1;
+    pointer-events: none;
+}
+.services-title-underline::after {
+   position: absolute;
+    content: "";
+    top: 72%;
+    background-image: url(https://pezzamedia.com/wp-content/uploads/2025/08/Vector-2.png);
+    height: 100%;
+    background-repeat: no-repeat;
+    left: 3px;
+    width: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+.busy-title-underline::after {
+   position: absolute;
+    content: "";
+     top: 71%;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/busy.png");
+    height: 100%;
+    background-repeat: no-repeat;
+    left: -2px;
+    width: 105%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.saying-title-underline::after {
+	 position: absolute;
+    content: "";
+     top: 74%;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/saying.png");
+    height: 100%;
+    background-repeat: no-repeat;
+    left: -7px;
+    width: 105%;
+    z-index: -1;
+    pointer-events: none;
+}
+/*  end of underlines tilt */
+.business-title-underline::after {
+   position: absolute;
+    content: "";
+    top: 72%;
+    background-image: url(https://pezzamedia.com/wp-content/uploads/2025/08/business.png);
+    height: 100%;
+    background-repeat: no-repeat;
+    left: 0;
+    width: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+.home-banner-box::before {
+	content: "";
+	position: absolute;
+	top: 0;
+  left: 0;
+	background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/left-banner.png");
+	background-repeat: no-repeat;
+	 pointer-events: none;
+}
+.home-banner-box::after {
+	content: "";
+	position: absolute;
+	top: 0;
+  right: 0;
+	background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/right-banner.png");
+	background-repeat: no-repeat;
+	 pointer-events: none;
+	width: 35%;
+    height: 100%;
+}
+.banner-slider {
+	overflow: hidden;
+	width: 100%;
+}
+.service-strategies-wrap .strategies-box::after{
+content: '';
+    position: absolute;
+    top: 90%;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/Clip-path-group.png");
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.service-strategies-wrap .strategies-box:last-child::after {
+	display: none !important;
+}
+.service-strategies-wrap .strategies-box {
+	margin-bottom: 0 !important;
+}
+.business-container::after {
+	content: "";
+	position: absolute;
+	top: 0;
+  right: 0;
+	background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/Clip-path-group-1.png");
+	background-repeat: no-repeat;
+	 pointer-events: none;
+	width: 16%;
+	height: 95%;
+	background-size: contain;
+	background-position: right top;
+}
+/* job slider */
+.job-description-slider .slick-track {
+	display: flex !important;
+	align-items: stretch;
+}
+
+.job-description-slider .slick-slide {
+	display: flex !important;
+	justify-content: center;
+	height: auto !important;
+}
+.job-description-slider .slick-prev::before, .job-description-slider .slick-next::before {
+	display: none;
+}
+
+.job-description-slider .slide-card {
+	background: url('https://pezzamedia.com/wp-content/uploads/2025/08/Group-2863998.png') no-repeat center center;
+	background-size: 100% 100%;
+	margin: 0 10px;
+	flex: 1 1 auto;
+	display: flex;
+	align-items: stretch;
+	box-sizing: border-box;
+	transition: 0.4s linear;
+	margin-top: 8px;
+}
+
+.job-description-slider .card-inner {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 50px 52px;
+	text-align: center;
+	width: 100%;
+}
+.job-description-slider .slide-card:hover {
+	transform: translateY(-8px);
+}
+
+.job-description-slider .card-inner h3 {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 24px;
+	line-height: 32px;
+	letter-spacing: 0.02em;
+	color: #141B41;
+	margin-bottom: 20px;
+}
+
+.job-description-slider .card-inner p {
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 28px;
+	letter-spacing: 0.02em;
+	color: #141B41;
+	margin-bottom: 20px;
+	flex-grow: 1;
+}
+
+.job-description-slider .card-inner .tags {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.job-description-slider .card-inner .tags span, .job-description-slider .card-inner .tags div span {
+	font-style: italic;
+	font-weight: 600;
+	font-size: 18px;
+	line-height: 23px;
+	color: #01010B;
+}
+.job-description-slider .card-inner .tags div {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 5px 10px;
+}
+.job-description-slider .dot-separator {
+	width: 10px;
+	height: 10px;
+	background-color: #01010B;
+	border-radius: 50%;
+	display: inline-block;
+	border: 2px solid #fbf4d7;
+	transform: translateY(1px);
+	outline: 2px solid #010101;
+    }
+/* testimonial */
+      .client-review-slider {
+    width: 100%;
+    position: relative;
+}
+
+.client-review-slider .review-card {
+    background-color: #DBC2CF;
+    padding: 44px 32px 20px 32px;
+    border-radius: 4px;
+    margin: 10px 12px 0 12px;
+transition: 0.4s linear;
+}
+.client-review-slider .review-card:hover {
+	transform: translateY(-8px);
+}
+.client-review-slider .review-text {
+    font-family: 'EB Garamond';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 32px;
+    letter-spacing: 0.02em;
+    color: #141B41;
+    margin: 0;
+}
+
+.client-review-slider .review-author {
+    font-family: 'EB Garamond';
+    font-style: italic;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 32px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #141B41;
+    margin: 24px 0;
+}
+
+.client-review-slider .review-author span {
+    text-transform: capitalize;
+}
+
+.client-review-slider .stars img {
+    max-width: 100%;
+    height: auto;
+}
+
+.client-review-slider .slick-prev,
+.client-review-slider .slick-next,
+.job-description-slider .slick-prev,
+.job-description-slider .slick-next{
+    width: 50px;
+    height: 50px;
+	font-size: 0;
+    background: url('https://pezzamedia.com/wp-content/uploads/2025/08/arrow-right.png') no-repeat center center !important;
+    background-size: contain !important;
+    z-index: 10;
+    opacity: 1 !important;
+    border: none;
+    outline: none;
+}
+
+.client-review-slider .slick-prev{
+    left: unset !important;
+    right: 88px !important;
+    top: -90px !important;
+}
+
+.client-review-slider .slick-next{
+    transform: rotate(180deg);
+    right: 0 !important;
+    top: -115px !important;
+}
+	.job-description-slider .slick-prev{
+		left: unset !important;
+    right: 88px !important;
+    top: -73px !important;
+	}
+	.job-description-slider .slick-next {
+		transform: rotate(180deg);
+    right: 0 !important;
+		top: -100px !important;
+	}
+.client-review-slider .slick-prev::before,
+.client-review-slider .slick-next::before,
+.client-review-slider .slick-prev:hover::before,
+.client-review-slider .slick-next:hover::before,
+.client-review-slider .slick-prev:focus::before,
+.client-review-slider .slick-next:focus::before {
+    content: none !important;
+    display: none !important;
+    opacity: 0 !important;
+}
+
+.client-review-slider .slick-prev:focus,
+.client-review-slider .slick-next:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.star-rating i {
+  color: #191919;
+  font-size: 30px;
+}
+/* enquire form */
+.enquiry-form-wrapper{
+	max-width: 920px;
+  margin:0 auto;
+	padding-left: 20px;
+}
+.enquiry-form {
+	padding: 60px 80px;
+    background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/DBC2CF-5-1.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+	margin-bottom: 32px;
+}
+.enquiry-form .stamps {
+	display: flex;
+	align-items: center;
+justify-content: space-between;
+}
+.same-size-stamp p {
+	display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.enquiry-form .empress-stamp {
+	max-width: 220px;
+}
+.enquiry-form label {
+	font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+    line-height: normal;
+    letter-spacing: 0px;
+    color: #000;
+	margin-bottom: 5px;
+}
+.envelope-form-flex {
+    display: flex;
+    align-items: flex-start;
+	gap: 25px;
+}
+.envelope-form-flex  div {
+	flex: 1;
+}
+.wpcf7-response-output, .wpcf7-spinner {
+	display: none;
+}
+.enquiry-form .name-field {
+	width: 48%;
+	margin-top: -25px;
+}
+.envelope-form-flex div:last-child p {
+    text-align: right;
+}
+.enquiry-form input, .enquiry-form textarea {
+ height: 40px;
+	border: 4px solid #DBC2CF !important;
+	border-radius: 6px;
+	background: transparent;
+	width: 100%;
+	outline: none;
+	font-size: 16px;
+	font-weight: 400;
+	font-style: normal;
+	line-height: normal;
+	letter-spacing: 0px;
+  padding: 12px;
+/* 	margin-bottom: 25px; */
+}
+.enquiry-form p {
+	margin-bottom: 25px;
+}
+.empress-stamp-text{
+	display: none;
+		font-size: 18px;
+	font-weight: 700;
+	font-style: normal;
+	line-height: normal;
+	text-align: center;
+}
+.enquiry-form textarea {
+	height: 68px !important;
+	resize: none;
+}
+.enquiry-form-wrapper .wpcf7-submit {
+	font-family: 'EB Garamond';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 20px;
+	line-height: 32px;
+	letter-spacing: 0.02em;
+	color: #141B41;
+  background-color: #9CDE9F;
+  height:56px;
+	border-radius: 20px;
+  border: none;
+	padding: 8px 32px;
+	transition: 0.2 linear;
+}
+.enquiry-form-wrapper .wpcf7-submit:hover{
+	background: #7DE282;
+}
+.wpcf7-not-valid-tip{
+	font-size: 14px;
+	margin-top: 4px;
+}
+/* custm menu */
+body.no-scroll {
+  overflow: hidden;
+}
+
+/* Hide mobile toggle & show desktop menu by default */
+.header-toggle {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 997;
+  position: relative;
+}
+
+.desktop-menu {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+}
+
+
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0; 
+	left: 0;
+  width: 100%;
+	height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 998;
+}
+
+.custom-menu-list {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: -300px; 
+  width: 250px;
+  height: 100%;
+  background: #FBF4D7;
+  padding: 0 0 20px 0;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+  z-index: 999;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.custom-menu-list li {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.3s ease;
+  padding: 16px 20px;
+	  font-weight: 400;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: 0px;
+    color: #000;
+   font-size: 17px;
+		font-family: 'EB Garamond';
+	
+}
+.custom-menu-list.show li:hover,
+.custom-menu-list li.active{
+	  background-color: #9cde9f7d;
+}
+.custom-menu-list li a svg {
+    color: #606060b3;
+    margin-right: 12px;
+    width: 17px;
+	  height: 22px;
+}
+.custom-menu-list li a {
+	color: #000 !important;
+    display: flex;
+    align-items: center
+}
+.custom-menu-list li:first-child:hover {
+	background-color: unset;
+}
+.custom-menu-list li:first-child {
+	padding: 16px 20px 0 20px;
+	font-size: 23px;
+}
+.custom-menu-list li:first-child,
+.custom-menu-list li:last-child {
+	border-bottom: none;
+}
+.menu-close-btn {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 0;
+}
+
+.custom-menu-list.show li {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.custom-menu-list.show {
+  left: 0;
+  transition: left 0.4s ease;
+}
+body.no-scroll {
+  overflow: hidden;
+}
+
+
+@media only screen and (min-width: 1221px) and  (max-width: 1510px)
+ {
+	 .home-banner-box::before, .home-banner-box::after {
+		background-size: contain;
+    width: 500px;
+    height: 490px;
+	 }
+}
+@media only screen and (min-width: 1025px) and  (max-width: 1220px)
+ {
+	 .freelance-title-underline {
+		display: block;
+    width: 160px;
+    margin: auto;
+	}
+	 .home-banner-box::before, .home-banner-box::after {
+		background-size: contain;
+    width: 360px;
+    height: 375px;
+	 }
+	 .home-banner-box::before {
+		 left: -20px;
+	 }
+	 .home-banner-box::after {
+		 right: -20px;
+	 }
+}
+@media only screen and (max-width: 1024px) {
+	.service-strategies-wrap .strategies-box::after {
+		top: 94%;
+	}
+	.business-container::before {
+	content: "";
+	position: absolute;
+  left: 0;
+	background-image: url("https://pezzamedia.com/wp-content/uploads/2025/08/Clip-path-group-2.png");
+	background-repeat: no-repeat;
+	 pointer-events: none;
+	width: 18%;
+	height: 100%;
+	background-size: contain;
+	bottom: 0;
+  background-position: left bottom;
+  pointer-events: none;
+}
+	.business-container::after {
+		 width: 22%;
+		height: 100%;
+  }
+	.freelance-title-underline {
+		display: block;
+    width: 160px;
+    margin: auto;
+	}
+	.home-banner-box::before{
+		width: 35%;
+    height: 58%;
+    background-size: contain;
+		left: -20px;
+	}
+	.home-banner-box::after {
+		right: -20px;
+		width: 35%;
+    height: 58%;
+    background-size: contain;
+	}
+	.services-title-underline::after {
+		top: 67%;
+		left: -3px;
+	}
+	.client-review-slider .review-card {
+		  margin: 0 5px;
+	}
+	.job-description-slider .slide-card:hover {
+		transform: unset;
+	}
+}
+@media only screen and (max-width: 767px ) {
+	
+.client-review-slider .slick-next, .job-description-slider .slick-next {
+    transform: rotate(180deg);
+    right: unset !important;
+    top: unset !important;
+    bottom: -87px;
+    left: 60%;
+}
+	.client-review-slider .slick-prev, .job-description-slider .slick-prev {
+    left: 35% !important;
+    right: unset !important;
+    top: unset !important;
+    bottom: -113px;
+}
+
+	.service-strategies-wrap .strategies-box::after {
+		top: 97%;
+	}
+	.empress-stamp, .same-size-stamp p br {
+		display: none;
+	}
+	.empress-stamp-text {
+		display: block;
+		margin-left: 15px;
+	}
+	.client-review-slider .review-card {
+		    padding: 44px 20px 20px 20px;
+	}
+	.client-review-slider .review-text, .job-description-slider .card-inner .tags span, .job-description-slider .card-inner .tags div span, .job-description-slider .card-inner p {
+		font-size: 14px;
+    line-height: 20px;
+	}
+	.job-description-slider .card-inner{
+		padding: 28px 34px 40px 34px;
+	}
+	.client-review-slider .review-author {
+		font-size: 22px;
+		line-height: 24px;
+   margin: 16px 0;
+	}
+	.job-description-slider .card-inner h3 {
+		font-size: 22px;
+		line-height: 24px;
+		margin-bottom: 14px;
+	}
+
+	.home-banner-box::before,.home-banner-box::after {
+        width: 165px;
+        height: 159px;
+	}
+	.home-banner-box::before{
+		left:0;
+	}
+.home-banner-box::after {
+		right: 0;
+	}
+.greet-name-underline::after {
+    left: -10px;
+    width: 124%;
+    background-size: contain;
+   }
+.services-title-underline::after {
+        top: 70%;
+        left: -3px;
+        width: 100%;
+        background-size: contain;
+    }
+	.busy-title-underline::after {
+		width: 100%;
+		top: 66%;
+	}
+	.business-title-underline::after{
+		top: -1px !important;
+    transform: rotate(181deg);
+	}
+	.saying-title-underline::after {
+    top: 0px !important;
+    left: -9px;
+    width: 112%;
+    transform: rotate(183deg);
+  }
+	.enquiry-form {
+    padding: 22px 30px;
+		background-size: 100% 100%;
+	}
+	.same-size-stamp p {
+		gap 8px;
+	}
+	.enquiry-form p {
+    margin-bottom: 8px;
+   }
+	.envelope-form-flex {
+		flex-direction: column;
+		gap: 8px;
+	}
+	.enquiry-form .name-field {
+    width: 100%;
+    margin-top: 10px;
+   }
+	.same-size-stamp p img {
+		max-width: 65px;
+		height: 98px;
+	}
+	.enquiry-form-wrapper .wpcf7-submit {
+		width: 100%;
+		border-radius: 8px;
+		font-size: 24px;
+	}
+	  .header-toggle {
+    display: block;
+  }
+  .desktop-menu {
+    display: none;
+  }
+	.left-header {
+		justify-content: flex-end !important;
+	}
+	.stick-header {
+		position: sticky;
+		 width: 100%;
+    top: 0;
+    z-index: 999;
+ box-sizing: border-box;
+    background-color: #fbf4d7;
+	}
+		.business-container::after, .business-container::before {
+		 width: 32%;
+  }
+	.typing-text {
+		min-height: 60px;
+	}
+	.envelope-form-flex div:last-child p {
+    text-align: left;
+}
+	.popup{
+	 max-width: 380px;
+		padding: 20px;
+	}
+	.popup h2 {
+		font-size: 22px;
+    margin-bottom: 6px;
+	}
+}		</style>
+		</head>
+<body class="home wp-singular page-template page-template-elementor_header_footer page page-id-12 wp-embed-responsive wp-theme-hello-elementor hello-elementor-default elementor-default elementor-template-full-width elementor-kit-6 elementor-page elementor-page-12">
+ <!-- Success Popup -->
+    <div class="popup-overlay" id="successPopup">
+        <div class="popup success">
+            <span class="close" onclick="closePopup('successPopup')">&times;</span>
+            <div class="icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Submitted Successfully!</h2>
+            <p>Thank you for your enquiry, I will be in touch shortly.</p>
+            <button onclick="closePopup('successPopup')">Close</button>
+        </div>
+    </div>
+
+    <!-- Warning Popup -->
+    <div class="popup-overlay" id="warningPopup">
+        <div class="popup warning">
+            <span class="close" onclick="closePopup('warningPopup')">&times;</span>
+            <div class="icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Submission Failed</h2>
+            <p>Please check the form and try again.</p>
+            <button class="close-btn" onclick="closePopup('warningPopup')">Try Again</button>
+        </div>
+    </div>
+
+<a class="skip-link screen-reader-text" href="#content">Skip to content</a>
+
+		<div data-elementor-type="wp-page" data-elementor-id="12" class="elementor elementor-12">
+				<div class="elementor-element elementor-element-4225f7a stick-header e-flex e-con-boxed e-con e-parent" data-id="4225f7a" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-5951e69 e-grid e-con-full e-con e-child" data-id="5951e69" data-element_type="container">
+		<div class="elementor-element elementor-element-3dc01c6 e-grid e-con-full e-con e-child" data-id="3dc01c6" data-element_type="container">
+				<div class="elementor-element elementor-element-cb6d435 elementor-widget elementor-widget-html" data-id="cb6d435" data-element_type="widget" data-widget_type="html.default">
+					<div class="header-toggle">
+  <i class="fa-solid fa-bars"></i>
+</div>
+
+<ul class="custom-menu-list">
+  <li class="menu-close-btn">
+    <i class="fa-solid fa-times"></i>
+  </li>
+    <li><a href="#greeting-section"><i data-lucide="info"></i> About</a></li>
+  <li><a href="#copyright-section"><i data-lucide="briefcase"></i> Services</a></li>
+  <li><a href="#portfolio-section"><i data-lucide="folder-open"></i> Portfolio</a></li>
+</ul>
+
+<div class="menu-overlay"></div>
+				</div>
+				</div>
+		<div class="elementor-element elementor-element-92ed16c e-grid e-con-full left-header e-con e-child" data-id="92ed16c" data-element_type="container">
+				<div class="elementor-element elementor-element-4f32fe2 elementor-icon-list--layout-inline elementor-align-right menu-list elementor-tablet-align-center elementor-hidden-mobile elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="4f32fe2" data-element_type="widget" data-widget_type="icon-list.default">
+							<ul class="elementor-icon-list-items elementor-inline-items">
+							<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="#greeting-section">
+
+											<span class="elementor-icon-list-text">ABOUT</span>
+											</a>
+									</li>
+								<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="#copyright-section">
+
+											<span class="elementor-icon-list-text">SERVICES</span>
+											</a>
+									</li>
+								<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="#portfolio-section">
+
+											<span class="elementor-icon-list-text">PORTFOLIO</span>
+											</a>
+									</li>
+						</ul>
+						</div>
+				<div class="elementor-element elementor-element-ee2d2a6 elementor-align-right contact-btn elementor-mobile-align-right elementor-widget-mobile__width-inherit elementor-widget elementor-widget-button" data-id="ee2d2a6" data-element_type="widget" data-widget_type="button.default">
+										<a class="elementor-button elementor-button-link elementor-size-sm" href="mailto:nicolemariapezza@gmail.com">
+						<span class="elementor-button-content-wrapper">
+									<span class="elementor-button-text">Contact</span>
+					</span>
+					</a>
+								</div>
+				</div>
+				</div>
+					</div>
+				</div>
+		<div class="elementor-element elementor-element-73d6877 e-flex e-con-boxed e-con e-parent" data-id="73d6877" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-7f7056c e-con-full e-flex e-con e-child" data-id="7f7056c" data-element_type="container">
+		<div class="elementor-element elementor-element-25286de e-con-full home-banner-box e-flex e-con e-child" data-id="25286de" data-element_type="container">
+				<div class="elementor-element elementor-element-2941c40 banner-title elementor-widget elementor-widget-heading" data-id="2941c40" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default"><span class="freelance-title-underline">freelance</span> copywriter  <span>and </span>  klaviyo specialist
+</h2>				</div>
+				<div class="elementor-element elementor-element-8bc63c4 elementor-widget-mobile__width-initial typing-text elementor-widget elementor-widget-text-editor" data-id="8bc63c4" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Your ideas, my words, our success.</p>								</div>
+				<div class="elementor-element elementor-element-a65f372 elementor-align-center elementor-widget elementor-widget-button" data-id="a65f372" data-element_type="widget" data-widget_type="button.default">
+										<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+						<span class="elementor-button-content-wrapper">
+									<span class="elementor-button-text">Get in touch</span>
+					</span>
+					</a>
+								</div>
+				</div>
+				</div>
+		<div class="elementor-element elementor-element-ae16616 e-con-full e-grid leaf-slider e-con e-child" data-id="ae16616" data-element_type="container">
+		<div class="elementor-element elementor-element-0ddd35c e-con-full e-flex e-con e-child" data-id="0ddd35c" data-element_type="container">
+				<div class="elementor-element elementor-element-da4b85b elementor-widget elementor-widget-image" data-id="da4b85b" data-element_type="widget" data-widget_type="image.default">
+															<img fetchpriority="high" decoding="async" width="228" height="221" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-25.svg" class="attachment-full size-full wp-image-1661" alt="" />															</div>
+				</div>
+		<div class="elementor-element elementor-element-d03c429 e-con-full e-flex e-con e-child" data-id="d03c429" data-element_type="container">
+				<div class="elementor-element elementor-element-e9125cc elementor-widget elementor-widget-image" data-id="e9125cc" data-element_type="widget" data-widget_type="image.default">
+															<img decoding="async" width="228" height="221" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-27.svg" class="attachment-full size-full wp-image-1665" alt="" />															</div>
+				</div>
+		<div class="elementor-element elementor-element-18a5261 e-con-full e-flex e-con e-child" data-id="18a5261" data-element_type="container">
+				<div class="elementor-element elementor-element-e9c3329 elementor-widget elementor-widget-image" data-id="e9c3329" data-element_type="widget" data-widget_type="image.default">
+															<img decoding="async" width="228" height="221" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-30.svg" class="attachment-full size-full wp-image-1667" alt="" />															</div>
+				</div>
+				</div>
+					</div>
+				</div>
+		<div class="elementor-element elementor-element-6e1af2f e-con-full banner-slider e-flex e-con e-parent" data-id="6e1af2f" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+				<div class="elementor-element elementor-element-440a6c9 elementor-widget elementor-widget-image-carousel" data-id="440a6c9" data-element_type="widget" data-settings="{&quot;slides_to_show&quot;:&quot;7&quot;,&quot;navigation&quot;:&quot;none&quot;,&quot;slides_to_scroll&quot;:&quot;1&quot;,&quot;slides_to_show_tablet&quot;:&quot;4&quot;,&quot;slides_to_show_mobile&quot;:&quot;2&quot;,&quot;autoplay_speed&quot;:2000,&quot;speed&quot;:1200,&quot;autoplay&quot;:&quot;yes&quot;,&quot;infinite&quot;:&quot;yes&quot;,&quot;image_spacing_custom&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:20,&quot;sizes&quot;:[]},&quot;image_spacing_custom_tablet&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:&quot;&quot;,&quot;sizes&quot;:[]},&quot;image_spacing_custom_mobile&quot;:{&quot;unit&quot;:&quot;px&quot;,&quot;size&quot;:&quot;&quot;,&quot;sizes&quot;:[]}}" data-widget_type="image-carousel.default">
+							<div class="elementor-image-carousel-wrapper swiper" role="region" aria-roledescription="carousel" aria-label="Image Carousel" dir="ltr">
+			<div class="elementor-image-carousel swiper-wrapper" aria-live="off">
+								<div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="1 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Group-11-r9wj9dcxhs6a1m60pww3jznw2m23rgi868sorm5f8e.png" alt="Simply Nootropics" /><figcaption class="elementor-image-carousel-caption">Simply Nootropics</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="2 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-888-1-rarmgg2s87mand4r4yapnoet8sh4jva70jw5wa663i.png" alt="Diamocycle" /><figcaption class="elementor-image-carousel-caption">Diamocycle</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="3 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Group-13-1-rarmgf4y1dl0br64afw336ncnelrc66gof8of07k9q.png" alt="Let’s Wander" /><figcaption class="elementor-image-carousel-caption">Let’s Wander</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="4 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-875-r9wj9omzrslpwxpmw1rmdwtf78iibtr07smiixop5q.png" alt="The Archive" /><figcaption class="elementor-image-carousel-caption">The Archive</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="5 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-877-r9wj9mrbe4j59psd70yd8xai0grrwfjjjjbjkdrhi6.png" alt="Alpha Wealth Group" /><figcaption class="elementor-image-carousel-caption">Alpha Wealth Group</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="6 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-890-rais41on9x71zm02tmqvg64el1bsknagcu8u54mc0u.png" alt="Moonrunners" /><figcaption class="elementor-image-carousel-caption">Moonrunners</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="7 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-879-r9wj9jxstmfaavwgnhqhjg048b5o9c8cj5d34jvo0u.png" alt="Medium" /><figcaption class="elementor-image-carousel-caption">Medium</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="8 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-880-r9wj9i24fycpnnz6ygx8egh71jexty0vuw245zygda.png" alt="Let’s Wander" /><figcaption class="elementor-image-carousel-caption">Let’s Wander</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="9 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-383-r9wj9h4a94bfc20k3yiltypqg5jkm8x5iremopzuji.png" alt="Delaway Digital" /><figcaption class="elementor-image-carousel-caption">Delaway Digital</figcaption></figure></div><div class="swiper-slide" role="group" aria-roledescription="slide" aria-label="10 of 10"><figure class="swiper-slide-inner"><img decoding="async" class="swiper-slide-image" src="https://pezzamedia.com/wp-content/uploads/elementor/thumbs/Frame-882-r9wj9f8lvg8uou3aexpcoz6t9dsu6upoui3nq62mvy.png" alt="The Good Electrical Company" /><figcaption class="elementor-image-carousel-caption">The Good Electrical Company</figcaption></figure></div>			</div>
+							
+									</div>
+						</div>
+				</div>
+		<div class="elementor-element elementor-element-1f74114 e-flex e-con-boxed e-con e-parent" data-id="1f74114" data-element_type="container" id="greeting-section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-51fc928 e-con-full e-flex elementor-invisible e-con e-child" data-id="51fc928" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+				<div class="elementor-element elementor-element-1429254 elementor-widget__width-initial elementor-widget elementor-widget-text-editor" data-id="1429254" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><b>Greetings!</b> My name is Nicole, but <span class="greet-name-underline"><b>Nicky</b></span> works just fine! I’m here to help anyone with anything writing-related. And whether you pronounce it Klah-vee-oh or Klay-vee-oh, I promise <b>your emails will sound a lot better</b> once I’ve had a go at them.</p>								</div>
+				</div>
+		<div class="elementor-element elementor-element-5e83701 e-con-full e-grid elementor-invisible e-con e-child" data-id="5e83701" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+		<div class="elementor-element elementor-element-bfe597c e-con-full e-flex e-con e-child" data-id="bfe597c" data-element_type="container">
+				<div class="elementor-element elementor-element-3d8083b elementor-widget elementor-widget-text-editor" data-id="3d8083b" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>You’ve got a business, project, or idea, but the words you need escape you? Well, I can’t relate to that. What I can do is capture those elusive words and shape them into compelling copy that <b>brings your vision to life</b>.</p>								</div>
+				<div class="elementor-element elementor-element-6b02e3d elementor-widget elementor-widget-text-editor" data-id="6b02e3d" data-element_type="widget" data-widget_type="text-editor.default">
+									As the self-crowned Empress of Eloquence, I’ve spent the last <b>6 years</b> creating <b>email strategy</b> and <b>writing copy</b> for everything from supplements to cryptocurrencies, pre-loved diamonds to flavoured bottles. I’ve written essays about sexuality in Russian literature and created multi-lingual cyphers for fantasy brands. Scroll to my clients’ reviews and you’ll see why <b>I’m the best in the business</b>.								</div>
+				</div>
+				<div class="elementor-element elementor-element-2a96835 elementor-widget elementor-widget-image" data-id="2a96835" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="492" height="507" src="https://pezzamedia.com/wp-content/uploads/2025/08/Bio-picture-1.png" class="attachment-full size-full wp-image-203" alt="" srcset="https://pezzamedia.com/wp-content/uploads/2025/08/Bio-picture-1.png 492w, https://pezzamedia.com/wp-content/uploads/2025/08/Bio-picture-1-291x300.png 291w" sizes="(max-width: 492px) 100vw, 492px" />															</div>
+				</div>
+					</div>
+				</div>
+		<div class="elementor-element elementor-element-8e588d1 e-flex e-con-boxed e-con e-parent" data-id="8e588d1" data-element_type="container" id="copyright-section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-7925ae0 e-con-full e-grid e-con e-child" data-id="7925ae0" data-element_type="container">
+		<div class="elementor-element elementor-element-7820d86 e-con-full e-flex elementor-invisible e-con e-child" data-id="7820d86" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+				<div class="elementor-element elementor-element-359df84 elementor-widget elementor-widget-heading" data-id="359df84" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">COPYWRITING<br /> <span class="services-title-underline">services</span>
+</h2>				</div>
+				<div class="elementor-element elementor-element-b74f2ab elementor-widget elementor-widget-text-editor" data-id="b74f2ab" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>Writing is how you communicate with your customers</strong>, clients, and readers, so it&#8217;s absolutely central to my work. Maybe you dislike writing, suffer from blank page anxiety, or simply don’t have the time or creativity to get it done. Don’t worry, <strong>I have enough words for the both of us.</strong> With your vision and my expertise, <strong>we can give life to your idea</strong> together. But I’ll stop rambling and let you read about my services.</p>								</div>
+				<div class="elementor-element elementor-element-317c324 elementor-align-left elementor-hidden-tablet elementor-hidden-mobile elementor-widget elementor-widget-button" data-id="317c324" data-element_type="widget" data-widget_type="button.default">
+										<a class="elementor-button elementor-button-link elementor-size-sm" href="#">
+						<span class="elementor-button-content-wrapper">
+									<span class="elementor-button-text">Let’s chat</span>
+					</span>
+					</a>
+								</div>
+				<div class="elementor-element elementor-element-3b0afe8 elementor-hidden-tablet elementor-hidden-mobile elementor-widget elementor-widget-image" data-id="3b0afe8" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="277" height="353" src="https://pezzamedia.com/wp-content/uploads/2025/08/img.png" class="attachment-large size-large wp-image-240" alt="" srcset="https://pezzamedia.com/wp-content/uploads/2025/08/img.png 277w, https://pezzamedia.com/wp-content/uploads/2025/08/img-235x300.png 235w" sizes="(max-width: 277px) 100vw, 277px" />															</div>
+				</div>
+		<div class="elementor-element elementor-element-c77f82b e-con-full e-grid service-strategies-wrap elementor-invisible e-con e-child" data-id="c77f82b" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+		<div class="elementor-element elementor-element-fbde97a e-con-full e-grid strategies-box e-con e-child" data-id="fbde97a" data-element_type="container">
+				<div class="elementor-element elementor-element-41bc369 elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="41bc369" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Email Strategy</h2>				</div>
+				<div class="elementor-element elementor-element-abb6e32 elementor-widget elementor-widget-text-editor" data-id="abb6e32" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Say <strong>sayonara to boring emails.</strong> I’ll help you map the customer journey, build out flows that convert, and write campaigns that actually get clicked, so your audience stays engaged <strong>from welcome to win-back.</strong></p>								</div>
+				</div>
+		<div class="elementor-element elementor-element-9810956 e-con-full e-grid strategies-box e-con e-child" data-id="9810956" data-element_type="container">
+				<div class="elementor-element elementor-element-d9d7960 elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="d9d7960" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">SEO Blog Writing</h2>				</div>
+				<div class="elementor-element elementor-element-340aaae elementor-widget elementor-widget-text-editor" data-id="340aaae" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>Get found on Google </strong>and educate your readers. Whatever you need to communicate, I&#8217;ll ensure it&#8217;s <strong>SEO optimized</strong> and hits your target audience, driving conversions.</p>								</div>
+				</div>
+		<div class="elementor-element elementor-element-351fe74 e-con-full e-grid strategies-box e-con e-child" data-id="351fe74" data-element_type="container">
+				<div class="elementor-element elementor-element-58559ec elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="58559ec" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Ghostwriting  </h2>				</div>
+				<div class="elementor-element elementor-element-a519db9 elementor-widget elementor-widget-text-editor" data-id="a519db9" data-element_type="widget" data-widget_type="text-editor.default">
+									Your memoir, travel guides, wedding speeches, funeral elegies, love letters, your grocery list; <strong>I enjoy writing them all,</strong> and they will all make you cry (yes, the grocery list too).								</div>
+				</div>
+		<div class="elementor-element elementor-element-9b0d8bf e-con-full e-grid strategies-box e-con e-child" data-id="9b0d8bf" data-element_type="container">
+				<div class="elementor-element elementor-element-757e4df elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="757e4df" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Language Creation</h2>				</div>
+				<div class="elementor-element elementor-element-7425513 elementor-widget elementor-widget-text-editor" data-id="7425513" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Jashir rai moyy da. Ya know what I mean? If not, don’t worry. As an experienced linguist, <strong>I can create a unique language</strong> for your <strong>world-building needs</strong> and even make people want to learn it. Drawing from my experience with Italian, Russian, French, Ancient Greek, and Latin (just to name a few).</p>								</div>
+				</div>
+		<div class="elementor-element elementor-element-e8ae05e e-con-full e-grid strategies-box e-con e-child" data-id="e8ae05e" data-element_type="container">
+				<div class="elementor-element elementor-element-6db4fbd elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="6db4fbd" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Article Writing</h2>				</div>
+				<div class="elementor-element elementor-element-8ed3ae1 elementor-widget elementor-widget-text-editor" data-id="8ed3ae1" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Intermediality as an epistemological tool in contemporary art forms, the influence of Old Church Slavonic on modern Eastern European languages, lesbian vampires: <strong>what do all these things have in common? Me.</strong></p>								</div>
+				</div>
+				</div>
+				</div>
+		<div class="elementor-element elementor-element-e53213e e-con-full elementor-hidden-desktop e-flex elementor-invisible e-con e-child" data-id="e53213e" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+				<div class="elementor-element elementor-element-4e2b28c elementor-widget elementor-widget-image" data-id="4e2b28c" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="277" height="353" src="https://pezzamedia.com/wp-content/uploads/2025/08/img.png" class="attachment-large size-large wp-image-240" alt="" srcset="https://pezzamedia.com/wp-content/uploads/2025/08/img.png 277w, https://pezzamedia.com/wp-content/uploads/2025/08/img-235x300.png 235w" sizes="(max-width: 277px) 100vw, 277px" />															</div>
+				</div>
+		<div class="elementor-element elementor-element-9cb45da e-con-full animated-slow e-flex elementor-invisible e-con e-child" data-id="9cb45da" data-element_type="container" id="portfolio-section" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+		<div class="elementor-element elementor-element-54b4dac e-con-full e-flex e-con e-child" data-id="54b4dac" data-element_type="container">
+				<div class="elementor-element elementor-element-7b08db7 page-title elementor-widget-mobile__width-initial elementor-widget elementor-widget-heading" data-id="7b08db7" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">This is what I'VE BEEN <span class="busy-title-underline">BUSY</span>
+doing</h2>				</div>
+				</div>
+				<div class="elementor-element elementor-element-61cfcb4 elementor-widget elementor-widget-shortcode" data-id="61cfcb4" data-element_type="widget" data-widget_type="shortcode.default">
+							<div class="elementor-shortcode"><div class="job-description-slider">            <div class="slide-card">
+                <div class="card-inner">
+                    <h3>Simply Nootropics</h3>
+                    <p>Lead Copywriter and Email Strategist for a global supplement company. Created SEO-optimized blog
+          posts and developed high-converting Klaviyo flows and campaigns for a 200,000-strong mailing list,
+          boosting organic traffic and revenue by 2.3x.</p>
+        <div class="tags">
+          <span>Email Strategy</span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>SEO</span>
+          </div>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Blog Writing</span>
+          </div>
+        </div>                </div>
+            </div>
+                        <div class="slide-card">
+                <div class="card-inner">
+                    <h3>Diamocycle</h3>
+                      <p>In-house SEO specialist for an online diamond marketplace. Implemented on-page SEO strategies and
+          improved site copy, boosting search engine visibility by 40%.</p>
+        <div class="tags">
+          <span>SEO</span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Website Copy</span>
+          </div>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Blog Writing</span>
+          </div>
+        </div>                </div>
+            </div>
+                        <div class="slide-card">
+                <div class="card-inner">
+                    <h3>The Archive</h3>
+                      <p>Lead ghostwriter for a video-biography production company. Collaborated closely with the client to
+          understand their vision. Translated complex ideas into engaging, well-structured content, and
+          delivered high-quality ghostwritten blogs as well as website copy.</p>
+        <div class="tags">
+          <span>Ghostwriting</span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Website Copy</span>
+          </div>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Blog Writing</span>
+          </div>
+        </div>                </div>
+            </div>
+                        <div class="slide-card">
+                <div class="card-inner">
+                    <h3>Alpha Wealth Group</h3>
+                    <p>Blog writer and email strategist for a cryptocurrency education platform. Crafted engaging SEO-driven
+          blog posts and developed targeted Klaviyo email campaigns to boost readership, increase engagement,
+          and drive consistent site traffic.</p>
+        <div class="tags">
+          <span>Email Strategy </span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>SEO</span>
+          </div>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Blog Writing</span>
+          </div>
+        </div>                </div>
+            </div>
+                        <div class="slide-card">
+                <div class="card-inner">
+                    <h3>Moonrunners</h3>
+                    <p>Creative strategist for an innovative NFT company that grossed over $16 Million in one week after
+          launch. Specialised in language creation and fantasy ciphers to create an immersive experience for
+          the audience.</p>
+        <div class="tags">
+          <span>Ghostwriting</span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>Language Creation</span>
+          </div>
+        </div>                </div>
+            </div>
+                        <div class="slide-card">
+                <div class="card-inner">
+                    <h3>Medium</h3>
+                       <p>Writer for the popular blogging platform. Performed in-depth research on diverse topics, crafted
+          compelling articles with a focus on readability and engagement. Contributed to meaningful
+          discussions and educational content.</p>
+        <div class="tags">
+          <span>Article Writing </span>
+          <div>
+            <span class="dot-separator"></span>
+            <span>SEO</span>
+          </div>
+        </div>                </div>
+            </div>
+            </div></div>
+						</div>
+				</div>
+		<div class="elementor-element elementor-element-09ab840 e-con-full business-container e-flex elementor-invisible e-con e-child" data-id="09ab840" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+				<div class="elementor-element elementor-element-d07bca8 page-title elementor-widget elementor-widget-heading" data-id="d07bca8" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default"> Let’s talk <span class="business-title-underline">BUSINESS</span></h2>				</div>
+		<div class="elementor-element elementor-element-8e6f04a e-con-full e-grid e-con e-child" data-id="8e6f04a" data-element_type="container">
+		<div class="elementor-element elementor-element-c997f92 e-con-full e-flex e-con e-child" data-id="c997f92" data-element_type="container">
+				<div class="elementor-element elementor-element-52edcc2 elementor-widget elementor-widget-text-editor" data-id="52edcc2" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>40M</strong> emails sent</p>								</div>
+				<div class="elementor-element elementor-element-bfa9a04 elementor-widget elementor-widget-text-editor" data-id="bfa9a04" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>55%</strong> Average Open Rate</p>								</div>
+				<div class="elementor-element elementor-element-13105ff elementor-widget elementor-widget-text-editor" data-id="13105ff" data-element_type="widget" data-widget_type="text-editor.default">
+									<p>Over <strong>$3M</strong> in sales generated</p>								</div>
+				<div class="elementor-element elementor-element-fde0c4a elementor-widget elementor-widget-image" data-id="fde0c4a" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="68" height="54" src="https://pezzamedia.com/wp-content/uploads/2025/08/mail-1.png" class="attachment-full size-full wp-image-314" alt="" />															</div>
+				<div class="elementor-element elementor-element-a46bda9 elementor-widget elementor-widget-heading" data-id="a46bda9" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Emails</h2>				</div>
+				</div>
+		<div class="elementor-element elementor-element-1c79e48 e-con-full e-flex e-con e-child" data-id="1c79e48" data-element_type="container">
+				<div class="elementor-element elementor-element-89243a6 elementor-widget elementor-widget-text-editor" data-id="89243a6" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>300+</strong> SEO blogs written</p>								</div>
+				<div class="elementor-element elementor-element-b183044 elementor-widget elementor-widget-text-editor" data-id="b183044" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>$1M </strong>in total orders</p>								</div>
+				<div class="elementor-element elementor-element-fd301f8 elementor-widget elementor-widget-text-editor" data-id="fd301f8" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>80,000</strong> email sign ups</p>								</div>
+				<div class="elementor-element elementor-element-17cc7ab elementor-widget elementor-widget-image" data-id="17cc7ab" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="68" height="54" src="https://pezzamedia.com/wp-content/uploads/2025/08/mail-1-2.png" class="attachment-full size-full wp-image-312" alt="" />															</div>
+				<div class="elementor-element elementor-element-c127b45 elementor-widget elementor-widget-heading" data-id="c127b45" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Website Copy</h2>				</div>
+				</div>
+		<div class="elementor-element elementor-element-5a37591 e-con-full e-flex e-con e-child" data-id="5a37591" data-element_type="container">
+				<div class="elementor-element elementor-element-2ef8a76 elementor-widget elementor-widget-text-editor" data-id="2ef8a76" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>1M</strong> words written</p>								</div>
+				<div class="elementor-element elementor-element-48e62c7 elementor-widget elementor-widget-text-editor" data-id="48e62c7" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>30+</strong> articles witten</p>								</div>
+				<div class="elementor-element elementor-element-949051e elementor-widget elementor-widget-text-editor" data-id="949051e" data-element_type="widget" data-widget_type="text-editor.default">
+									<p><strong>5+</strong> genres covered</p>								</div>
+				<div class="elementor-element elementor-element-a92238e elementor-widget elementor-widget-image" data-id="a92238e" data-element_type="widget" data-widget_type="image.default">
+															<img loading="lazy" decoding="async" width="54" height="55" src="https://pezzamedia.com/wp-content/uploads/2025/08/mail-1-1.png" class="attachment-full size-full wp-image-313" alt="" />															</div>
+				<div class="elementor-element elementor-element-94bd0d5 elementor-widget elementor-widget-heading" data-id="94bd0d5" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">Creative Writing</h2>				</div>
+				</div>
+				</div>
+				</div>
+		<div class="elementor-element elementor-element-7937f45 e-con-full animated-slow e-flex elementor-invisible e-con e-child" data-id="7937f45" data-element_type="container" data-settings="{&quot;animation&quot;:&quot;slideInUp&quot;}">
+				<div class="elementor-element elementor-element-df26d19 page-title elementor-widget elementor-widget-heading" data-id="df26d19" data-element_type="widget" data-widget_type="heading.default">
+					<h2 class="elementor-heading-title elementor-size-default">WHAT my clients <br /> are  <span class="saying-title-underline">SAYING</span></h2>				</div>
+		<div class="elementor-element elementor-element-5d77edf e-con-full e-flex e-con e-child" data-id="5d77edf" data-element_type="container">
+				<div class="elementor-element elementor-element-637d937 elementor-widget elementor-widget-shortcode" data-id="637d937" data-element_type="widget" data-widget_type="shortcode.default">
+							<div class="elementor-shortcode"><div class="client-review-slider">            <div class="review-card">
+                 <p class="review-text"> It was an absolute pleasure working with Nicole. Her grasp of so many languages is  truly astounding and she was instrumental for us to hit all our copywriting goals. She's my go-to copywriter and will be for many years to come I hope.</p>
+                    <h3></h3>
+                    <div class="review-author">DANIEL DELAWAY        , <span>The Archive Founder</span>
+    </div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+                        <div class="review-card">
+                 <p class="review-text"> Nicole completely turned around our content game. Her blog posts and marketing emails didn't just bring in traffic, they also brought in engaged, excited customers. She has this knack for understanding exactly what our audience wants to read, and it shows. Our revenue took off, and it's all thanks to her ability with words.</p>
+                    <h3></h3>
+                    <div class="review-author">Anthony Baxter        , <span>CEO of Simply Nootropics</span>
+    </div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+                        <div class="review-card">
+                 <p class="review-text"> I was too emotionally overwhelmed when it came to writing a funeral speech after my dad passed away, when I came across Nicole's website. I can't put a sentence together on a good day, but Nicole was incredible. She ghostwrote the most beautiful, heartfelt speech and by the end, everyone was in tears. Nicole, you made an unbearably hard moment just a little bit easier. Thank you.</p>
+                    <h3></h3>
+                    <div class="review-author">Simon Marle</div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+                        <div class="review-card">
+                 <p class="review-text"> Token Alpha Group: Nicole exceeded my expectations on this project, providing quality work in a speedy manner. We have tight deadlines but she's always able to work to our schedule to make
+sure we have the final work to the clients on time. I would highly recommend her once again to anyone looking for a blog writer or copywriter - 11/10!</p>
+                    <h3></h3>
+                    <div class="review-author">Scott Williams        , <span>CEO of Token Alpha Group</span>
+    </div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+                        <div class="review-card">
+                 <p class="review-text"> Nicole's expertise in SEO has been a game-changer for our business. Her attention to detail and improvements to our site copy have really improved our visibility. We couldn't have asked for a more competent SEO specialist</p>
+                    <h3></h3>
+                    <div class="review-author">Christine Odenwald        , <span>Marketing Manager at Diamocycle</span>
+    </div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+                        <div class="review-card">
+                 <p class="review-text"> We asked Nicole to write a short story collection for the kids in our kindergarten, and she absolutely nailed it! The stories she came up with were perfect for our little ones, they were imaginative, fun, and totally engaging. The kids are always excited for story time now, thanks to her. Nicole really knows how to connect with young readers. We're grateful for her amazing work!
+</p>
+                    <h3></h3>
+                    <div class="review-author">Kelly Riordan</div>
+            <div class="stars">
+               <div class="star-rating">
+                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>                </div>
+            </div>
+                   
+                
+            </div>
+            </div></div>
+						</div>
+				</div>
+				</div>
+					</div>
+				</div>
+		<div class="elementor-element elementor-element-aa36c6d e-flex e-con-boxed e-con e-parent" data-id="aa36c6d" data-element_type="container" id="contact-section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-26afde9 e-con-full e-flex e-con e-child" data-id="26afde9" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+				<div class="elementor-element elementor-element-2bc1343 elementor-invisible elementor-widget elementor-widget-shortcode" data-id="2bc1343" data-element_type="widget" data-settings="{&quot;_animation&quot;:&quot;zoomIn&quot;}" data-widget_type="shortcode.default">
+							<div class="elementor-shortcode">
+<div class="wpcf7 no-js" id="wpcf7-f513-p12-o1" lang="en-US" dir="ltr" data-wpcf7-id="513">
+<div class="screen-reader-response"><p role="status" aria-live="polite" aria-atomic="true"></p> <ul></ul></div>
+<form action="/#wpcf7-f513-p12-o1" method="post" class="wpcf7-form init" aria-label="Contact form" novalidate="novalidate" data-status="init">
+<fieldset class="hidden-fields-container"><input type="hidden" name="_wpcf7" value="513" /><input type="hidden" name="_wpcf7_version" value="6.1.1" /><input type="hidden" name="_wpcf7_locale" value="en_US" /><input type="hidden" name="_wpcf7_unit_tag" value="wpcf7-f513-p12-o1" /><input type="hidden" name="_wpcf7_container_post" value="12" /><input type="hidden" name="_wpcf7_posted_data_hash" value="" />
+</fieldset>
+<div id="contact-us-form" class="enquiry-form-wrapper">
+	<div class="enquiry-form">
+		<div class="stamps">
+			<div class="same-size-stamp">
+				<p><img decoding="async" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-2864002.png" alt" stamp" /><br />
+<img decoding="async" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-2864003.png" alt" stamp" />
+				</p>
+			</div>
+			<div class="empress-stamp">
+				<p><img decoding="async" src="https://pezzamedia.com/wp-content/uploads/2025/08/Group-2-1.png" alt="stamp" />
+				</p>
+			</div>
+			<h6 class="empress-stamp-text">To the Empress<br />
+of Eloquence
+			</h6>
+		</div>
+		<div class="name-field">
+			<p><label>Name</label><br />
+<span class="wpcf7-form-control-wrap" data-name="your-name"><input size="40" maxlength="400" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" autocomplete="name" aria-required="true" aria-invalid="false" value="" type="text" name="your-name" /></span>
+			</p>
+		</div>
+		<div class="envelope-form-flex">
+			<div>
+				<p><label>Email</label><br />
+<span class="wpcf7-form-control-wrap" data-name="your-email"><input size="40" maxlength="400" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text wpcf7-validates-as-email" autocomplete="email" aria-required="true" aria-invalid="false" value="" type="email" name="your-email" /></span>
+				</p>
+			</div>
+			<div>
+				<p><label>Link to your website</label><br />
+<span class="wpcf7-form-control-wrap" data-name="your-url"><input size="40" maxlength="400" class="wpcf7-form-control wpcf7-url wpcf7-text wpcf7-validates-as-url" aria-invalid="false" value="" type="url" name="your-url" /></span>
+				</p>
+			</div>
+		</div>
+		<p><label>How can I help?</label><br />
+<span class="wpcf7-form-control-wrap" data-name="your-message"><textarea cols="40" rows="10" maxlength="2000" class="wpcf7-form-control wpcf7-textarea wpcf7-validates-as-required" aria-required="true" aria-invalid="false" name="your-message"></textarea></span>
+		</p>
+	</div>
+	<p><div id="cf7sr-6ac657dd2059c" class="cf7sr-g-recaptcha" data-theme="light" data-type="image" data-size="normal" data-sitekey="6LchG-QrAAAAAAdFQZ4jq8HahcAUwLel_26LVBrp"></div><span class="wpcf7-form-control-wrap cf7sr-recaptcha" data-name="cf7sr-recaptcha"><input type="hidden" name="cf7sr-recaptcha" value="" class="wpcf7-form-control"></span>
+	</p>
+	<p><input class="wpcf7-form-control wpcf7-submit has-spinner" type="submit" value="Submit Enquiry Via Bertie" />
+	</p>
+</div><div class="wpcf7-response-output" aria-hidden="true"></div>
+</form>
+</div>
+</div>
+						</div>
+				</div>
+					</div>
+				</div>
+		<div class="elementor-element elementor-element-53ec392 e-flex e-con-boxed e-con e-parent" data-id="53ec392" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+					<div class="e-con-inner">
+		<div class="elementor-element elementor-element-b80ce5e e-con-full footer-container e-flex e-con e-child" data-id="b80ce5e" data-element_type="container" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}">
+				<div class="elementor-element elementor-element-7fb1f94 elementor-icon-list--layout-inline elementor-align-center elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="7fb1f94" data-element_type="widget" data-widget_type="icon-list.default">
+							<ul class="elementor-icon-list-items elementor-inline-items">
+							<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="https://medium.com/@nicolemariapezza" target="_blank">
+
+											<span class="elementor-icon-list-text">MEDIUM</span>
+											</a>
+									</li>
+								<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="http://upwork.com/freelancers/nicolemariapezza" target="_blank">
+
+											<span class="elementor-icon-list-text">UPWORK</span>
+											</a>
+									</li>
+								<li class="elementor-icon-list-item elementor-inline-item">
+											<a href="https://www.linkedin.com/in/nicolemariapezza?utm_source=share&#038;utm_campaign=share_via&#038;utm_content=profile&#038;utm_medium=android_app" target="_blank">
+
+											<span class="elementor-icon-list-text">LINKEDIN</span>
+											</a>
+									</li>
+						</ul>
+						</div>
+				</div>
+					</div>
+				</div>
+				</div>
+		<!-- Scripts -->
+  <script src="https://pezzamedia.com/wp-content/themes/hello-elementor/js/jquery-3.7.1.min.js"></script>
+  <script src="https://pezzamedia.com/wp-content/themes/hello-elementor/js/slick.min.js"></script>
+  <script>
+$(document).ready(function() {
+    let autoplayEnabled = false;
+
+    const slider = $('.job-description-slider').on('init', function() {
+        setTimeout(handleAutoplay, 300);
+    }).slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        autoplay: false, // start off
+        autoplaySpeed: 2000,
+        speed: 1500,
+        infinite: true,
+        arrows: false,
+        dots: false,
+        pauseOnHover: false,
+        swipe: true,
+        touchMove: true,
+        touchThreshold: 5,
+        variableWidth: false,
+        adaptiveHeight: false,
+        waitForAnimate: false,
+        responsive: [
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 1,
+                    arrows: true,
+                    swipe: true,
+                    touchMove: true,
+                    adaptiveHeight: false
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1,
+                    arrows: true,
+                    autoplaySpeed: 1500,
+                    speed: 1000,
+                    swipe: true,
+                    touchMove: true,
+                    adaptiveHeight: false
+                }
+            }
+        ]
+    });
+
+    slider.slick('slickPause'); // init ke baad pause
+
+    function isElementInViewport(el) {
+        if (!el || el.length === 0) return false;
+        const rect = el[0].getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+        return (
+            rect.top < windowHeight - 50 && 
+            rect.bottom > 50 &&
+            rect.left < windowWidth &&
+            rect.right > 0
+        );
+    }
+
+    function handleAutoplay() {
+        if (isElementInViewport(slider)) {
+            if (!autoplayEnabled) {
+                // first time enable autoplay with reinit
+                slider.slick('slickSetOption', 'autoplay', true, true);
+                autoplayEnabled = true;
+            }
+            slider.slick('slickPlay');
+        } else {
+            slider.slick('slickPause');
+        }
+    }
+
+    // Events
+    $(window).on('scroll.sliderCheck resize.sliderCheck orientationchange.sliderCheck', function() {
+        setTimeout(handleAutoplay, 100);
+    });
+
+    $(document).on('touchstart.sliderCheck touchmove.sliderCheck', function() {
+        setTimeout(handleAutoplay, 200);
+    });
+
+    setTimeout(handleAutoplay, 500);
+});
+
+$(document).ready(function() {
+    let autoplayEnabled = false;
+
+    const slider = $('.client-review-slider').on('init', function() {
+        setTimeout(handleAutoplay, 300);
+    }).slick({
+        slidesToShow: 2,
+        slidesToScroll: 1,
+        autoplay: false, // start off
+        autoplaySpeed: 2000,
+        speed: 1500,
+        infinite: true,
+        arrows: false,
+        dots: false,
+        pauseOnHover: false,
+        swipe: true,
+        touchMove: true,
+        touchThreshold: 5,
+        variableWidth: false,
+        adaptiveHeight: false,
+        waitForAnimate: false,
+        responsive: [
+            {
+                breakpoint: 1024,
+                settings: {
+                    slidesToShow: 1,
+                    arrows: true,
+                    swipe: true,
+                    touchMove: true,
+                    adaptiveHeight: false
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 1,
+                    arrows: true,
+                    autoplaySpeed: 1500,
+                    speed: 1000,
+                    swipe: true,
+                    touchMove: true,
+                    adaptiveHeight: false
+                }
+            }
+        ]
+    });
+
+    slider.slick('slickPause'); // init ke baad pause
+
+    function isElementInViewport(el) {
+        if (!el || el.length === 0) return false;
+        const rect = el[0].getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+        return (
+            rect.top < windowHeight - 50 && 
+            rect.bottom > 50 &&
+            rect.left < windowWidth &&
+            rect.right > 0
+        );
+    }
+
+    function handleAutoplay() {
+        if (isElementInViewport(slider)) {
+            if (!autoplayEnabled) {
+                // first time enable autoplay with reinit
+                slider.slick('slickSetOption', 'autoplay', true, true);
+                autoplayEnabled = true;
+            }
+            slider.slick('slickPlay');
+        } else {
+            slider.slick('slickPause');
+        }
+    }
+
+    // Events
+    $(window).on('scroll.sliderCheck resize.sliderCheck orientationchange.sliderCheck', function() {
+        setTimeout(handleAutoplay, 100);
+    });
+
+    $(document).on('touchstart.sliderCheck touchmove.sliderCheck', function() {
+        setTimeout(handleAutoplay, 200);
+    });
+
+    setTimeout(handleAutoplay, 500);
+});
+
+
+// 	  menu
+$(document).ready(function(){ 
+
+  $(".header-toggle").click(function(){
+    openMenu();
+  });
+
+  $(".menu-overlay").click(function(){
+    closeMenu();
+  });
+
+  // Close icon inside the menu
+  $(".custom-menu-list .menu-close-btn").click(function(){
+    closeMenu();
+  });
+
+  // Smooth scroll + close menu + active class
+  $(".custom-menu-list a").click(function(e){
+    e.preventDefault(); // stop default jump
+    let target = $(this).attr("href");
+
+    // 🔹 Active menu handling
+    $(".custom-menu-list li").removeClass("active");
+    $(this).parent().addClass("active");
+
+    closeMenu(); // close menu first
+
+    // Smooth scroll after menu closes
+    setTimeout(function(){
+      $("html, body").animate({
+        scrollTop: $(target).offset().top
+      }, 600); // 600ms animation
+    }, 400); // wait for menu close animation
+  });
+
+  function openMenu(){
+    $(".menu-overlay").fadeIn(300);
+    $(".custom-menu-list").show().addClass("show");
+    $("body").addClass("no-scroll");
+
+    $(".custom-menu-list li").each(function(i){
+      $(this).delay(100 * i).queue(function(next){
+        $(this).addClass("show");
+        next();
+      });
+    });
+  }
+
+  function closeMenu(){
+    $(".menu-overlay").fadeOut(300);
+    $(".custom-menu-list").removeClass("show");
+    $(".custom-menu-list li").removeClass("show");
+    $("body").removeClass("no-scroll");
+
+    setTimeout(function(){
+      $(".custom-menu-list").hide();
+    }, 400);
+  }
+
+});
+
+//  typing text
+jQuery(function($){
+    const $el = $(".typing-text"); 
+    const text = $el.text().trim(); 
+    const minChars = 2;
+    let i = minChars, forward = true;
+
+    $el.text(text.substring(0, minChars)); 
+
+    function loop() {
+        $el.text(text.substring(0, i));
+
+        if (forward) {
+            if (i++ <= text.length) {
+                setTimeout(loop, 100); 
+            } else {
+                forward = false;
+                setTimeout(loop, 1000);
+            }
+        } else {
+            if (i-- > minChars) {
+                setTimeout(loop, 50); 
+            } else {
+                forward = true;
+                setTimeout(loop, 500); 
+            }
+        }
+    }
+
+    loop();
+});
+  lucide.createIcons(); 
+// 		  popup
+function openPopup(id) {
+  document.getElementById(id).style.display = 'flex';
+  feather.replace();
+}
+
+function closePopup(id) {
+  document.getElementById(id).style.display = 'none';
+}
+jQuery(document).ready(function($) {
+  // Close popup if user clicks outside
+  document.querySelectorAll('.popup-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.style.display = 'none';
+      }
+    });
+  });
+
+  // ✅ Show only when validation is fine (form submitted)
+  document.addEventListener('wpcf7mailsent', function(event) {
+    openPopup('successPopup');
+  }, false);
+
+  // ✅ Show failed popup only when mail fails on server
+  document.addEventListener('wpcf7mailfailed', function(event) {
+    openPopup('warningPopup');
+  }, false);
+
+});
+  </script>
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"\/*"},{"not":{"href_matches":["\/wp-*.php","\/wp-admin\/*","\/wp-content\/uploads\/*","\/wp-content\/*","\/wp-content\/plugins\/*","\/wp-content\/themes\/hello-elementor\/*","\/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+    <script type="text/javascript">
+        var recaptchaIds = [];
+
+        var cf7srLoadRecaptcha = function() {
+            var widgets = document.querySelectorAll('.cf7sr-g-recaptcha');
+            for (var i = 0; i < widgets.length; ++i) {
+                var widget = widgets[i];
+                recaptchaIds.push(
+                    grecaptcha.render(widget.id, {
+                        'sitekey' : "6LchG-QrAAAAAAdFQZ4jq8HahcAUwLel_26LVBrp"                    })
+                );
+            }
+        };
+
+        function cf7srResetRecaptcha() {
+            for (var i = 0; i < recaptchaIds.length; i++) {
+                grecaptcha.reset(recaptchaIds[i]);
+            }
+        }
+
+        document.querySelectorAll('.wpcf7').forEach(function(element) {
+            element.addEventListener('wpcf7invalid', cf7srResetRecaptcha);
+            element.addEventListener('wpcf7mailsent', cf7srResetRecaptcha);
+            element.addEventListener('invalid.wpcf7', cf7srResetRecaptcha);
+            element.addEventListener('mailsent.wpcf7', cf7srResetRecaptcha);
+        });
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js?onload=cf7srLoadRecaptcha&#038;render=explicit&#038;hl=en" async defer></script>
+    			<script>
+				const lazyloadRunObserver = () => {
+					const lazyloadBackgrounds = document.querySelectorAll( `.e-con.e-parent:not(.e-lazyloaded)` );
+					const lazyloadBackgroundObserver = new IntersectionObserver( ( entries ) => {
+						entries.forEach( ( entry ) => {
+							if ( entry.isIntersecting ) {
+								let lazyloadBackground = entry.target;
+								if( lazyloadBackground ) {
+									lazyloadBackground.classList.add( 'e-lazyloaded' );
+								}
+								lazyloadBackgroundObserver.unobserve( entry.target );
+							}
+						});
+					}, { rootMargin: '200px 0px 200px 0px' } );
+					lazyloadBackgrounds.forEach( ( lazyloadBackground ) => {
+						lazyloadBackgroundObserver.observe( lazyloadBackground );
+					} );
+				};
+				const events = [
+					'DOMContentLoaded',
+					'elementor/lazyload/observe',
+				];
+				events.forEach( ( event ) => {
+					document.addEventListener( event, lazyloadRunObserver );
+				} );
+			</script>
+			<script id="essential-blocks-blocks-localize-js-extra">
+var eb_conditional_localize = [];
+var EssentialBlocksLocalize = {"eb_plugins_url":"https:\/\/pezzamedia.com\/wp-content\/plugins\/essential-blocks\/","image_url":"https:\/\/pezzamedia.com\/wp-content\/plugins\/essential-blocks\/assets\/images","eb_wp_version":"6.8","eb_version":"5.6.0","eb_admin_url":"https:\/\/pezzamedia.com\/wp-admin\/","rest_rootURL":"https:\/\/pezzamedia.com\/wp-json\/","ajax_url":"https:\/\/pezzamedia.com\/wp-admin\/admin-ajax.php","nft_nonce":"b05355bf8e","post_grid_pagination_nonce":"df08cb8664","placeholder_image":"https:\/\/pezzamedia.com\/wp-content\/plugins\/essential-blocks\/assets\/images\/placeholder.png","is_pro_active":"false","upgrade_pro_url":"https:\/\/essential-blocks.com\/upgrade","responsiveBreakpoints":{"tablet":1024,"mobile":767}};
+</script>
+<script src="https://pezzamedia.com/wp-content/plugins/essential-blocks/assets/js/eb-blocks-localize.js?ver=31d6cfe0d16ae931b73c" id="essential-blocks-blocks-localize-js"></script>
+<script src="https://pezzamedia.com/wp-includes/js/dist/hooks.min.js?ver=4d63a3d491d11ffd8ac6" id="wp-hooks-js"></script>
+<script src="https://pezzamedia.com/wp-includes/js/dist/i18n.min.js?ver=5e580eb46a90c2b997e6" id="wp-i18n-js"></script>
+<script id="wp-i18n-js-after">
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+</script>
+<script src="https://pezzamedia.com/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.1.1" id="swv-js"></script>
+<script id="contact-form-7-js-before">
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/pezzamedia.com\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    },
+    "cached": 1
+};
+</script>
+<script src="https://pezzamedia.com/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.1.1" id="contact-form-7-js"></script>
+<script src="https://pezzamedia.com/wp-content/themes/hello-elementor/assets/js/hello-frontend.js?ver=3.4.4" id="hello-theme-frontend-js"></script>
+<script src="https://pezzamedia.com/wp-content/plugins/elementor/assets/js/webpack.runtime.min.js?ver=3.31.1" id="elementor-webpack-runtime-js"></script>
+<script src="https://pezzamedia.com/wp-content/plugins/elementor/assets/js/frontend-modules.min.js?ver=3.31.1" id="elementor-frontend-modules-js"></script>
+<script src="https://pezzamedia.com/wp-includes/js/jquery/ui/core.min.js?ver=1.13.3" id="jquery-ui-core-js"></script>
+<script id="elementor-frontend-js-before">
+var elementorFrontendConfig = {"environmentMode":{"edit":false,"wpPreview":false,"isScriptDebug":false},"i18n":{"shareOnFacebook":"Share on Facebook","shareOnTwitter":"Share on Twitter","pinIt":"Pin it","download":"Download","downloadImage":"Download image","fullscreen":"Fullscreen","zoom":"Zoom","share":"Share","playVideo":"Play Video","previous":"Previous","next":"Next","close":"Close","a11yCarouselPrevSlideMessage":"Previous slide","a11yCarouselNextSlideMessage":"Next slide","a11yCarouselFirstSlideMessage":"This is the first slide","a11yCarouselLastSlideMessage":"This is the last slide","a11yCarouselPaginationBulletMessage":"Go to slide"},"is_rtl":false,"breakpoints":{"xs":0,"sm":480,"md":768,"lg":1025,"xl":1440,"xxl":1600},"responsive":{"breakpoints":{"mobile":{"label":"Mobile Portrait","value":767,"default_value":767,"direction":"max","is_enabled":true},"mobile_extra":{"label":"Mobile Landscape","value":880,"default_value":880,"direction":"max","is_enabled":false},"tablet":{"label":"Tablet Portrait","value":1024,"default_value":1024,"direction":"max","is_enabled":true},"tablet_extra":{"label":"Tablet Landscape","value":1200,"default_value":1200,"direction":"max","is_enabled":false},"laptop":{"label":"Laptop","value":1366,"default_value":1366,"direction":"max","is_enabled":false},"widescreen":{"label":"Widescreen","value":2400,"default_value":2400,"direction":"min","is_enabled":false}},"hasCustomBreakpoints":false},"version":"3.31.1","is_static":false,"experimentalFeatures":{"e_font_icon_svg":true,"additional_custom_breakpoints":true,"container":true,"e_optimized_markup":true,"hello-theme-header-footer":true,"nested-elements":true,"e_element_cache":true,"home_screen":true,"global_classes_should_enforce_capabilities":true,"e_variables":true,"cloud-library":true,"e_opt_in_v4_page":true},"urls":{"assets":"https:\/\/pezzamedia.com\/wp-content\/plugins\/elementor\/assets\/","ajaxurl":"https:\/\/pezzamedia.com\/wp-admin\/admin-ajax.php","uploadUrl":"https:\/\/pezzamedia.com\/wp-content\/uploads"},"nonces":{"floatingButtonsClickTracking":"f5a6c60e8f"},"swiperClass":"swiper","settings":{"page":[],"editorPreferences":[]},"kit":{"active_breakpoints":["viewport_mobile","viewport_tablet"],"global_image_lightbox":"yes","lightbox_enable_counter":"yes","lightbox_enable_fullscreen":"yes","lightbox_enable_zoom":"yes","lightbox_enable_share":"yes","lightbox_title_src":"title","lightbox_description_src":"description","hello_header_logo_type":"title","hello_footer_logo_type":"logo"},"post":{"id":12,"title":"Nicole","excerpt":"","featuredImage":false}};
+</script>
+<script src="https://pezzamedia.com/wp-content/plugins/elementor/assets/js/frontend.min.js?ver=3.31.1" id="elementor-frontend-js"></script>
+<script src="https://pezzamedia.com/wp-content/plugins/elementor/assets/lib/swiper/v8/swiper.min.js?ver=8.4.5" id="swiper-js"></script>
+<script id="eael-general-js-extra">
+var localize = {"ajaxurl":"https:\/\/pezzamedia.com\/wp-admin\/admin-ajax.php","nonce":"1941f8c0f8","i18n":{"added":"Added ","compare":"Compare","loading":"Loading..."},"eael_translate_text":{"required_text":"is a required field","invalid_text":"Invalid","billing_text":"Billing","shipping_text":"Shipping","fg_mfp_counter_text":"of"},"page_permalink":"https:\/\/pezzamedia.com\/","cart_redirectition":"","cart_page_url":"","el_breakpoints":{"mobile":{"label":"Mobile Portrait","value":767,"default_value":767,"direction":"max","is_enabled":true},"mobile_extra":{"label":"Mobile Landscape","value":880,"default_value":880,"direction":"max","is_enabled":false},"tablet":{"label":"Tablet Portrait","value":1024,"default_value":1024,"direction":"max","is_enabled":true},"tablet_extra":{"label":"Tablet Landscape","value":1200,"default_value":1200,"direction":"max","is_enabled":false},"laptop":{"label":"Laptop","value":1366,"default_value":1366,"direction":"max","is_enabled":false},"widescreen":{"label":"Widescreen","value":2400,"default_value":2400,"direction":"min","is_enabled":false}}};
+</script>
+<script src="https://pezzamedia.com/wp-content/plugins/essential-addons-for-elementor-lite/assets/front-end/js/view/general.min.js?ver=6.2.2" id="eael-general-js"></script>
+
+</body>
+</html>
