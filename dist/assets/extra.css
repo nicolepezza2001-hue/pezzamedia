@@ -72,10 +72,19 @@
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 @media (max-width: 767px) { .versus { padding: 60px 0; } .versus-table { font-size: 16px; line-height: 23px; } }
 
-/* ===== Sticky mobile CTA ===== */
-.sticky-cta { display: none; }
+/* ===== Sticky "Book a call" (all screens) ===== */
+.sticky-cta { position: fixed; right: 24px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 90; background: var(--green); color: var(--navy); font-weight: 700; font-size: 19px; text-decoration: none; padding: 14px 26px; border-radius: 999px; box-shadow: 0 8px 24px rgba(20,27,65,.25); transition: transform .35s ease, opacity .35s ease, background-color .2s ease; }
+.sticky-cta:hover { background: var(--green-hover); }
+.sticky-cta.away { transform: translateY(160%); opacity: 0; pointer-events: none; }
 @media (max-width: 767px) {
-  .sticky-cta { display: block; position: fixed; left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 90; text-align: center; background: var(--green); color: var(--navy); font-weight: 700; font-size: 19px; text-decoration: none; padding: 14px 20px; border-radius: 999px; box-shadow: 0 8px 24px rgba(20,27,65,.25); transition: transform .35s ease, opacity .35s ease; }
-  .sticky-cta.away { transform: translateY(140%); opacity: 0; pointer-events: none; }
+  .sticky-cta { left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); text-align: center; }
   .site-footer { padding-bottom: 90px; }
 }
+
+/* Tighter gap between Services and Reviews; bigger portrait */
+.services { padding-bottom: 30px; }
+.reviews { padding-top: 40px; }
+.about-wrap { grid-template-columns: 320px minmax(0, 1fr); }
+.about .about-photo { width: 320px; }
+@media (max-width: 767px) { .about-wrap { grid-template-columns: 1fr; } .about .about-photo { width: 220px; } }
+.about { margin-top: 0; }
