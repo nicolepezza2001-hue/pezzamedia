@@ -1,1 +1,2 @@
-https://delawaydigital.com/
+dan-avatar.webp https://delawaydigital.com/assets/dan-delaway-avatar.webp
+dan.webp https://delawaydigital.com/assets/dan-delaway.webp
