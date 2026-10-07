@@ -1,0 +1,11 @@
+nypost https://commons.wikimedia.org/wiki/Special:FilePath/New_York_Post_logo.svg
+nypost2 https://commons.wikimedia.org/wiki/Special:FilePath/New_York_Post_Logo.svg
+dailymail https://commons.wikimedia.org/wiki/Special:FilePath/Daily_Mail_logo.svg
+dailymail2 https://commons.wikimedia.org/wiki/Special:FilePath/Daily_Mail_Logo.svg
+usatoday https://commons.wikimedia.org/wiki/Special:FilePath/USA_Today_logo_(2020).svg
+usatoday2 https://commons.wikimedia.org/wiki/Special:FilePath/USA_Today_logo.svg
+usweekly https://commons.wikimedia.org/wiki/Special:FilePath/Us_Weekly_logo.svg
+usweekly2 https://commons.wikimedia.org/wiki/Special:FilePath/Us_Weekly_Logo.svg
+uncrate https://commons.wikimedia.org/wiki/Special:FilePath/Uncrate_logo.svg
+uncratehome https://uncrate.com/
+usweeklyhome https://www.usmagazine.com/

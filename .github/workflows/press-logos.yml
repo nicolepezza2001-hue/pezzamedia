@@ -1,0 +1,22 @@
+name: fetch-press-logos
+on:
+  push:
+    branches: [press-logos]
+    paths: [tools/press-urls.txt]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p raw/press
+          while read name url; do
+            [ -z "$name" ] && continue
+            curl -sL -A "Mozilla/5.0 (pezzamedia logo fetch)" -o "raw/press/$name" "$url" || true
+            echo "$name $(wc -c < raw/press/$name 2>/dev/null) $(file -b raw/press/$name | cut -c1-40)"
+          done < tools/press-urls.txt
+          find raw/press -size -200c -delete
+          git config user.name github-actions; git config user.email actions@github.com
+          git add raw && git commit -m "Fetched press logos" && git push || true
