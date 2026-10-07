@@ -36,3 +36,14 @@
   .about .about-photo { height: 180px; }
   .about .about-photo img { width: 346px; left: -84px; top: -51px; }
 }
+
+/* ===== Email result cards ===== */
+.results-note { font-size: 17px; line-height: 25px; opacity: .8; margin: -8px 0 20px; max-width: 760px; }
+.result-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.result-card { border: 1px solid rgba(251,244,215,.35); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 4px; transition: transform .3s ease, background-color .3s ease; }
+.result-card:hover { transform: translateY(-6px); background: rgba(251,244,215,.06); }
+.result-card b { font-size: 44px; line-height: 1.05; font-style: italic; color: var(--green); }
+.result-card span { font-size: 20px; line-height: 27px; font-weight: 700; }
+.result-card small { font-size: 16px; line-height: 23px; opacity: .8; }
+@media (max-width: 1024px) { .result-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px) { .result-cards { grid-template-columns: 1fr; } .result-card b { font-size: 36px; } }

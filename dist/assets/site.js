@@ -114,7 +114,7 @@
   const sel = [
     '.section-title', '.hero-sub', '.hero-ctas', '.laurel', '.hero-quote', '.marquee-label',
     '.stat', '.stats-note', '.case-card', '.more-title', '.more-brands li',
-    '.journey-lead', '.journey-label', '.journey-map li', '.chips li', '.offer',
+    '.journey-lead', '.journey-label', '.journey-map li', '.chips li', '.offer', '.result-card', '.results-note',
     '.about-intro', '.about-text p', '.about-photo', '.svc', '.services-head p',
     '.carousel', '.faq details', '.contact-lead', '.envelope', '.btn'
   ].join(',');
