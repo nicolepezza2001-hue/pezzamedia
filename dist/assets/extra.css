@@ -29,13 +29,9 @@
 .logo-track li img, .logo-track li .outlet-tile { transition: transform .3s ease; }
 .logo-track li:hover img { transform: translateY(-6px) rotate(-2deg); }
 @media (prefers-reduced-motion: reduce) { .anim .underline::after { clip-path: none; } }
-/* Portrait: crop the face out of the framed photo with a circular window */
-.about .about-photo { position: relative; height: 240px; border-radius: 50%; overflow: hidden; background: var(--cream); box-shadow: 0 0 0 6px var(--cream), 0 0 0 8px var(--navy); }
-.about .about-photo img { position: absolute; width: 461px; max-width: none; height: auto; left: -112px; top: -68px; border-radius: 0; box-shadow: none; }
-@media (max-width: 767px) {
-  .about .about-photo { height: 180px; }
-  .about .about-photo img { width: 346px; left: -84px; top: -51px; }
-}
+/* Portrait */
+.about .about-photo { display: block; height: auto; aspect-ratio: 1; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 6px var(--cream), 0 0 0 8px var(--navy); }
+.about .about-photo img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
 /* ===== Email result cards ===== */
 .results-note { font-size: 17px; line-height: 25px; opacity: .8; margin: -8px 0 20px; max-width: 760px; }
