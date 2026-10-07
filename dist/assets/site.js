@@ -146,6 +146,23 @@
       };
       requestAnimationFrame(tick);
     };
-    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { run(); o.disconnect(); } }, { threshold: 0.5 }).observe(b);
+    let shown = false;
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !shown) { shown = true; run(); }
+      else if (!e.isIntersecting) { shown = false; b.textContent = pre + '0' + post; }
+    }, { threshold: 0.5 }).observe(b);
   });
+})();
+
+// ----- Hand-drawn underlines draw in, header shadow on scroll, laurels recount on return -----
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  const draw = new IntersectionObserver(entries => entries.forEach(e => {
+    e.target.classList.toggle('drawn', e.isIntersecting);
+  }), { threshold: 1, rootMargin: '-40px 0px -40px 0px' });
+  document.querySelectorAll('.underline').forEach(u => draw.observe(u));
+
+  const header = document.querySelector('.site-header');
+  const onScroll = () => header && header.classList.toggle('scrolled', window.scrollY > 20);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
 })();
