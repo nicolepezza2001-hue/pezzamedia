@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" style="--blazor-load-percentage: 98.91304347826086%; --blazor-load-percentage-text: &quot;98%&quot;;"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Distribution | Medianet</title>
+    <base href="/">
+    <link rel="shortcut icon" href="https://www.medianet.com.au/hubfs/mdn-logo.png">
+
+    <link href="css/app-base.css" rel="stylesheet">
+    <link href="css/app.2.0.css" rel="stylesheet">
+
+    <script src="js/scriptLoader.js"></script>
+    <script src="lib/chartjs/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div id="app" class="h-full">
+        <header id="site-header" class="fixed top-0 w-full z-[120] bg-blue py-[1.5rem] pl-[1rem] pr-[0.5rem] xl:px-[1.5rem] h-[5.5rem] flex items-center justify-between gap-[2.5rem]">
+            <div class="flex items-center flex-grow gap-[1.5rem] xl:gap-[2.5rem] max-w-[52.9rem]">
+                <div class="shrink-0 xl:hidden">
+                    <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                        <span class="mobile-menu-toggle__first"></span>
+                        <span class="mobile-menu-toggle__middle"></span>
+                        <span class="mobile-menu-toggle__last"></span>
+                    </button>
+                </div>
+                <div class="shrink-0">
+                    <a href="/">
+                        <img src="images/logo-medianet.svg" alt="Medianet logo">
+                    </a>
+                </div>
+                <div class="hidden xl:block flex-grow">
+
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end shrink-0 gap-[1.5rem] xl:gap-[0.5rem]">
+                <div class="hidden xl:block">
+                    <a href="https://www.medianet.com.au/knowledge/media-releases" target="_blank" class="text-white text-14 kern-14 font-medium flex items-center gap-[0.5rem] xl:hover:bg-ai-600 xl:p-[0.5rem] xl:rounded-8 xl:transition-colors duration-300">
+                        <!--QuestionMarkCircle-->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-indigo-300"><g clip-path="url(#a)"><path fill="currentColor" fill-rule="evenodd" d="M10 2.417a7.583 7.583 0 1 0 0 15.166 7.583 7.583 0 0 0 0-15.166ZM.917 10a9.083 9.083 0 1 1 18.167 0A9.083 9.083 0 0 1 .917 10Zm9.047-3.417c-.725 0-1.335.496-1.508 1.167a.75.75 0 1 1-1.453-.373 3.058 3.058 0 0 1 6.018.763c0 .911-.432 1.523-.934 2.012-.215.208-.46.411-.692.604l-.08.066c-.264.22-.527.442-.788.7a.75.75 0 1 1-1.054-1.068c.31-.306.616-.563.884-.786l.075-.062c.242-.201.44-.365.609-.53.347-.338.48-.586.48-.936 0-.86-.697-1.557-1.557-1.557Zm-.739 7.583a.75.75 0 0 1 .75-.75h.009a.75.75 0 0 1 0 1.5h-.009a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"></path></g><defs><clipPath id="a"><path fill="currentColor" d="M0 0h20v20H0z"></path></clipPath></defs></svg>
+                        Help
+                    </a>
+                </div>
+
+                <div class="bg-blue-200 rounded-full w-[2.5rem] h-[2.5rem] flex items-center justify-center overflow-hidden relative">
+                    <span class="uppercase text-ocean-500 text-base kern-base font-medium text-center leading-none loading-placeholder"></span>
+                </div>
+                <div class="hidden xl:block max-w-[9rem]">
+                    <div class="text-white text-14 kern-14 font-medium w-[8.125rem] mb-[0.25rem]"><div class="loading-placeholder"></div></div>
+                    <div class="text-white text-12 truncate"><div class="loading-placeholder"></div></div>
+                </div>
+                <span class="header-profile__icon hidden xl:block">
+                    <!--ChevronDown-->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" class="text-white transition-transform duration-300"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m5.833 8.334 4.168 3.816 4.166-3.816"></path></svg>
+                </span>
+            </div>
+        </header>
+
+        <div class="flex flex-col h-full pt-[5.5rem] overflow-hidden">
+            <div class="flex h-full">
+                <div id="sidebar-menu" class="sidebar-menu" data-animation-duration="600">
+                    <button id="hide-sidebar" title="Toggle sidebar" class="w-[1.375rem] h-[1.375rem] rounded-full border border-grey-500 absolute right-[-0.6875rem] top-[0.47rem] z-[10] bg-grey-200 flex items-center justify-center shadow-sm">
+                        <span class="sr-only">Hide sidebar</span>
+                        <!--ChevronDoubleLeft-->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" class="text-indigo-300 w-[0.8125rem] h-auto"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M5.742 9.068 2.709 6.204l3.033-2.863m4.55 5.727L7.259 6.204l3.033-2.863"></path></svg>
+                    </button>
+                    <div class="flex flex-col overflow-y-auto h-full py-[1rem] hide-scrollbar">
+                        <section class="sidebar-menu__nav-section pb-[1rem] last:pb-0 border-b border-grey-500 last:border-0 mb-[1rem] last:mb-0">
+                            <ul>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <span class="w-full leading-[1.5] text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <!--Home-->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" class="text-indigo-300 w-[1.25rem] h-auto"><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M7.5 17.5v-5.706c0-.525.448-.951 1-.951h3c.552 0 1 .426 1 .951V17.5M9.42 2.676l-6.5 4.396a.938.938 0 0 0-.42.775v8.226c0 .788.672 1.427 1.5 1.427h12c.828 0 1.5-.639 1.5-1.427V7.847a.938.938 0 0 0-.42-.775l-6.5-4.396a1.042 1.042 0 0 0-1.16 0Z"></path></svg>
+                                            <span class="nav-item__label truncate">Home</span>
+                                        </span>
+                                    </span>
+                                </li>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <button title="Media Intelligence" class="nav-item__toggle leading-[1.5] w-full text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <!--Pulse-->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" class="text-indigo-300 w-[1.25rem] h-auto">
+                                                <path d="M5 14.5826H10L12.5506 6.25L18.0477 23.75L19.9879 14.5826H25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                            <span class="nav-item__label truncate">Media Intelligence</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <button title="Press Releases" class="nav-item__toggle leading-[1.5] w-full text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <!--Plane-->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 30 30" fill="none" class="text-indigo-300 w-[1.25rem] h-auto">
+                                                <path d="M15.1844 15H8.39148M7.02654 5.15003L24.2065 13.7C25.2645 14.2265 25.2645 15.7735 24.2065 16.3L7.02654 24.85C5.8496 25.4357 4.59862 24.2008 5.12289 22.9708L8.27347 15.5791C8.43082 15.2099 8.43082 14.7901 8.27347 14.4209L5.12289 7.02918C4.59863 5.79918 5.8496 4.56431 7.02654 5.15003Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                            </svg>
+                                            <span class="nav-item__label truncate">Press Releases</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <span class="w-full leading-[1.5] text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" class="text-indigo-300 w-[1.25rem] h-auto">
+                                                <path d="M20.0318 25.7132L20.0321 21.696C20.0323 19.477 18.2335 17.678 16.0146 17.678H7.01802C4.79935 17.678 3.0007 19.4765 3.00045 21.6951L3 25.7132M26.9996 25.7134L27 21.6962C27.0002 19.4772 25.2014 17.6783 22.9824 17.6783M19.2579 5.07539C20.2445 5.80744 20.8839 6.98101 20.8839 8.30392C20.8839 9.62683 20.2445 10.8004 19.2579 11.5325M15.6172 8.3037C15.6172 10.5225 13.8185 12.3213 11.5997 12.3213C9.38084 12.3213 7.58211 10.5225 7.58211 8.3037C7.58211 6.08486 9.38084 4.28613 11.5997 4.28613C13.8185 4.28613 15.6172 6.08486 15.6172 8.3037Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                            <span class="nav-item__label truncate">Contacts</span>
+                                        </span>
+                                    </span>
+                                </li>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <button title="My Insights" class="w-full leading-[1.5] text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <!--Pie-->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none" class="text-indigo-300 w-[1.25rem] h-auto">
+                                                <path d="M14.2941 27.3526C20.5317 27.3526 25.5882 22.296 25.5882 16.0585H14.2941L14.2942 4.76433C8.05659 4.76429 3 9.82089 3 16.0585C3 22.296 8.05655 27.3526 14.2941 27.3526Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                <path d="M19.2353 2.64648V11.0085H27V10.4112C27 6.12286 23.5236 2.64648 19.2353 2.64648Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                            <span class="nav-item__label truncate">My Insights</span>
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-section__nav-item mb-[0.5rem] last:mb-0">
+                                    <button title="Events" class="w-full leading-[1.5] text-13 text-indigo-500 font-medium border-l-5 border-transparent flex items-center gap-[0.5rem] py-[0.5rem] pl-[0.688rem] pr-[1rem] lg:hover:bg-grey-300 lg:transition-colors duration-300">
+                                        <span class="flex items-center gap-[0.5rem] shrink-0">
+                                            <!--CalendarAlt-->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-indigo-300 w-[1.25rem] h-auto">
+                                                <path d="M6.45833 14.3501V14.2857M10.2083 14.3501V14.2857M10.2083 10.8571V10.7927M13.5417 10.8571V10.7927M3.95833 7.42855H15.625M5.46627 2.5V3.78586M13.9583 2.5V3.78571M13.9583 3.78571H5.625C4.24429 3.78571 3.125 4.93697 3.125 6.35712V14.9286C3.125 16.3487 4.24429 17.5 5.625 17.5H13.9583C15.339 17.5 16.4583 16.3487 16.4583 14.9286L16.4583 6.35712C16.4583 4.93697 15.339 3.78571 13.9583 3.78571Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                            <span class="nav-item__label truncate">Events</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <div class="sidebar-menu__copyright mt-auto pt-[1rem] px-[1rem] text-14">
+                            
+                            <div class="text-indigo-500">© <span id="copyright"><script>document.write(new Date().getFullYear())</script>2026</span> Medianet</div>
+                            <div class="mt-[1rem] flex flex-col justify-start items-start">
+                                <a href="https://mediality.com.au/anti-spam-policy-medianet/" target="_blank" rel="nofollow" class="text-indigo-500 lg:hover:underline">Anti-Spam Policy</a>
+                                <a href="https://mediality.com.au/website-terms-conditions/" target="_blank" rel="nofollow" class="text-indigo-500 lg:hover:underline">Privacy Policy</a>
+                                <a href="https://mediality.com.au/website-terms-conditions/" target="_blank" rel="nofollow" class="text-indigo-500 lg:hover:underline">Terms of Service</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <main id="main" class="flex-grow overflow-y-auto relative overflow-x-hidden">
+                    <div class="p-[1rem] lg:px-[1.5rem] lg:pt-[2rem] lg:pb-[1.5rem]">
+                        <div style="height: 25px; width: 250px;" class="mb-[1rem]">
+                            <div class="loading-placeholder"></div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="loading-placeholder" style="height: 40px;width: 300px;"></div>
+                            <div class="hidden lg:flex lg:justify-end gap-[1rem] items-center">
+                                <div class="loading-placeholder" style="height:40px; width:500px;"></div>
+                            </div>
+                        </div>
+                        <div class="mt-[1.5rem]">
+                            <div class="loading-placeholder" style="width:210px; height:40px;"></div>
+                        </div>
+                        <div style="margin-left:-1rem; margin-right:-1rem;">
+                            <table class="w-full mt-[4rem] border-separate border-spacing-1">
+                                <colgroup>
+                                    <col style="width: 20%;">
+                                    <col style="width: 40%;">
+                                    <col style="width: 30%;">
+                                    <col style="width: 10%;">
+                                </colgroup>
+                                <thead>
+
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                        <th><div class="loading-placeholder"></div></th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="js/utilities.js"></script>
+    <script src="js/components/tooltips.js"></script>
+    <script src="js/components/charts.js"></script>
+    <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a46f6d0faa38e721',t:'MTc5MTQwMjUzNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; visibility: hidden;"></iframe>
+
+
+</body></html>
