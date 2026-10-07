@@ -221,3 +221,6 @@
 .case-card .tags li { font-size: 14px; padding: 3px 12px; }
 @media (max-width: 767px) { .case-card { padding: 22px; } .case-card .case-metric { font-size: 30px; } .case-card h3 { font-size: 20px; } .case-card > p:not([class]) { font-size: 16px; line-height: 24px; } .case-art, .case-top .case-logo { width: 48px; height: 48px; } }
 .review-card img.avatar { object-fit: cover; padding: 0; }
+.journey-map li.lit { background: var(--green); color: var(--navy); box-shadow: 0 0 0 3px var(--navy), 0 14px 30px rgba(20,27,65,.25); }
+.journey-map li.lit b, .journey-map li.lit span, .journey-map li.lit small { color: var(--navy); }
+.brand img { width: 44px; height: 44px; }
