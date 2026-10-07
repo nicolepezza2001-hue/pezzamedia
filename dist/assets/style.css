@@ -388,3 +388,75 @@ body.no-scroll { overflow: hidden; }
   .press-note { font-size: 16px; line-height: 24px; }
   .contact-alt { font-size: 16px; }
 }
+
+/* ===== 2026 restructure: press tiles, familiar, method, case studies, compare, FAQ ===== */
+.marquee-label { text-align: center; font-size: 18px; font-style: italic; letter-spacing: 1px; margin: 50px 20px 18px; }
+.outlet-tile { width: 195px; aspect-ratio: 1; max-width: 100%; margin: 0 auto 12px; border-radius: 20px; background: var(--navy); color: var(--cream); display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; font-size: 26px; line-height: 1.15; font-weight: 700; font-style: italic; }
+.stars { color: #C9A227; letter-spacing: 3px; font-size: 20px; }
+.review-card .stars { display: block; margin-bottom: 12px; }
+
+.familiar { padding: 90px 0; background: var(--navy); color: var(--cream); }
+.familiar .section-title, .familiar strong { color: var(--cream); }
+.familiar-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; align-items: start; }
+.familiar-text p { font-size: 22px; line-height: 34px; margin-bottom: 20px; max-width: 760px; }
+
+.method { padding: 90px 0; }
+.steps { list-style: none; counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin: 60px 0 0; padding: 0; }
+.steps li { counter-increment: step; border-top: 2px solid var(--navy); padding-top: 20px; }
+.steps li::before { content: "0" counter(step); display: block; font-size: 44px; font-style: italic; font-weight: 700; color: var(--navy); opacity: .35; margin-bottom: 6px; }
+.steps h3 { font-size: 26px; font-style: italic; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.steps p { font-size: 19px; line-height: 29px; }
+
+.case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-top: 60px; }
+.case-card { background: #fff; border: 1px solid rgba(20,27,65,.12); border-radius: 12px; padding: 34px; display: flex; flex-direction: column; min-width: 0; }
+.case-logo { width: 80px; height: 80px; object-fit: contain; border-radius: 12px; margin-bottom: 18px; }
+.case-metric { font-size: 44px; line-height: 1.1; font-weight: 700; font-style: italic; color: var(--navy); }
+.case-metric-label { font-size: 18px; font-style: italic; margin: 4px 0 18px; }
+.case-card h3 { font-size: 26px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.case-card > p:not([class]) { font-size: 19px; line-height: 29px; flex: 1; }
+.case-card .tags { justify-content: flex-start; margin-top: 20px; }
+.case-card .tags li { font-size: 16px; }
+.more-title { font-size: 28px; font-style: italic; margin: 60px 0 20px; }
+.more-brands { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 40px; }
+.more-brands li { font-size: 19px; line-height: 29px; }
+.more-brands b { display: block; font-style: italic; }
+
+.compare { padding: 90px 0; background: var(--pink); }
+.table-wrap { overflow-x: auto; margin-top: 50px; }
+.compare-table { width: 100%; max-width: 1000px; margin: 0 auto; border-collapse: collapse; font-size: 19px; line-height: 28px; background: var(--cream); border-radius: 8px; overflow: hidden; }
+.compare-table th, .compare-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid rgba(20,27,65,.15); vertical-align: top; }
+.compare-table thead th { background: var(--navy); color: var(--cream); font-style: italic; font-size: 22px; }
+.compare-table tbody th { font-weight: 700; }
+.yes { color: #2E8B3A; font-weight: 700; margin-right: 6px; }
+.no { color: #B23A48; font-weight: 700; margin-right: 6px; }
+
+.faq { padding: 90px 0; }
+.faq-inner { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; align-items: start; }
+.faq details { border-bottom: 1px solid rgba(20,27,65,.2); padding: 20px 0; }
+.faq summary { font-size: 23px; font-weight: 700; font-style: italic; cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 20px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-style: normal; }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { font-size: 19px; line-height: 29px; margin-top: 12px; max-width: 760px; }
+
+.contact-title { margin-bottom: 16px; }
+.contact-lead { text-align: center; font-size: 21px; line-height: 31px; max-width: 640px; margin: 0 auto 40px; }
+
+@media (max-width: 900px) {
+  .familiar-inner, .faq-inner { grid-template-columns: 1fr; gap: 24px; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .case-grid, .more-brands { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .familiar, .method, .compare, .faq { padding: 60px 0; }
+  .familiar-text p { font-size: 18px; line-height: 28px; }
+  .steps { grid-template-columns: 1fr; gap: 24px; margin-top: 36px; }
+  .case-grid { margin-top: 36px; }
+  .case-card { padding: 24px; }
+  .case-metric { font-size: 34px; }
+  .outlet-tile { width: 140px; font-size: 20px; }
+  .compare-table { font-size: 16px; line-height: 24px; }
+  .compare-table th, .compare-table td { padding: 12px; }
+  .faq summary { font-size: 19px; }
+  .faq details p, .steps p, .case-card > p:not([class]), .more-brands li { font-size: 17px; line-height: 26px; }
+}
