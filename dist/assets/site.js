@@ -168,11 +168,10 @@
 })();
 
 // ----- Mobile sticky "Book a call": hides at the top of the page and once the contact form is in view.
-// To send it to a booking page instead of the form, put the link in data-booking-href in index.html.
+// The booking link lives in the sticky-cta href in index.html.
 (function () {
   const cta = document.querySelector('.sticky-cta');
   if (!cta) return;
-  if (cta.dataset.bookingHref) { cta.href = cta.dataset.bookingHref; cta.target = '_blank'; cta.rel = 'noopener'; }
   const contact = document.getElementById('contact-section');
   let contactVisible = false;
   const update = () => cta.classList.toggle('away', contactVisible || window.scrollY < 400);

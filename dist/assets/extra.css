@@ -88,3 +88,9 @@
 .about .about-photo { width: 320px; }
 @media (max-width: 767px) { .about-wrap { grid-template-columns: 1fr; } .about .about-photo { width: 220px; } }
 .about { margin-top: 0; }
+
+/* Bigger sticky button + booking row */
+.sticky-cta { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 23px; padding: 18px 34px; right: 28px; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+.book-row { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: -10px 0 34px; }
+.book-row span { font-style: italic; font-size: 18px; opacity: .8; }
+@media (max-width: 767px) { .sticky-cta { font-size: 21px; padding: 16px 20px; } .book-btn { font-size: 22px; } }
