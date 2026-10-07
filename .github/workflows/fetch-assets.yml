@@ -1,0 +1,30 @@
+# Helper: downloads the files listed in tools/new-assets.txt into raw/ on the branch it runs on.
+# Run from the Actions tab ("Run workflow") and pick the branch. Safe to delete.
+name: Fetch assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        run: |
+          mkdir -p raw
+          while read -r url name; do
+            [ -z "$url" ] && continue
+            curl -fsSL --retry 3 -A "Mozilla/5.0" -o "$name" "$url" || echo "MISSING $url"
+          done < tools/new-assets.txt
+          ls -la raw
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add raw
+          git commit -m "Fetch assets" || echo "nothing new"
+          git push
