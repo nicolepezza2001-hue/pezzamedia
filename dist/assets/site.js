@@ -116,7 +116,7 @@
     '.stat', '.stats-note', '.case-card', '.more-title', '.more-brands li',
     '.journey-lead', '.journey-label', '.journey-map li', '.chips li', '.offer', '.result-card', '.results-note',
     '.about-intro', '.about-text p', '.about-photo', '.svc', '.services-head p',
-    '.carousel', '.faq details', '.contact-lead', '.envelope', '.btn'
+    '.carousel', '.proof-strip li', '.versus .table-wrap', '.faq details', '.contact-lead', '.envelope', '.btn'
   ].join(',');
   const els = Array.from(document.querySelectorAll(sel)).filter(el => !el.closest('.site-header, .mobile-menu, .popup'));
   if (!('IntersectionObserver' in window)) return;

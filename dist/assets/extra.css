@@ -43,3 +43,31 @@
 .result-card small { font-size: 16px; line-height: 23px; opacity: .8; }
 @media (max-width: 1024px) { .result-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 767px) { .result-cards { grid-template-columns: 1fr; } .result-card b { font-size: 36px; } }
+
+/* ===== Proof strip ===== */
+.proof-strip { list-style: none; margin: 44px auto 0; padding: 22px 10px; max-width: 1100px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid rgba(20,27,65,.2); border-bottom: 1px solid rgba(20,27,65,.2); }
+.proof-strip li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 4px 16px; min-width: 0; }
+.proof-strip li + li { border-left: 1px solid rgba(20,27,65,.2); }
+.proof-strip .stars, .proof-icon { font-size: 18px; color: #C9A227; letter-spacing: 3px; }
+.proof-strip b { font-size: 22px; font-style: italic; }
+.proof-strip small { font-size: 16px; opacity: .8; }
+@media (max-width: 767px) {
+  .proof-strip { grid-template-columns: 1fr; padding: 8px 0; }
+  .proof-strip li { padding: 14px 0; }
+  .proof-strip li + li { border-left: 0; border-top: 1px solid rgba(20,27,65,.2); }
+}
+
+/* ===== Comparison ===== */
+.versus { padding: 90px 0; background: var(--pink); }
+.versus .table-wrap { overflow-x: auto; margin-top: 46px; }
+.versus-table { width: 100%; min-width: 680px; max-width: 1100px; margin: 0 auto; border-collapse: separate; border-spacing: 0; font-size: 18px; line-height: 26px; }
+.versus-table th, .versus-table td { padding: 16px 18px; text-align: left; vertical-align: top; border-bottom: 1px solid rgba(20,27,65,.15); }
+.versus-table thead th { font-size: 21px; font-style: italic; font-weight: 700; border-bottom: 2px solid var(--navy); }
+.versus-table tbody th { font-weight: 700; width: 28%; }
+.versus-table .me { background: var(--cream); }
+.versus-table thead .me { background: var(--navy); color: var(--cream); border-radius: 12px 12px 0 0; }
+.versus-table tbody tr:last-child .me { border-radius: 0 0 12px 12px; }
+.versus-table i { font-style: normal; font-weight: 700; display: inline-block; width: 22px; }
+.versus-table .y { color: #2E8B3A; } .versus-table .n { color: #B23A48; } .versus-table .m { color: #8A6D1F; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 767px) { .versus { padding: 60px 0; } .versus-table { font-size: 16px; line-height: 23px; } }
