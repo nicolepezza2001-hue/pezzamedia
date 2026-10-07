@@ -498,3 +498,5 @@ body.no-scroll { overflow: hidden; }
 html, body { overflow-x: clip; }
 .case-card .tags li + li::before { display: none; }
 .case-card .tags li { border: 1px solid var(--navy); border-radius: 999px; padding: 2px 12px; font-size: 15px; }
+.envelope .name-field { width: 100%; margin-top: 0; }
+.envelope .field.right { text-align: left; }
