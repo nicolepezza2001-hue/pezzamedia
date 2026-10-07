@@ -4,6 +4,9 @@ name: Fetch assets
 
 on:
   workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths: [tools/new-assets.txt]
 
 permissions:
   contents: write
