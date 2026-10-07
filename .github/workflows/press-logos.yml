@@ -17,7 +17,7 @@ jobs:
           while read name url; do [ -z "$url" ] && continue
             case "$name" in
               *.dom) timeout 90 "$CH" --headless=new --no-sandbox --disable-gpu --user-agent="$UA" --virtual-time-budget=15000 --dump-dom "$url" > "raw/pages/$name.html" 2>/dev/null || true ;;
-              *) curl -sL -A "$UA" -o "raw/img/$name" "$url" ;;
+              *) curl -sL --max-time 40 -A "$UA" -o "raw/img/$name" "$url" || echo "fail $name" ;;
             esac
           done < tools/press-urls.txt
           ls -la raw/img raw/pages
