@@ -224,3 +224,11 @@
 .journey-map li.lit { background: var(--green); color: var(--navy); box-shadow: 0 0 0 3px var(--navy), 0 14px 30px rgba(20,27,65,.25); }
 .journey-map li.lit b, .journey-map li.lit span, .journey-map li.lit small { color: var(--navy); }
 .brand img { width: 44px; height: 44px; }
+/* Reviews: face + name pinned to the same spot on every card */
+.carousel#reviews { align-items: stretch; }
+.review-card { display: flex; flex-direction: column; }
+.review-card p { flex: 1; }
+.review-card footer { margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(20,27,65,.15); min-height: 72px; text-transform: none; font-size: 18px; line-height: 24px; }
+.review-card footer .who { display: flex; flex-direction: column; }
+.review-card footer .who span { display: block; font-weight: 400; font-size: 16px; }
+.journey-map li { transition-duration: .7s; }

@@ -248,7 +248,7 @@
     let idx = -1, timer = null;
     const step = () => { cards.forEach(c => c.classList.remove('lit')); idx = (idx + 1) % (cards.length + 2); if (cards[idx]) cards[idx].classList.add('lit'); };
     new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !timer) timer = setInterval(step, 700);
+      if (e.isIntersecting && !timer) timer = setInterval(step, 2800);
       else if (!e.isIntersecting) { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); }
     }, { threshold: 0.5 }).observe(map);
     map.addEventListener('mouseenter', () => { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); });
