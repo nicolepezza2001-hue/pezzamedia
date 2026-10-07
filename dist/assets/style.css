@@ -531,3 +531,17 @@ html, body { overflow-x: clip; }
   .journey-lead { font-size: 18px; line-height: 27px; }
   .journey-label { margin-top: 40px; }
 }
+
+/* ===== Animations ===== */
+.anim .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+.anim .reveal.in { opacity: 1; transform: none; }
+.anim .laurel.reveal { transform: scale(.85); }
+.anim .laurel.reveal.in { transform: none; }
+.case-card, .offer, .stat, .svc, .journey-map li { transition: transform .3s ease, box-shadow .3s ease; }
+.case-card:hover, .offer:hover, .stat:hover, .journey-map li:hover { transform: translateY(-6px); box-shadow: 0 14px 30px rgba(20,27,65,.12); }
+.btn { transition: transform .2s ease, background-color .2s ease; }
+.btn:hover { transform: translateY(-2px); }
+.chips li { transition: background-color .2s ease, color .2s ease; }
+.chips li:hover { background: var(--cream); color: var(--ink); }
+.underline::after { transition: transform .6s ease; }
+@media (prefers-reduced-motion: reduce) { .anim .reveal { opacity: 1; transform: none; transition: none; } }

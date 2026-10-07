@@ -108,3 +108,44 @@
     }
   });
 })();
+
+// ----- Scroll animations: elements fade up as they come into view -----
+(function () {
+  const sel = [
+    '.section-title', '.hero-sub', '.hero-ctas', '.laurel', '.hero-quote', '.marquee-label',
+    '.stat', '.stats-note', '.case-card', '.more-title', '.more-brands li',
+    '.journey-lead', '.journey-label', '.journey-map li', '.chips li', '.offer',
+    '.about-intro', '.about-text p', '.about-photo', '.svc', '.services-head p',
+    '.carousel', '.faq details', '.contact-lead', '.envelope', '.btn'
+  ].join(',');
+  const els = Array.from(document.querySelectorAll(sel)).filter(el => !el.closest('.site-header, .mobile-menu, .popup'));
+  if (!('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('anim');
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const sibs = Array.from(el.parentElement.children).filter(c => c.classList.contains('reveal'));
+    el.style.transitionDelay = Math.min(sibs.indexOf(el), 6) * 90 + 'ms';
+    el.classList.add('in');
+    io.unobserve(el);
+    setTimeout(() => { el.classList.remove('reveal', 'in'); el.style.transitionDelay = ''; }, 1400);
+  }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(el => { el.classList.add('reveal'); io.observe(el); });
+
+  // Count up the numbers in the laurel badges
+  document.querySelectorAll('.laurel b').forEach(b => {
+    const m = b.textContent.match(/^(\D*)(\d+)(.*)$/);
+    if (!m) return;
+    const [, pre, num, post] = m, target = +num;
+    const run = () => {
+      const t0 = performance.now(), dur = 1400;
+      const tick = now => {
+        const p = Math.min((now - t0) / dur, 1), eased = 1 - Math.pow(1 - p, 3);
+        b.textContent = pre + Math.round(target * eased) + post;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { run(); o.disconnect(); } }, { threshold: 0.5 }).observe(b);
+  });
+})();
