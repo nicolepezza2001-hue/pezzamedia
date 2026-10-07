@@ -11,12 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          mkdir -p raw/press
-          while read name url; do
-            [ -z "$name" ] && continue
-            curl -sL -A "Mozilla/5.0 (pezzamedia logo fetch)" -o "raw/press/$name" "$url" || true
-            echo "$name $(wc -c < raw/press/$name 2>/dev/null) $(file -b raw/press/$name | cut -c1-40)"
-          done < tools/press-urls.txt
-          find raw/press -size -200c -delete
+          rm -rf raw; mkdir -p raw/site
+          UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36"
+          base=$(head -1 tools/press-urls.txt)
+          curl -sL -A "$UA" -o raw/site/index.html "$base"
+          grep -oE '(src|href)="[^"]+\.(js|css)[^"]*"' raw/site/index.html | sed -E 's/^(src|href)="//; s/"$//' | sort -u > raw/site/assets.txt
+          i=0; while read u; do i=$((i+1)); case "$u" in http*) full="$u";; //*) full="https:$u";; /*) full="${base%/}$u";; *) full="${base%/}/$u";; esac
+            curl -sL -A "$UA" -o "raw/site/a$i-$(basename "${u%%\?*}")" "$full"; done < raw/site/assets.txt
+          ls -la raw/site
           git config user.name github-actions; git config user.email actions@github.com
-          git add raw && git commit -m "Fetched press logos" && git push || true
+          git add raw && git commit -m "Fetched site source" && git push || true
