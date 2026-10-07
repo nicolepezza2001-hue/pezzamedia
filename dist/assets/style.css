@@ -465,3 +465,36 @@ body.no-scroll { overflow: hidden; }
 .hero-quote blockquote { font-size: 24px; line-height: 34px; font-style: italic; margin: 0; }
 .hero-quote figcaption { margin-top: 10px; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
 @media (max-width: 767px) { .hero-quote blockquote { font-size: 19px; line-height: 28px; } }
+
+/* ===== Tidy-up pass ===== */
+.business::before, .business::after { display: none !important; }
+.stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1100px; margin-left: auto; margin-right: auto; gap: 24px; }
+.stat { background: #fff; border-radius: 12px; padding: 30px 20px 18px; }
+.stat img { margin-top: 0; }
+.laurels { gap: 70px; flex-wrap: wrap; }
+.hero-quote blockquote { font-size: 22px; line-height: 32px; }
+
+.services { padding: 90px 0; }
+.services-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; flex-wrap: wrap; }
+.services-head p { font-size: 21px; line-height: 31px; max-width: 460px; }
+.service-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 50px; }
+.svc { border-top: 2px solid var(--navy); padding-top: 18px; }
+.svc h3 { font-size: 24px; line-height: 32px; font-style: italic; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.svc p { font-size: 19px; line-height: 28px; }
+.services-cta { text-align: center; margin-top: 50px; }
+
+@media (max-width: 1024px) {
+  .service-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .laurels { gap: 30px; }
+}
+@media (max-width: 767px) {
+  .services { padding: 60px 0; }
+  .service-cards { grid-template-columns: 1fr; gap: 22px; margin-top: 30px; }
+  .svc p { font-size: 17px; line-height: 26px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .laurels { flex-wrap: nowrap; gap: 8px; }
+  .hero-quote blockquote { font-size: 18px; line-height: 27px; }
+}
+html, body { overflow-x: clip; }
+.case-card .tags li + li::before { display: none; }
+.case-card .tags li { border: 1px solid var(--navy); border-radius: 999px; padding: 2px 12px; font-size: 15px; }
