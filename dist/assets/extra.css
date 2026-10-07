@@ -143,3 +143,19 @@
 .anim .versus-table.ticks-in td.me { animation: me-glow 1.2s ease 1.2s both; }
 @keyframes me-glow { 0% { box-shadow: inset 0 0 0 0 rgba(156,222,159,0); } 50% { box-shadow: inset 0 0 0 3px rgba(156,222,159,.9); } 100% { box-shadow: inset 0 0 0 0 rgba(156,222,159,0); } }
 @media (prefers-reduced-motion: reduce) { .anim .versus-table tbody tr { opacity: 1; transform: none; } }
+/* Brand mark top left */
+.header-inner { justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy); font-size: 26px; font-weight: 700; letter-spacing: .5px; }
+.brand img { width: 40px; height: 40px; border-radius: 50%; image-rendering: pixelated; }
+.brand i { font-weight: 400; }
+@media (max-width: 991px) { .brand { font-size: 21px; } .brand img { width: 34px; height: 34px; } }
+/* Hero CTAs stacked */
+.hero-ctas { flex-direction: column; gap: 16px; }
+/* Logo marquee: slower, smaller, sharper */
+.logo-track { animation-duration: 70s; gap: 28px; }
+.logo-track li { width: 130px; }
+.logo-track img { width: 112px; border-radius: 18px; margin-bottom: 10px; }
+.logo-track span { font-size: 16px; line-height: 22px; }
+@media (max-width: 767px) { .logo-track { animation-duration: 55s; gap: 18px; } .logo-track li { width: 100px; } .logo-track img { width: 84px; } .logo-track span { font-size: 13px; line-height: 18px; } }
+/* Golden laurel numbers */
+.laurel b { color: #8a6a14; }
