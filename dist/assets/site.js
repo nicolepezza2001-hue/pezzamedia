@@ -116,7 +116,7 @@
     '.stat', '.stats-note', '.case-card', '.more-title', '.more-brands li',
     '.journey-lead', '.journey-label', '.journey-map li', '.chips li', '.offer', '.result-card', '.results-note',
     '.about-intro', '.about-text p', '.about-photo', '.svc', '.services-head p',
-    '.carousel', '.proof-strip li', '.versus .table-wrap', '.faq details', '.contact-lead', '.envelope', '.btn'
+    '.carousel', '.proof-strip li', '.faq details', '.contact-lead', '.envelope', '.btn'
   ].join(',');
   const els = Array.from(document.querySelectorAll(sel)).filter(el => !el.closest('.site-header, .mobile-menu, .popup'));
   if (!('IntersectionObserver' in window)) return;
@@ -257,8 +257,15 @@
   // Comparison table: ticks pop in row by row
   const table = document.querySelector('.versus-table');
   if (table) {
-    table.querySelectorAll('tbody tr').forEach((tr, r) => tr.querySelectorAll('i').forEach((i, c) => { i.style.animationDelay = (r * 140 + c * 60) + 'ms'; }));
-    once([table], t => t.classList.add('ticks-in'), 0.3);
+    table.querySelectorAll('tbody tr').forEach((tr, r) => {
+      tr.style.transitionDelay = (r * 160) + 'ms';
+      tr.querySelectorAll('i').forEach((i, c) => { i.style.animationDelay = (500 + r * 220 + c * 90) + 'ms'; });
+    });
+    // Replays every time the table comes back into view, once most of it is on screen
+    new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= 0.55) table.classList.add('ticks-in');
+      else if (!e.isIntersecting) table.classList.remove('ticks-in');
+    }, { threshold: [0, 0.55] }).observe(table);
   }
 
   // Case cards tilt gently towards the pointer (mouse only)
