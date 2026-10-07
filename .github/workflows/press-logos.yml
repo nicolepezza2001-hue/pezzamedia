@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          rm -rf raw; mkdir -p raw/img raw/pages
+          mkdir -p raw/img raw/pages
           UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36"
           CH=$(command -v google-chrome || command -v chromium)
           while read name url; do [ -z "$url" ] && continue

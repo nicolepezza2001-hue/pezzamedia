@@ -1,6 +1,4 @@
-tmrw-pouch.png https://cdn.shopify.com/s/files/1/0929/3670/0183/files/Frame_350_bf3e0bf2-fbbe-4bda-b004-910e9cf73bc5.png?v=1761146295&width=800
-tmrw-alt.webp https://cdn.shopify.com/s/files/1/0929/3670/0183/files/6a26b38c990f221a8470ec7a42fb3f95e7ae38c8.webp?v=1785859318&width=1200
-lw-bottle.jpg https://letswander.co/cdn/shop/files/2025_NP_Combo_white_bottle_2.jpg?v=1783959127&width=800
-lw-stickers.jpg https://letswander.co/cdn/shop/files/2026_NP_Sticker_Pack.jpg?v=1788097155&width=800
-sn.dom https://simplynootropics.co/collections/all-products
-dia.dom https://diamocycle.com/
+sn-mango.png https://simplynootropics.co/cdn/shop/files/ChatGPTImageAug3_2026_06_41_17AM.png?v=1785724887&width=800
+sn-bundle.png https://simplynootropics.co/cdn/shop/files/330ea8fd-c2a9-411a-a675-8b343e33b197.png?v=1785725539&width=800
+dia-home.html https://diamocycle.com/
+dia-shop.html https://diamocycle.com/shop/
