@@ -159,3 +159,7 @@
 @media (max-width: 767px) { .logo-track { animation-duration: 55s; gap: 18px; } .logo-track li { width: 100px; } .logo-track img { width: 84px; } .logo-track span { font-size: 13px; line-height: 18px; } }
 /* Golden laurel numbers */
 .laurel b { color: #8a6a14; }
+/* Business cards in brand green */
+.stat { background: var(--green); box-shadow: 0 10px 0 -2px rgba(20,27,65,.12); transition: transform .3s ease, box-shadow .3s ease; }
+.stat:hover { transform: translateY(-6px); box-shadow: 0 16px 0 -2px rgba(20,27,65,.16); }
+.stat strong { color: var(--navy); }
