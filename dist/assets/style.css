@@ -461,3 +461,7 @@ body.no-scroll { overflow: hidden; }
   .faq details p, .steps p, .case-card > p:not([class]), .more-brands li { font-size: 17px; line-height: 26px; }
 }
 .review-card[hidden] { display: none !important; }
+.hero-quote { max-width: 720px; margin: 40px auto 0; text-align: center; }
+.hero-quote blockquote { font-size: 24px; line-height: 34px; font-style: italic; margin: 0; }
+.hero-quote figcaption { margin-top: 10px; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+@media (max-width: 767px) { .hero-quote blockquote { font-size: 19px; line-height: 28px; } }
