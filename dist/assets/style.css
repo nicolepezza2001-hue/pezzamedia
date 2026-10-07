@@ -500,3 +500,34 @@ html, body { overflow-x: clip; }
 .case-card .tags li { border: 1px solid var(--navy); border-radius: 999px; padding: 2px 12px; font-size: 15px; }
 .envelope .name-field { width: 100%; margin-top: 0; }
 .envelope .field.right { text-align: left; }
+
+/* ===== Email journey ===== */
+.journey { padding: 90px 0; background: var(--navy); color: var(--cream); }
+.journey .section-title { color: var(--cream); }
+.journey-lead { text-align: center; font-size: 21px; line-height: 31px; max-width: 640px; margin: 18px auto 0; }
+.journey-label { font-size: 22px; font-style: italic; font-weight: 700; letter-spacing: 1px; margin: 54px 0 18px; color: var(--green); }
+.journey-label.center { text-align: center; }
+.journey-map { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; counter-reset: j; }
+.journey-map li { position: relative; background: var(--cream); color: var(--ink); border-radius: 12px; padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.journey-map li:not(:last-child)::after { content: "→"; position: absolute; right: -13px; top: 50%; transform: translateY(-50%); color: var(--green); font-size: 18px; z-index: 1; }
+.journey-map b { font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--navy); opacity: .7; }
+.journey-map span { font-size: 20px; line-height: 25px; font-weight: 700; font-style: italic; }
+.journey-map small { font-size: 16px; line-height: 23px; }
+.journey-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.chips { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.chips li { border: 1px solid var(--cream); border-radius: 999px; padding: 6px 16px; font-size: 17px; }
+.offers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.offer { background: var(--pink); color: var(--ink); border-radius: 12px; padding: 26px; }
+.offer h4 { font-size: 24px; font-style: italic; font-weight: 700; margin-bottom: 8px; }
+.offer p { font-size: 18px; line-height: 27px; }
+.journey .services-cta { margin-top: 40px; }
+@media (max-width: 1100px) {
+  .journey-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .journey-map li::after { display: none; }
+}
+@media (max-width: 767px) {
+  .journey { padding: 60px 0; }
+  .journey-map, .journey-cols, .offers { grid-template-columns: 1fr; }
+  .journey-lead { font-size: 18px; line-height: 27px; }
+  .journey-label { margin-top: 40px; }
+}
