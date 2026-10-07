@@ -232,3 +232,27 @@
 .review-card footer .who { display: flex; flex-direction: column; }
 .review-card footer .who span { display: block; font-weight: 400; font-size: 16px; }
 .journey-map li { transition-duration: .7s; }
+/* Business icons: crisp vector, animate on hover/tap and once on view */
+.stat .ico { display: block; margin: 0 auto 12px; color: var(--navy); overflow: visible; }
+.ico * { transform-box: fill-box; }
+.ico-mail .flap { transform-origin: 50% 0%; transition: transform .5s ease; }
+.ico-mail .letter { transition: transform .5s ease .15s; transform: translateY(14px); }
+.stat:hover .ico-mail .flap, .stat.play .ico-mail .flap { transform: scaleY(-1); }
+.stat:hover .ico-mail .letter, .stat.play .ico-mail .letter { transform: translateY(-8px); }
+.ico-laptop .type path { stroke-dasharray: 40; stroke-dashoffset: 40; transition: stroke-dashoffset .5s ease; }
+.ico-laptop .t2 { transition-delay: .35s !important; } .ico-laptop .t3 { transition-delay: .7s !important; }
+.stat:hover .ico-laptop .type path, .stat.play .ico-laptop .type path { stroke-dashoffset: 0; }
+.ico-laptop .cursor { animation: blink 1s steps(1) infinite; }
+.ico-laptop .rank { opacity: 0; transform: scale(.4); transform-origin: center; transition: opacity .3s ease 1.1s, transform .4s cubic-bezier(.2,.8,.2,1.4) 1.1s; }
+.stat:hover .ico-laptop .rank, .stat.play .ico-laptop .rank { opacity: 1; transform: none; }
+@keyframes blink { 50% { opacity: 0; } }
+.ico-scroll .ink path { stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset .5s linear; }
+.ico-scroll .i2 { transition-delay: .5s !important; } .ico-scroll .i3 { transition-delay: 1s !important; }
+.stat:hover .ico-scroll .ink path, .stat.play .ico-scroll .ink path { stroke-dashoffset: 0; }
+.stat:hover .ico-scroll .quill, .stat.play .ico-scroll .quill { animation: write 1.5s ease-in-out; }
+@keyframes write { 0% { transform: translate(-22px,-14px); } 33% { transform: translate(0,-14px); } 34% { transform: translate(-22px,-7px); } 66% { transform: translate(0,-7px); } 67% { transform: translate(-22px,0); } 100% { transform: translate(-6px,0); } }
+.stat { cursor: default; }
+@media (prefers-reduced-motion: reduce) { .ico * { transition: none !important; animation: none !important; } .ico-laptop .type path, .ico-scroll .ink path { stroke-dashoffset: 0; } .ico-laptop .rank { opacity: 1; transform: none; } }
+.ico-scroll .i4 { transition-delay: 1.4s !important; }
+@keyframes write { 0% { transform: translate(-30px,-2px); } 25% { transform: translate(-2px,-2px); } 26% { transform: translate(-30px,6px); } 50% { transform: translate(-2px,6px); } 51% { transform: translate(-30px,14px); } 75% { transform: translate(-12px,14px); } 100% { transform: translate(0,0); } }
+.stat:hover .ico-scroll .quill, .stat.play .ico-scroll .quill { animation: write 1.8s ease-in-out; }
