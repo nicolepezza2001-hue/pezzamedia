@@ -460,3 +460,4 @@ body.no-scroll { overflow: hidden; }
   .faq summary { font-size: 19px; }
   .faq details p, .steps p, .case-card > p:not([class]), .more-brands li { font-size: 17px; line-height: 26px; }
 }
+.review-card[hidden] { display: none !important; }
