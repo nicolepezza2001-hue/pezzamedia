@@ -403,7 +403,7 @@ body.no-scroll { overflow: hidden; }
 .method { padding: 90px 0; }
 .steps { list-style: none; counter-reset: step; display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin: 60px 0 0; padding: 0; }
 .steps li { counter-increment: step; border-top: 2px solid var(--navy); padding-top: 20px; }
-.steps li::before { content: "0" counter(step); display: block; font-size: 44px; font-style: italic; font-weight: 700; color: var(--navy); opacity: .35; margin-bottom: 6px; }
+.steps li::before { content: none; }
 .steps h3 { font-size: 26px; font-style: italic; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
 .steps p { font-size: 19px; line-height: 29px; }
 
