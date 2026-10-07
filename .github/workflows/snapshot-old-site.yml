@@ -1,0 +1,35 @@
+# One-off helper: downloads the current WordPress site at pezzamedia.com
+# (HTML, CSS, fonts and images) into old-site/ so the static rebuild can match it.
+# Run it from the Actions tab ("Run workflow"). Safe to delete after the move.
+name: Snapshot old WordPress site
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/snapshot-old-site.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the site
+        run: |
+          rm -rf old-site && mkdir old-site && cd old-site
+          wget --mirror --page-requisites --convert-links --adjust-extension \
+               --no-parent --span-hosts --domains=pezzamedia.com,fonts.googleapis.com,fonts.gstatic.com \
+               -e robots=off --wait=0.3 --tries=3 https://pezzamedia.com/ || true
+          wget -q -O home.raw.html https://pezzamedia.com/ || true
+          find . -type f | sort > FILES.txt
+          du -sh . 
+      - name: Commit snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add old-site
+          git commit -m "Snapshot of the old WordPress site" || echo "nothing to commit"
+          git push
