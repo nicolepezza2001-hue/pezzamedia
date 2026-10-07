@@ -88,8 +88,8 @@ body.no-scroll { overflow: hidden; }
   content: ""; position: absolute; top: 0; width: 512px; height: 491px;
   background-repeat: no-repeat; background-size: contain; pointer-events: none;
 }
-.hero::before { left: 0; background-image: url(hero-vine-left.png); }
-.hero::after { right: 0; background-image: url(hero-vine-right.png); }
+.hero::before { left: 0; background-image: url(hero-vine-left.webp); }
+.hero::after { right: 0; background-image: url(hero-vine-right.webp); }
 .hero-inner { position: relative; z-index: 1; text-align: center; padding-top: 245px; }
 .hero-title {
   max-width: 800px; margin: 0 auto;
