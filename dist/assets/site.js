@@ -39,7 +39,7 @@
   loop();
 })();
 
-// ----- Carousels: arrows + gentle autoplay while on screen -----
+// ----- Carousels: arrows + autoplay every 3.5s while on screen (pauses 8s after a click or swipe) -----
 (function () {
   document.querySelectorAll('.carousel').forEach(track => {
     const step = () => track.firstElementChild.getBoundingClientRect().width +
@@ -53,16 +53,13 @@
     document.querySelectorAll(`.arrow[data-target="${track.id}"]`).forEach(btn =>
       btn.addEventListener('click', () => { move(btn.classList.contains('next') ? 1 : -1); pause(); }));
 
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let timer = null, visible = false, hold = false;
     const start = () => { if (!timer && visible && !hold) timer = setInterval(() => move(1), 3500); };
     const stop = () => { clearInterval(timer); timer = null; };
     function pause() { stop(); hold = true; setTimeout(() => { hold = false; start(); }, 8000); }
-    track.addEventListener('mouseenter', () => { hold = true; stop(); });
-    track.addEventListener('mouseleave', () => { hold = false; start(); });
     track.addEventListener('touchstart', pause, { passive: true });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); },
-      { threshold: 0.4 }).observe(track);
+      { threshold: 0.2 }).observe(track);
   });
 })();
 
