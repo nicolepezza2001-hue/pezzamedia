@@ -6,19 +6,39 @@
   <title>Pezza Media | Freelance Copywriter and Klaviyo Specialist</title>
   <meta name="description" content="Nicole Pezza, freelance copywriter and Klaviyo specialist. Email strategy, SEO blog writing, ghostwriting, language creation and article writing.">
   <link rel="canonical" href="https://pezzamedia.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pezzamedia.com/">
   <meta property="og:title" content="Pezza Media | Freelance Copywriter and Klaviyo Specialist">
   <meta property="og:description" content="Your ideas, my words, our success.">
   <meta property="og:image" content="https://pezzamedia.com/assets/nicole.png">
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="assets/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
+  <script src="assets/site.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
+<!-- ============ HEADER ============ -->
 <header class="site-header">
-  <a class="brand" href="#top">Pezza Media</a>
-  <nav>
+  <div class="container header-inner">
+    <nav class="desktop-nav" aria-label="Main">
+      <a href="#greeting-section">About</a>
+      <a href="#copyright-section">Services</a>
+      <a href="#portfolio-section">Portfolio</a>
+      <a class="btn btn-pill" href="#contact-section">Contact</a>
+    </nav>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="menu-overlay" hidden></div>
+  <nav id="mobile-menu" class="mobile-menu" aria-label="Mobile">
+    <button class="menu-close" type="button" aria-label="Close menu">&times;</button>
     <a href="#greeting-section">About</a>
     <a href="#copyright-section">Services</a>
     <a href="#portfolio-section">Portfolio</a>
@@ -26,190 +46,265 @@
   </nav>
 </header>
 
-<main id="top">
+<main id="main">
 
-  <!-- HERO -->
+  <!-- ============ HERO ============ -->
   <section class="hero">
-    <p class="eyebrow">freelance copywriter and klaviyo specialist</p>
-    <h1>Your ideas, my words, our success.</h1>
-    <img class="deco deco-1" src="assets/deco-1.svg" alt="">
-    <img class="deco deco-2" src="assets/deco-2.svg" alt="">
-    <img class="deco deco-3" src="assets/deco-3.svg" alt="">
+    <div class="container hero-inner">
+      <h1 class="hero-title">
+        <span class="underline underline-freelance">freelance</span> copywriter <span class="lower">and</span> klaviyo specialist
+      </h1>
+      <p class="typing-text" data-text="Your ideas, my words, our success.">Your ideas, my words, our success.</p>
+      <a class="btn btn-big" href="#contact-section">Get in touch</a>
+
+      <div class="laurels">
+        <img src="assets/laurel-sales.svg" alt="$3 Million in Sales Generated">
+        <img src="assets/laurel-emails.svg" alt="40 Million Emails Sent">
+        <img src="assets/laurel-words.svg" alt="1 Million Words Written">
+      </div>
+    </div>
+
+    <!-- Client logos (scrolls automatically) -->
+    <div class="logo-marquee" aria-label="Clients">
+      <ul class="logo-track">
+        <li><img src="assets/logo-simply-nootropics.png" alt=""><span>Simply Nootropics</span></li>
+        <li><img src="assets/logo-diamocycle.png" alt=""><span>Diamocycle</span></li>
+        <li><img src="assets/logo-lets-wander.png" alt=""><span>Let’s Wander</span></li>
+        <li><img src="assets/logo-the-archive.png" alt=""><span>The Archive</span></li>
+        <li><img src="assets/logo-alpha-wealth-group.png" alt=""><span>Alpha Wealth Group</span></li>
+        <li><img src="assets/logo-moonrunners.png" alt=""><span>Moonrunners</span></li>
+        <li><img src="assets/logo-medium.png" alt=""><span>Medium</span></li>
+        <li><img src="assets/logo-lets-wander-2.png" alt=""><span>Let’s Wander</span></li>
+        <li><img src="assets/logo-delaway-digital.png" alt=""><span>Delaway Digital</span></li>
+        <li><img src="assets/logo-good-electrical.png" alt=""><span>The Good Electrical Company</span></li>
+      </ul>
+    </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- ============ ABOUT ============ -->
   <section id="greeting-section" class="about">
-    <div class="about-photo">
-      <img src="assets/nicole.png" alt="Nicole Pezza">
-    </div>
-    <div class="about-text">
-      <h2>Greetings!</h2>
-      <p>My name is Nicole, but <strong>Nicky</strong> works just fine! I'm here to help anyone with anything writing-related. And whether you pronounce it Klah-vee-oh or Klay-vee-oh, I promise <strong>your emails will sound a lot better</strong> once I've had a go at them.</p>
-      <p>You've got a business, project, or idea, but the words you need escape you? Well, I can't relate to that. What I can do is capture those elusive words and shape them into compelling copy that <strong>brings your vision to life</strong>.</p>
-      <p>As the self-crowned Empress of Eloquence, I've spent the last <strong>6 years</strong> creating <strong>email strategy</strong> and <strong>writing copy</strong> for everything from supplements to cryptocurrencies, pre-loved diamonds to flavoured bottles. I've written essays about sexuality in Russian literature and created multi-lingual cyphers for fantasy brands. Scroll to my clients' reviews and you'll see why <strong>I'm the best in the business</strong>.</p>
+    <div class="container">
+      <p class="about-intro"><b>Greetings!</b> My name is Nicole, but <span class="underline underline-nicky"><b>Nicky</b></span> works just fine! I’m here to help anyone with anything writing-related. And whether you pronounce it Klah-vee-oh or Klay-vee-oh, I promise <b>your emails will sound a lot better</b> once I’ve had a go at them.</p>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>You’ve got a business, project, or idea, but the words you need escape you? Well, I can’t relate to that. What I can do is capture those elusive words and shape them into compelling copy that <b>brings your vision to life</b>.</p>
+          <p>As the self-crowned Empress of Eloquence, I’ve spent the last <b>6 years</b> creating <b>email strategy</b> and <b>writing copy</b> for everything from supplements to cryptocurrencies, pre-loved diamonds to flavoured bottles. I’ve written essays about sexuality in Russian literature and created multi-lingual cyphers for fantasy brands. Scroll to my clients’ reviews and you’ll see why <b>I’m the best in the business</b>.</p>
+        </div>
+        <img class="about-photo" src="assets/nicole.png" alt="Nicole Pezza in a floral frame" width="492" height="507">
+      </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
+  <!-- ============ SERVICES ============ -->
   <section id="copyright-section" class="services">
-    <h2 class="section-title"><span>Copywriting</span> services</h2>
-    <p class="lead"><strong>Writing is how you communicate with your customers</strong>, clients, and readers, so it's absolutely central to my work. Maybe you dislike writing, suffer from blank page anxiety, or simply don't have the time or creativity to get it done. Don't worry, <strong>I have enough words for the both of us.</strong> With your vision and my expertise, <strong>we can give life to your idea</strong> together.</p>
+    <div class="container services-grid">
+      <div class="services-intro">
+        <h2 class="section-title">COPYWRITING <span class="underline underline-services">services</span></h2>
+        <p><strong>Writing is how you communicate with your customers</strong>, clients, and readers, so it’s absolutely central to my work. Maybe you dislike writing, suffer from blank page anxiety, or simply don’t have the time or creativity to get it done. Don’t worry, <strong>I have enough words for the both of us.</strong> With your vision and my expertise, <strong>we can give life to your idea</strong> together. But I’ll stop rambling and let you read about my services.</p>
+        <a class="btn" href="#contact-section">Let’s chat</a>
+        <img class="services-sprig" src="assets/services-sprig.png" alt="" width="277" height="353">
+      </div>
 
-    <div class="service-grid">
-      <article class="service">
-        <h3>Email Strategy</h3>
-        <p>Say <strong>sayonara to boring emails.</strong> I'll help you map the customer journey, build out flows that convert, and write campaigns that actually get clicked, so your audience stays engaged <strong>from welcome to win-back.</strong></p>
-      </article>
-      <article class="service">
-        <h3>SEO Blog Writing</h3>
-        <p><strong>Get found on Google</strong> and educate your readers. Whatever you need to communicate, I'll ensure it's <strong>SEO optimized</strong> and hits your target audience, driving conversions.</p>
-      </article>
-      <article class="service">
-        <h3>Ghostwriting</h3>
-        <p>Your memoir, travel guides, wedding speeches, funeral elegies, love letters, your grocery list; <strong>I enjoy writing them all,</strong> and they will all make you cry (yes, the grocery list too).</p>
-      </article>
-      <article class="service">
-        <h3>Language Creation</h3>
-        <p>Jashir rai moyy da. Ya know what I mean? If not, don't worry. As an experienced linguist, <strong>I can create a unique language</strong> for your <strong>world-building needs</strong> and even make people want to learn it. Drawing from my experience with Italian, Russian, French, Ancient Greek, and Latin (just to name a few).</p>
-      </article>
-      <article class="service">
-        <h3>Article Writing</h3>
-        <p>Intermediality as an epistemological tool in contemporary art forms, the influence of Old Church Slavonic on modern Eastern European languages, lesbian vampires: <strong>what do all these things have in common? Me.</strong></p>
-      </article>
+      <div class="service-list">
+        <div class="service">
+          <h3>Email Strategy</h3>
+          <p>Say <strong>sayonara to boring emails.</strong> I’ll help you map the customer journey, build out flows that convert, and write campaigns that actually get clicked, so your audience stays engaged <strong>from welcome to win-back.</strong></p>
+        </div>
+        <div class="service">
+          <h3>SEO Blog Writing</h3>
+          <p><strong>Get found on Google</strong> and educate your readers. Whatever you need to communicate, I’ll ensure it’s <strong>SEO optimized</strong> and hits your target audience, driving conversions.</p>
+        </div>
+        <div class="service">
+          <h3>Ghostwriting</h3>
+          <p>Your memoir, travel guides, wedding speeches, funeral elegies, love letters, your grocery list; <strong>I enjoy writing them all,</strong> and they will all make you cry (yes, the grocery list too).</p>
+        </div>
+        <div class="service">
+          <h3>Language Creation</h3>
+          <p>Jashir rai moyy da. Ya know what I mean? If not, don’t worry. As an experienced linguist, <strong>I can create a unique language</strong> for your <strong>world-building needs</strong> and even make people want to learn it. Drawing from my experience with Italian, Russian, French, Ancient Greek, and Latin (just to name a few).</p>
+        </div>
+        <div class="service">
+          <h3>Article Writing</h3>
+          <p>Intermediality as an epistemological tool in contemporary art forms, the influence of Old Church Slavonic on modern Eastern European languages, lesbian vampires: <strong>what do all these things have in common? Me.</strong></p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- PORTFOLIO -->
+  <!-- ============ PORTFOLIO ============ -->
   <section id="portfolio-section" class="portfolio">
-    <h2 class="section-title">This is what <span>I've been busy</span> doing</h2>
-
-    <div class="logo-strip">
-      <img src="assets/logo-simply-nootropics.png" alt="Simply Nootropics">
-      <img src="assets/logo-diamocycle.png" alt="Diamocycle">
-      <img src="assets/logo-lets-wander.png" alt="Let's Wander">
-      <img src="assets/logo-the-archive.png" alt="The Archive">
-      <img src="assets/logo-alpha-wealth-group.png" alt="Alpha Wealth Group">
-      <img src="assets/logo-moonrunners.png" alt="Moonrunners">
-      <img src="assets/logo-medium.png" alt="Medium">
-      <img src="assets/logo-delaway-digital.png" alt="Delaway Digital">
-      <img src="assets/logo-good-electrical.png" alt="The Good Electrical Company">
-    </div>
-
-    <div class="project-grid">
-      <article class="project">
-        <h3>Simply Nootropics</h3>
-        <p>Lead Copywriter and Email Strategist for a global supplement company. Created SEO-optimized blog posts and developed high-converting Klaviyo flows and campaigns for a 200,000-strong mailing list, boosting organic traffic and revenue by 2.3x.</p>
-        <ul class="tags"><li>Email Strategy</li><li>SEO</li><li>Blog Writing</li></ul>
-      </article>
-      <article class="project">
-        <h3>Diamocycle</h3>
-        <p>In-house SEO specialist for an online diamond marketplace. Implemented on-page SEO strategies and improved site copy, boosting search engine visibility by 40%.</p>
-        <ul class="tags"><li>SEO</li><li>Website Copy</li><li>Blog Writing</li></ul>
-      </article>
-      <article class="project">
-        <h3>The Archive</h3>
-        <p>Lead ghostwriter for a video-biography production company. Collaborated closely with the client to understand their vision. Translated complex ideas into engaging, well-structured content, and delivered high-quality ghostwritten blogs as well as website copy.</p>
-        <ul class="tags"><li>Ghostwriting</li><li>Website Copy</li><li>Blog Writing</li></ul>
-      </article>
-      <article class="project">
-        <h3>Alpha Wealth Group</h3>
-        <p>Blog writer and email strategist for a cryptocurrency education platform. Crafted engaging SEO-driven blog posts and developed targeted Klaviyo email campaigns to boost readership, increase engagement, and drive consistent site traffic.</p>
-        <ul class="tags"><li>Email Strategy</li><li>SEO</li><li>Blog Writing</li></ul>
-      </article>
-      <article class="project">
-        <h3>Moonrunners</h3>
-        <p>Creative strategist for an innovative NFT company that grossed over $16 Million in one week after launch. Specialised in language creation and fantasy ciphers to create an immersive experience for the audience.</p>
-        <ul class="tags"><li>Ghostwriting</li><li>Language Creation</li></ul>
-      </article>
-      <article class="project">
-        <h3>Medium</h3>
-        <p>Writer for the popular blogging platform. Performed in-depth research on diverse topics, crafted compelling articles with a focus on readability and engagement. Contributed to meaningful discussions and educational content.</p>
-        <ul class="tags"><li>Article Writing</li><li>SEO</li></ul>
-      </article>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section class="stats">
-    <h2 class="section-title">Let's talk <span>business</span></h2>
-    <div class="stat-grid">
-      <div class="stat-card">
-        <img src="assets/icon-emails.png" alt="">
-        <h3>Emails</h3>
-        <ul>
-          <li><strong>40M</strong> emails sent</li>
-          <li><strong>55%</strong> Average Open Rate</li>
-          <li>Over <strong>$3M</strong> in sales generated</li>
-        </ul>
+    <div class="container">
+      <div class="carousel-head">
+        <h2 class="section-title">This is what I’VE BEEN <span class="underline underline-busy">BUSY</span> doing</h2>
+        <div class="carousel-arrows">
+          <button class="arrow prev" type="button" aria-label="Previous project" data-target="projects"></button>
+          <button class="arrow next" type="button" aria-label="Next project" data-target="projects"></button>
+        </div>
       </div>
-      <div class="stat-card">
-        <img src="assets/icon-website-copy.png" alt="">
-        <h3>Website Copy</h3>
-        <ul>
-          <li><strong>300+</strong> SEO blogs written</li>
-          <li><strong>$1M</strong> in total orders</li>
-          <li><strong>80,000</strong> email sign ups</li>
-        </ul>
-      </div>
-      <div class="stat-card">
-        <img src="assets/icon-creative-writing.png" alt="">
-        <h3>Creative Writing</h3>
-        <ul>
-          <li><strong>1M</strong> words written</li>
-          <li><strong>30+</strong> articles written</li>
-          <li><strong>5+</strong> genres covered</li>
-        </ul>
+
+      <div class="carousel" id="projects">
+        <article class="project-card">
+          <h3>Simply Nootropics</h3>
+          <p>Lead Copywriter and Email Strategist for a global supplement company. Created SEO-optimized blog posts and developed high-converting Klaviyo flows and campaigns for a 200,000-strong mailing list, boosting organic traffic and revenue by 2.3x.</p>
+          <ul class="tags"><li>Email Strategy</li><li>SEO</li><li>Blog Writing</li></ul>
+        </article>
+        <article class="project-card">
+          <h3>Diamocycle</h3>
+          <p>In-house SEO specialist for an online diamond marketplace. Implemented on-page SEO strategies and improved site copy, boosting search engine visibility by 40%.</p>
+          <ul class="tags"><li>SEO</li><li>Website Copy</li><li>Blog Writing</li></ul>
+        </article>
+        <article class="project-card">
+          <h3>The Archive</h3>
+          <p>Lead ghostwriter for a video-biography production company. Collaborated closely with the client to understand their vision. Translated complex ideas into engaging, well-structured content, and delivered high-quality ghostwritten blogs as well as website copy.</p>
+          <ul class="tags"><li>Ghostwriting</li><li>Website Copy</li><li>Blog Writing</li></ul>
+        </article>
+        <article class="project-card">
+          <h3>Alpha Wealth Group</h3>
+          <p>Blog writer and email strategist for a cryptocurrency education platform. Crafted engaging SEO-driven blog posts and developed targeted Klaviyo email campaigns to boost readership, increase engagement, and drive consistent site traffic.</p>
+          <ul class="tags"><li>Email Strategy</li><li>SEO</li><li>Blog Writing</li></ul>
+        </article>
+        <article class="project-card">
+          <h3>Moonrunners</h3>
+          <p>Creative strategist for an innovative NFT company that grossed over $16 Million in one week after launch. Specialised in language creation and fantasy ciphers to create an immersive experience for the audience.</p>
+          <ul class="tags"><li>Ghostwriting</li><li>Language Creation</li></ul>
+        </article>
+        <article class="project-card">
+          <h3>Medium</h3>
+          <p>Writer for the popular blogging platform. Performed in-depth research on diverse topics, crafted compelling articles with a focus on readability and engagement. Contributed to meaningful discussions and educational content.</p>
+          <ul class="tags"><li>Article Writing</li><li>SEO</li></ul>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
-  <section class="testimonials">
-    <div class="quote-grid">
-      <blockquote>
-        <p>It was an absolute pleasure working with Nicole. Her grasp of so many languages is truly astounding and she was instrumental for us to hit all our copywriting goals. She's my go-to copywriter and will be for many years to come I hope.</p>
-        <footer><strong>Daniel Delaway</strong><span>The Archive Founder</span></footer>
-      </blockquote>
-      <blockquote>
-        <p>Nicole completely turned around our content game. Her blog posts and marketing emails didn't just bring in traffic, they also brought in engaged, excited customers. She has this knack for understanding exactly what our audience wants to read, and it shows. Our revenue took off, and it's all thanks to her ability with words.</p>
-        <footer><strong>Anthony Baxter</strong><span>CEO of Simply Nootropics</span></footer>
-      </blockquote>
-      <blockquote>
-        <p>I was too emotionally overwhelmed when it came to writing a funeral speech after my dad passed away, when I came across Nicole's website. I can't put a sentence together on a good day, but Nicole was incredible. She ghostwrote the most beautiful, heartfelt speech and by the end, everyone was in tears. Nicole, you made an unbearably hard moment just a little bit easier. Thank you.</p>
-        <footer><strong>Simon Marle</strong></footer>
-      </blockquote>
-      <blockquote>
-        <p>Token Alpha Group: Nicole exceeded my expectations on this project, providing quality work in a speedy manner. We have tight deadlines but she's always able to work to our schedule to make sure we have the final work to the clients on time. I would highly recommend her once again to anyone looking for a blog writer or copywriter - 11/10!</p>
-        <footer><strong>Scott Williams</strong><span>CEO of Token Alpha Group</span></footer>
-      </blockquote>
-      <blockquote>
-        <p>Nicole's expertise in SEO has been a game-changer for our business. Her attention to detail and improvements to our site copy have really improved our visibility. We couldn't have asked for a more competent SEO specialist</p>
-        <footer><strong>Christine Odenwald</strong><span>Marketing Manager at Diamocycle</span></footer>
-      </blockquote>
-      <blockquote>
-        <p>We asked Nicole to write a short story collection for the kids in our kindergarten, and she absolutely nailed it! The stories she came up with were perfect for our little ones, they were imaginative, fun, and totally engaging. The kids are always excited for story time now, thanks to her. Nicole really knows how to connect with young readers. We're grateful for her amazing work!</p>
-        <footer><strong>Kelly Riordan</strong></footer>
-      </blockquote>
+  <!-- ============ STATS ============ -->
+  <section class="business">
+    <div class="container">
+      <h2 class="section-title center">Let’s talk <span class="underline underline-business">BUSINESS</span></h2>
+      <div class="stats-grid">
+        <div class="stat">
+          <p><strong>40M</strong> emails sent</p>
+          <p><strong>55%</strong> Average Open Rate</p>
+          <p>Over <strong>$3M</strong> in sales generated</p>
+          <img src="assets/icon-emails.png" alt="" width="68" height="54">
+          <h3>Emails</h3>
+        </div>
+        <div class="stat">
+          <p><strong>300+</strong> SEO blogs written</p>
+          <p><strong>$1M</strong> in total orders</p>
+          <p><strong>80,000</strong> email sign ups</p>
+          <img src="assets/icon-website-copy.png" alt="" width="68" height="54">
+          <h3>Website Copy</h3>
+        </div>
+        <div class="stat">
+          <p><strong>1M</strong> words written</p>
+          <p><strong>30+</strong> articles written</p>
+          <p><strong>5+</strong> genres covered</p>
+          <img src="assets/icon-creative-writing.png" alt="" width="54" height="55">
+          <h3>Creative Writing</h3>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- ============ TESTIMONIALS ============ -->
+  <section class="reviews">
+    <div class="container">
+      <div class="carousel-head">
+        <h2 class="section-title">WHAT my clients<br>are <span class="underline underline-saying">SAYING</span></h2>
+        <div class="carousel-arrows">
+          <button class="arrow prev" type="button" aria-label="Previous review" data-target="reviews"></button>
+          <button class="arrow next" type="button" aria-label="Next review" data-target="reviews"></button>
+        </div>
+      </div>
+
+      <div class="carousel two" id="reviews">
+        <blockquote class="review-card">
+          <p>It was an absolute pleasure working with Nicole. Her grasp of so many languages is truly astounding and she was instrumental for us to hit all our copywriting goals. She's my go-to copywriter and will be for many years to come I hope.</p>
+          <footer>Daniel Delaway, <span>The Archive Founder</span></footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <p>Nicole completely turned around our content game. Her blog posts and marketing emails didn't just bring in traffic, they also brought in engaged, excited customers. She has this knack for understanding exactly what our audience wants to read, and it shows. Our revenue took off, and it's all thanks to her ability with words.</p>
+          <footer>Anthony Baxter, <span>CEO of Simply Nootropics</span></footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <p>I was too emotionally overwhelmed when it came to writing a funeral speech after my dad passed away, when I came across Nicole's website. I can't put a sentence together on a good day, but Nicole was incredible. She ghostwrote the most beautiful, heartfelt speech and by the end, everyone was in tears. Nicole, you made an unbearably hard moment just a little bit easier. Thank you.</p>
+          <footer>Simon Marle</footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <p>Token Alpha Group: Nicole exceeded my expectations on this project, providing quality work in a speedy manner. We have tight deadlines but she's always able to work to our schedule to make sure we have the final work to the clients on time. I would highly recommend her once again to anyone looking for a blog writer or copywriter - 11/10!</p>
+          <footer>Scott Williams, <span>CEO of Token Alpha Group</span></footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <p>Nicole's expertise in SEO has been a game-changer for our business. Her attention to detail and improvements to our site copy have really improved our visibility. We couldn't have asked for a more competent SEO specialist</p>
+          <footer>Christine Odenwald, <span>Marketing Manager at Diamocycle</span></footer>
+        </blockquote>
+        <blockquote class="review-card">
+          <p>We asked Nicole to write a short story collection for the kids in our kindergarten, and she absolutely nailed it! The stories she came up with were perfect for our little ones, they were imaginative, fun, and totally engaging. The kids are always excited for story time now, thanks to her. Nicole really knows how to connect with young readers. We're grateful for her amazing work!</p>
+          <footer>Kelly Riordan</footer>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <!-- The form sends to Nicole's inbox through formsubmit.co (no account needed).
+       To change the receiving address, edit data-email below. -->
   <section id="contact-section" class="contact">
-    <div class="letter">
-      <img class="stamp" src="assets/stamp.png" alt="stamp">
-      <h2>To the Empress of Eloquence</h2>
-      <p>Tell me your name, a link to your website, and how I can help.</p>
-      <a class="button" href="mailto:nicolemariapezza@gmail.com?subject=Hello%20from%20pezzamedia.com&amp;body=Name%3A%0ALink%20to%20your%20website%3A%0AHow%20can%20I%20help%3F%0A">Email me</a>
+    <div class="container">
+      <form class="envelope" id="contact-form" data-email="nicolemariapezza@gmail.com" novalidate>
+        <div class="stamps">
+          <div class="small-stamps">
+            <img src="assets/stamp-flowers.png" alt="" width="93" height="135">
+            <img src="assets/stamp-tulips.png" alt="" width="93" height="135">
+          </div>
+          <img class="empress-stamp" src="assets/stamp-empress.png" alt="To the Empress of Eloquence" width="400" height="306">
+          <p class="empress-text">To the Empress<br>of Eloquence</p>
+        </div>
+
+        <label class="field name-field">Name
+          <input type="text" name="name" autocomplete="name" required>
+        </label>
+        <div class="field-row">
+          <label class="field">Email
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
+          <label class="field right">Link to your website
+            <input type="url" name="website">
+          </label>
+        </div>
+        <label class="field">How can I help?
+          <textarea name="message" rows="3" required></textarea>
+        </label>
+        <input type="text" name="_honey" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn submit" type="submit">Submit Enquiry Via Bertie</button>
+      </form>
     </div>
   </section>
 
 </main>
 
+<!-- ============ FOOTER ============ -->
 <footer class="site-footer">
-  <a href="https://medium.com/@nicolemariapezza">Medium</a>
-  <a href="https://www.upwork.com/freelancers/nicolemariapezza">Upwork</a>
-  <a href="https://www.linkedin.com/in/nicolemariapezza">LinkedIn</a>
+  <a href="https://medium.com/@nicolemariapezza" target="_blank" rel="noopener">Medium</a>
+  <a href="http://upwork.com/freelancers/nicolemariapezza" target="_blank" rel="noopener">Upwork</a>
+  <a href="https://www.linkedin.com/in/nicolemariapezza" target="_blank" rel="noopener">LinkedIn</a>
 </footer>
+
+<!-- Form result popups -->
+<div class="popup-overlay" id="popup-success" hidden>
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-success-title">
+    <h2 id="popup-success-title">Submitted Successfully!</h2>
+    <p>Thank you for your enquiry, I will be in touch shortly.</p>
+    <button type="button" class="btn" data-close>Close</button>
+  </div>
+</div>
+<div class="popup-overlay" id="popup-failed" hidden>
+  <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popup-failed-title">
+    <h2 id="popup-failed-title">Submission Failed</h2>
+    <p>Please check the form and try again.</p>
+    <button type="button" class="btn" data-close>Try Again</button>
+  </div>
+</div>
 
 </body>
 </html>

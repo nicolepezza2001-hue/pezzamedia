@@ -6,9 +6,6 @@ name: Snapshot old WordPress site
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: [.github/workflows/snapshot-old-site.yml, tools/old-site-images.txt]
 
 permissions:
   contents: write
