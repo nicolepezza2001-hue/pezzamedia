@@ -204,7 +204,7 @@ body.no-scroll { overflow: hidden; }
 .empress-stamp { width: 220px; }
 .empress-text { display: none; font-size: 18px; font-weight: 700; text-align: center; }
 .field { display: block; font-size: 20px; font-style: italic; color: #000; margin-bottom: 25px; }
-.name-field { width: 48%; margin-top: -25px; }
+.name-field { width: 48%; margin-top: 28px; }
 .field-row { display: flex; gap: 25px; }
 .field-row .field { flex: 1; }
 .field.right { text-align: right; }
@@ -310,7 +310,7 @@ body.no-scroll { overflow: hidden; }
   .small-stamps img { max-width: 65px; height: auto; }
   .empress-stamp { display: none; }
   .empress-text { display: block; margin-left: 15px; }
-  .name-field { width: 100%; margin-top: 10px; }
+  .name-field { width: 100%; margin-top: 24px; }
   .field-row { flex-direction: column; gap: 0; }
   .field { font-size: 18px; margin-bottom: 8px; }
   .field.right { text-align: left; }
