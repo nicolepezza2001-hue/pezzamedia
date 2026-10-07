@@ -260,3 +260,13 @@
 .ico-mail .seal { transition: opacity .3s ease; }
 .stat:hover .ico-mail .seal, .stat.play .ico-mail .seal { opacity: 0; }
 .stat .ico { width: 88px; height: 70px; filter: drop-shadow(0 3px 0 rgba(20,27,65,.12)); }
+.chips li { background: var(--green); border-color: var(--green); color: var(--navy); }
+.chips li:hover { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+/* Case studies: real product shots */
+.case-art.product { width: auto; height: 96px; opacity: 1; display: flex; align-items: flex-end; }
+.case-art.product img { height: 100%; width: auto; max-width: 170px; object-fit: contain; filter: drop-shadow(0 8px 10px rgba(20,27,65,.18)); transition: transform .4s ease; }
+.anim .case-card:hover .case-art.product { animation: none; }
+.case-card:hover .case-art.product img { transform: translateY(-6px) rotate(-3deg) scale(1.05); }
+.case-top { align-items: center; min-height: 96px; }
+@media (max-width: 767px) { .case-art.product { height: 76px; } .case-top { min-height: 76px; } }
+.case-art.product img[src*="product-lw"] { height: 118%; margin-top: -10%; }
