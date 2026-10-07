@@ -180,3 +180,97 @@
   }
   update(); window.addEventListener('scroll', update, { passive: true });
 })();
+
+// ----- Animation pass 3: progress bar, word-by-word titles, counting result cards,
+//       the journey "envelope", comparison ticks and tilting case cards -----
+(function () {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Green reading-progress bar at the top of the page
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.appendChild(bar);
+  const progress = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+  };
+  progress(); addEventListener('scroll', progress, { passive: true }); addEventListener('resize', progress);
+
+  if (reduce || !('IntersectionObserver' in window)) return;
+  const once = (els, fn, threshold = 0.4) => {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { fn(e.target); io.unobserve(e.target); } }), { threshold });
+    els.forEach(el => io.observe(el));
+  };
+
+  // Split section titles into words (keeps the hand-drawn underline spans intact)
+  document.querySelectorAll('.section-title').forEach(t => {
+    let i = 0;
+    const wrap = node => {
+      Array.from(node.childNodes).forEach(n => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(part => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const w = document.createElement('span');
+            w.className = 'w'; w.textContent = part; w.style.transitionDelay = (i++ * 70) + 'ms';
+            frag.appendChild(w);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1 && n.classList.contains('underline')) {
+          n.classList.add('w'); n.style.transitionDelay = (i++ * 70) + 'ms';
+        } else if (n.nodeType === 1 && n.tagName !== 'BR') { wrap(n); }
+      });
+    };
+    wrap(t);
+  });
+  once(document.querySelectorAll('.section-title'), t => t.classList.add('words-in'), 0.3);
+
+  // Count up the big numbers on the result cards ($2M, $649K, 95th ...)
+  once(document.querySelectorAll('.result-card b'), b => {
+    const m = b.textContent.match(/^(\D*)([\d.]+)(.*)$/);
+    if (!m) return;
+    const [, pre, num, post] = m, target = parseFloat(num), dec = (num.split('.')[1] || '').length;
+    const t0 = performance.now(), dur = 1300;
+    b.classList.add('counting');
+    const tick = now => {
+      const p = Math.min((now - t0) / dur, 1), v = target * (1 - Math.pow(1 - p, 3));
+      b.textContent = pre + v.toFixed(dec) + post;
+      if (p < 1) requestAnimationFrame(tick); else { b.textContent = pre + num + post; b.classList.remove('counting'); }
+    };
+    requestAnimationFrame(tick);
+  }, 0.6);
+
+  // Journey map: light each flow card in turn, looping while it is on screen
+  const map = document.querySelector('.journey-map');
+  if (map) {
+    const cards = Array.from(map.children);
+    let idx = -1, timer = null;
+    const step = () => { cards.forEach(c => c.classList.remove('lit')); idx = (idx + 1) % (cards.length + 2); if (cards[idx]) cards[idx].classList.add('lit'); };
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !timer) timer = setInterval(step, 700);
+      else if (!e.isIntersecting) { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); }
+    }, { threshold: 0.5 }).observe(map);
+    map.addEventListener('mouseenter', () => { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); });
+  }
+
+  // Comparison table: ticks pop in row by row
+  const table = document.querySelector('.versus-table');
+  if (table) {
+    table.querySelectorAll('tbody tr').forEach((tr, r) => tr.querySelectorAll('i').forEach((i, c) => { i.style.animationDelay = (r * 140 + c * 60) + 'ms'; }));
+    once([table], t => t.classList.add('ticks-in'), 0.3);
+  }
+
+  // Case cards tilt gently towards the pointer (mouse only)
+  if (matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.case-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        card.classList.add('tilting');
+        card.style.transform = `perspective(900px) rotateX(${(-y * 5).toFixed(2)}deg) rotateY(${(x * 6).toFixed(2)}deg) translateY(-6px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.classList.remove('tilting'); card.style.transform = ''; });
+    });
+  }
+})();

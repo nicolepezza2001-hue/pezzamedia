@@ -94,3 +94,43 @@
 .book-row { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: -10px 0 34px; }
 .book-row span { font-style: italic; font-size: 18px; opacity: .8; }
 @media (max-width: 767px) { .sticky-cta { font-size: 21px; padding: 16px 20px; } .book-btn { font-size: 22px; } }
+
+/* ===== Animation pass 3 ===== */
+/* Scroll progress bar */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 4px; width: 100%; background: var(--green); transform-origin: 0 50%; transform: scaleX(0); z-index: 200; pointer-events: none; }
+/* Hero vines grow out of the corners */
+@keyframes grow-left { from { opacity: 0; transform: scale(.6) rotate(-6deg); } to { opacity: 1; transform: none; } }
+@keyframes grow-right { from { opacity: 0; transform: scale(.6) rotate(6deg); } to { opacity: 1; transform: none; } }
+@keyframes sway { 0%, 100% { rotate: 0deg; } 50% { rotate: 1.2deg; } }
+.anim .hero::before { transform-origin: 0 0; animation: grow-left 1.4s cubic-bezier(.2,.8,.2,1) both, sway 9s ease-in-out 1.4s infinite; }
+.anim .hero::after { transform-origin: 100% 0; animation: grow-right 1.4s cubic-bezier(.2,.8,.2,1) both, sway 9s ease-in-out 1.4s infinite reverse; }
+/* Section titles: words rise one by one */
+.anim .section-title .w { display: inline-block; opacity: 0; transform: translateY(.45em); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+.anim .section-title.words-in .w { opacity: 1; transform: none; }
+/* Journey: an envelope travels along the flow cards, each card lights up as it passes */
+.journey-map { position: relative; }
+.journey-map li { transition: transform .4s ease, box-shadow .4s ease, background-color .4s ease; }
+.journey-map li.lit { background: #fff; transform: translateY(-6px); box-shadow: 0 0 0 3px var(--green), 0 14px 30px rgba(0,0,0,.25); }
+.journey-map li:not(:last-child)::after { transition: transform .4s ease; }
+.journey-map li.lit::after { transform: translate(4px, -50%) scale(1.4); }
+/* Comparison ticks pop in row by row */
+@keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.anim .versus-table i { transform: scale(0); }
+.anim .versus-table.ticks-in i { animation: pop .45s cubic-bezier(.2,.8,.2,1) both; }
+/* Case cards tilt towards the mouse */
+.case-card { transform-style: preserve-3d; will-change: transform; }
+.case-card.tilting { transition: transform .08s linear, box-shadow .3s ease; }
+/* Stat icons bob on hover; result numbers glow while counting */
+.stat:hover img { animation: bob 1.2s ease-in-out infinite; }
+.result-card b.counting { text-shadow: 0 0 18px rgba(156,222,159,.5); }
+/* Sticky button nudges every few seconds */
+@keyframes nudge { 0%, 88%, 100% { transform: none; } 91% { transform: translateY(-6px) rotate(-3deg); } 94% { transform: translateY(0) rotate(2deg); } 97% { transform: translateY(-3px); } }
+.sticky-cta:not(.away) { animation: nudge 6s ease-in-out 3s infinite; }
+.sticky-cta:hover { animation: none; transform: translateY(-3px) scale(1.04); }
+/* Logo strip: pause and pop on hover */
+.logo-track li:hover span { color: var(--navy); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  .anim .section-title .w { opacity: 1; transform: none; }
+  .anim .versus-table i { transform: none; }
+  .sticky-cta:not(.away) { animation: none; }
+}
