@@ -1,5 +1,3 @@
-sn-mango.png https://simplynootropics.co/cdn/shop/files/ChatGPTImageAug3_2026_06_41_17AM.png?v=1785724887&width=800
-sn-bundle.png https://simplynootropics.co/cdn/shop/files/330ea8fd-c2a9-411a-a675-8b343e33b197.png?v=1785725539&width=800
-dia-home.html https://diamocycle.com/
-dia-shop.html https://diamocycle.com/shop/
-
+ig.html https://www.instagram.com/diamocycle_insta/
+ig.dom https://www.instagram.com/diamocycle_insta/
+igapi.json https://www.instagram.com/api/v1/users/web_profile_info/?username=diamocycle_insta
