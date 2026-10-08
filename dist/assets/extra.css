@@ -533,28 +533,18 @@ main > section.contact { padding-bottom: 70px; }
   .result-card { padding: 16px 14px; }
   .result-card b { font-size: 30px; }
   .result-card span { font-size: 15px; line-height: 20px; }
-  /* Compare: one card per question instead of a sideways-scrolling table */
-  .versus .table-wrap { overflow: visible; margin-top: 30px; }
-  .versus-table { min-width: 0; display: block; }
-  .versus-table thead { display: none; }
-  .versus-table tbody { display: grid; gap: 14px; }
-  .versus-table tbody tr { display: grid; grid-template-columns: 1fr; background: var(--pink); border-radius: 14px; padding: 16px 18px; }
-  .versus-table tbody th { width: auto; padding: 0 0 8px; border: 0; font-size: 19px; font-style: italic; }
-  .versus-table td { display: flex; align-items: baseline; gap: 4px; padding: 7px 0; border-bottom: 0; border-top: 1px solid rgba(20,27,65,.12); background: none !important; border-radius: 0 !important; }
-  .versus-table td::before { flex: 0 0 104px; content: attr(data-label); font-weight: 700; font-size: 14px; line-height: 23px; }
-  .versus-table td.me::before { color: var(--navy); }
-  .versus-table td.me { font-weight: 700; }
-  .anim .versus-table.ticks-in td.me { animation: none; }
   /* Letter: stamp and postmark sit neatly top right */
   .stamp-wrap { transform: scale(.72); margin-bottom: -34px; }
   /* Signature centred and fully on screen */
-  .about-body .signature { width: min(280px, 82vw); margin-left: auto; margin-right: auto; }
+  .about-body .signature { width: min(250px, 70vw); }
 }
 @media (max-width: 767px) {
-  .versus-table td::before { flex-basis: 92px; }
-  .versus-table td:last-child { padding-bottom: 0; }
   /* Compact floating "Book a call" pill so it covers less of the page */
   .sticky-cta { left: auto; right: 16px; font-size: 17px; padding: 11px 18px; gap: 8px; }
   .sticky-cta svg { width: 18px; height: 18px; }
 }
 @media (max-width: 767px) { .journey-cols { gap: 0; row-gap: 0; } }
+/* Signature signs off bottom right, like the end of a letter */
+.about-body .signature { margin-left: auto !important; margin-right: 0 !important; }
+@media (max-width: 767px) { .versus-table { min-width: 600px; font-size: 15px; line-height: 21px; } .versus-table th, .versus-table td { padding: 12px 12px; } .versus-table thead th { font-size: 17px; } }
+@media (max-width: 767px) { .versus-table tbody th { width: 130px; } }
