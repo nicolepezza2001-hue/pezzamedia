@@ -319,3 +319,9 @@
 .journey-map li { background: var(--pink); }
 .offer { background: var(--pink); }
 .versus-table .me { background: var(--pink); }
+
+/* Even rhythm: same space between every section */
+main > section[class] { padding-top: 50px; padding-bottom: 50px; margin-top: 0; margin-bottom: 0; }
+main > section.hero { padding-top: 10px; }
+main > section.contact { padding-bottom: 70px; }
+@media (max-width: 767px) { main > section[class] { padding-top: 36px; padding-bottom: 36px; } main > section.hero { padding-top: 10px; } main > section.contact { padding-bottom: 50px; } }
