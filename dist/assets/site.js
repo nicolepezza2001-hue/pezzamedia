@@ -290,7 +290,7 @@
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (!e.isIntersecting) return;
     const el = e.target; io.unobserve(el);
-    setTimeout(() => { el.classList.add('play'); setTimeout(() => el.classList.remove('play'), 2600); }, 300 + [...stats].indexOf(el) * 250);
+    setTimeout(() => { el.classList.add('play', 'seen'); setTimeout(() => el.classList.remove('play'), 2600); }, 300 + [...stats].indexOf(el) * 250);
   }), { threshold: 0.5 });
   stats.forEach(s => { io.observe(s); s.addEventListener('click', () => s.classList.toggle('play')); });
 })();
