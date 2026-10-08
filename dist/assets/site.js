@@ -354,7 +354,7 @@
   // Product shots lean toward the pointer
   if (!reduce && matchMedia('(hover: hover)').matches) {
     document.querySelectorAll('.case-card').forEach(function (card) {
-      var img = card.querySelector('.case-art.product img'); if (!img) return;
+      var img = card.querySelector('.case-art.product img, .case-art.illo .ill'); if (!img) return;
       card.addEventListener('mousemove', function (ev) {
         var r = card.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width - .5, y = (ev.clientY - r.top) / r.height - .5;
         img.style.setProperty('--ry', (x * 22) + 'deg'); img.style.setProperty('--rx', (-y * 16) + 'deg');
