@@ -283,16 +283,21 @@
   }
 })();
 
-// Business icons: play once when the cards come into view; tap toggles on touch screens
+// Business icons: loop on their own (open, hold, close) while the cards are on screen
 (function () {
-  const stats = document.querySelectorAll('.stat');
+  const stats = [...document.querySelectorAll('.stat')];
   if (!stats.length) return;
-  const io = new IntersectionObserver(es => es.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target; io.unobserve(el);
-    setTimeout(() => { el.classList.add('play', 'seen'); setTimeout(() => el.classList.remove('play'), 2600); }, 300 + [...stats].indexOf(el) * 250);
-  }), { threshold: 0.5 });
-  stats.forEach(s => { io.observe(s); s.addEventListener('click', () => s.classList.toggle('play')); });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { stats.forEach(s => s.classList.add('seen')); return; }
+  let timer = null;
+  const cycle = () => stats.forEach((el, i) => {
+    setTimeout(() => { el.classList.add('play'); setTimeout(() => el.classList.remove('play'), 3400); }, i * 300);
+  });
+  const io = new IntersectionObserver(es => {
+    const on = es.some(e => e.isIntersecting) || stats.some(s => { const r = s.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; });
+    if (on && !timer) { cycle(); timer = setInterval(cycle, 5200); }
+    else if (!on && timer) { clearInterval(timer); timer = null; }
+  }, { threshold: 0.3 });
+  stats.forEach(s => io.observe(s));
 })();
 
 // Services: draw the top line and pop the icon once each card is in view

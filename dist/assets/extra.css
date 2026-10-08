@@ -514,3 +514,7 @@ main > section.contact { padding-bottom: 70px; }
 .ico-laptop .lid { transform-origin: 50% 70.3%; }
 .ico-laptop .screen { opacity: 1; fill: transparent; transition: fill .5s ease .6s; filter: none !important; }
 .stat:is(:hover, .play, .seen) .ico-laptop .screen { fill: #FBF4D7; }
+/* Icons loop: close in reverse order (letter in, flap folds, flap shuts) */
+.ico-mail .flap-open { transition-delay: .45s; }
+.ico-mail .flap-shut { transition-delay: .75s; }
+.stat:is(:hover, .play, .seen) .ico-mail .flap-shut { transition-delay: 0s; }
