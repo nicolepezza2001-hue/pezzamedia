@@ -489,9 +489,23 @@ main > section.contact { padding-bottom: 70px; }
 @keyframes flourish { to { stroke-dashoffset: 0; } }
 @media (max-width: 767px) { .about-body .signature { width: 240px; } }
 @media (prefers-reduced-motion: reduce) { .signature .sig-pen { transform: translateX(560px); } .sig-flourish { stroke-dashoffset: 0; } }
-.sig-flourish { opacity: 0; }
 .signature.write .sig-flourish { animation: flourish 1.1s cubic-bezier(.3,0,.2,1) 3.4s forwards, show 0s linear 3.4s forwards; }
 @keyframes show { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sig-flourish { opacity: 1; } }
 .quill-pen.follow { transition: opacity .3s ease, translate .12s linear; cursor: none; }
 .envelope:hover { cursor: default; }
+
+/* Signature v3: single-line script drawn stroke by stroke, like a pen */
+.signature { width: 320px; }
+.sig-ink path { fill: none; stroke: var(--navy); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 1; }
+.signature.write .sig-ink path { animation: sig-draw var(--d) linear var(--t) forwards; }
+.signature.write .sig-ink .sig-flourish { animation: sig-draw var(--d) cubic-bezier(.3,0,.2,1) var(--t) forwards; stroke-width: 2.4; }
+@keyframes sig-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.sig-ink path { visibility: hidden; } .signature.write .sig-ink path { visibility: visible; }
+@media (max-width: 767px) { .about-body .signature { width: 250px; } }
+@media (prefers-reduced-motion: reduce) { .sig-ink path { stroke-dashoffset: 0; visibility: visible; animation: none !important; } }
+.ico-laptop .lid { transform-origin: 50% 71.9%; }
+.signature.write .sig-ink path { visibility: hidden; animation: sig-draw var(--d) linear var(--t) forwards, sig-show 0s linear var(--t) forwards; }
+.signature.write .sig-ink .sig-flourish { animation: sig-draw var(--d) cubic-bezier(.3,0,.2,1) var(--t) forwards, sig-show 0s linear var(--t) forwards; }
+@keyframes sig-show { to { visibility: visible; } }
+.sig-ink path { stroke-width: 4.4; } .sig-ink .sig-flourish { stroke-width: 3; }
