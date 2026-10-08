@@ -557,3 +557,4 @@ main > section.contact { padding-bottom: 70px; }
   .sticky-cta { left: auto; right: 16px; font-size: 17px; padding: 11px 18px; gap: 8px; }
   .sticky-cta svg { width: 18px; height: 18px; }
 }
+@media (max-width: 767px) { .journey-cols { gap: 0; row-gap: 0; } }
