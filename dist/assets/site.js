@@ -319,3 +319,18 @@
   });
   form.addEventListener('submit', () => { pen.classList.remove('writing'); pen.classList.add('sent'); setTimeout(() => pen.classList.remove('sent', 'on'), 1100); });
 })();
+
+// ----- Services: words drift in; Envelope: stamp + postmark land when it comes into view -----
+(function () {
+  document.querySelectorAll('.svc').forEach(function (c, i) {
+    c.style.setProperty('--i', i % 3);
+    var p = c.querySelector('p'); if (!p || p.dataset.split) return;
+    p.dataset.split = 1;
+    p.innerHTML = p.textContent.split(/\s+/).map(function (w, j) { return '<span class="w" style="--d:' + j + '">' + w + '</span>'; }).join(' ');
+  });
+  var env = document.querySelector('.envelope');
+  if (env && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { env.classList.add('posted'); io.disconnect(); } }); }, { threshold: 0.3 });
+    io.observe(env);
+  } else if (env) env.classList.add('posted');
+})();
