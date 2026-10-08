@@ -311,14 +311,27 @@
   const place = el => {
     const f = form.getBoundingClientRect(), r = el.getBoundingClientRect();
     const len = Math.min(el.value.length * 7.5, r.width - 70);
-    pen.style.translate = `${r.left - f.left + 14 + len}px ${r.top - f.top - 38}px`;
+    pen.style.translate = `${r.left - f.left + 16 + len}px ${r.top - f.top - 12}px`;
   };
   form.querySelectorAll('input:not(.honeypot), textarea').forEach(el => {
     el.addEventListener('focus', () => { pen.classList.add('on'); place(el); });
-    el.addEventListener('input', () => { place(el); pen.classList.add('writing'); clearTimeout(idle); idle = setTimeout(() => pen.classList.remove('writing'), 350); });
-    el.addEventListener('blur', () => setTimeout(() => { if (!form.contains(document.activeElement)) pen.classList.remove('on', 'writing'); }, 50));
+    el.addEventListener('input', () => { pen.classList.remove('follow'); place(el); pen.classList.add('writing'); clearTimeout(idle); idle = setTimeout(() => pen.classList.remove('writing'), 350); });
+    el.addEventListener('blur', () => setTimeout(() => { pen.classList.remove('writing'); }, 50));
   });
-  form.addEventListener('submit', () => { pen.classList.remove('writing'); pen.classList.add('sent'); setTimeout(() => pen.classList.remove('sent', 'on'), 1100); });
+  // Without clicking: the quill rests over the first field once the letter is on screen and follows the pointer
+  const first = form.querySelector('input:not(.honeypot)');
+  const rest = () => { const a = form.contains(document.activeElement) && document.activeElement.matches('input, textarea') ? document.activeElement : first; pen.classList.remove('follow'); place(a); pen.classList.add('on'); };
+  new IntersectionObserver(([e]) => { if (e.isIntersecting && !pen.classList.contains('on')) rest(); }, { threshold: 0.3 }).observe(form);
+  if (matchMedia('(hover: hover)').matches) {
+    form.addEventListener('mousemove', ev => {
+      if (pen.classList.contains('writing') || pen.classList.contains('sent')) return;
+      const f = form.getBoundingClientRect();
+      pen.classList.add('on', 'follow');
+      pen.style.translate = `${ev.clientX - f.left - 6}px ${ev.clientY - f.top - 46}px`;
+    });
+    form.addEventListener('mouseleave', rest);
+  }
+  form.addEventListener('submit', () => { pen.classList.remove('writing'); pen.classList.add('sent'); setTimeout(() => { pen.classList.remove('sent'); rest(); }, 1100); });
 })();
 
 // ----- Services: words drift in; Envelope: stamp + postmark land when it comes into view -----
