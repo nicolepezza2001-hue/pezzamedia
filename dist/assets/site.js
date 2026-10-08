@@ -264,9 +264,9 @@
     });
     // Replays every time the table comes back into view, once most of it is on screen
     new IntersectionObserver(([e]) => {
-      if (e.intersectionRatio >= 0.55) table.classList.add('ticks-in');
+      if (e.intersectionRatio >= (innerWidth < 768 ? 0.15 : 0.55)) table.classList.add('ticks-in');
       else if (!e.isIntersecting) table.classList.remove('ticks-in');
-    }, { threshold: [0, 0.55] }).observe(table);
+    }, { threshold: [0, 0.15, 0.55] }).observe(table);
   }
 
   // Case cards tilt gently towards the pointer (mouse only)
