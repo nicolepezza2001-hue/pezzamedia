@@ -143,6 +143,7 @@
         const p = Math.min((now - t0) / dur, 1), eased = 1 - Math.pow(1 - p, 3);
         b.textContent = pre + Math.round(target * eased) + post;
         if (p < 1) requestAnimationFrame(tick);
+        else { const l = b.closest('.laurel'); l.classList.remove('shine'); void l.offsetWidth; l.classList.add('shine'); }
       };
       requestAnimationFrame(tick);
     };
@@ -333,4 +334,49 @@
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { env.classList.add('posted'); io.disconnect(); } }); }, { threshold: 0.3 });
     io.observe(env);
   } else if (env) env.classList.add('posted');
+})();
+
+// ----- Animation pass 5: signature, floating products, stars, typewriter FAQ -----
+(function () {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if ('IntersectionObserver' in window) {
+    var once = function (sel, cls, th) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add(cls); io.unobserve(e.target); } }); }, { threshold: th });
+      document.querySelectorAll(sel).forEach(function (el) { io.observe(el); });
+    };
+    once('.signature', 'write', 0.6);
+    once('.review-card', 'starred', 0.4);
+  } else {
+    document.querySelectorAll('.signature').forEach(function (el) { el.classList.add('write'); });
+    document.querySelectorAll('.review-card').forEach(function (el) { el.classList.add('starred'); });
+  }
+
+  // Product shots lean toward the pointer
+  if (!reduce && matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.case-card').forEach(function (card) {
+      var img = card.querySelector('.case-art.product img'); if (!img) return;
+      card.addEventListener('mousemove', function (ev) {
+        var r = card.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width - .5, y = (ev.clientY - r.top) / r.height - .5;
+        img.style.setProperty('--ry', (x * 22) + 'deg'); img.style.setProperty('--rx', (-y * 16) + 'deg');
+        img.style.setProperty('--tx', (x * 10) + 'px'); img.style.setProperty('--ty', (y * 8) + 'px');
+      });
+      card.addEventListener('mouseleave', function () { ['--ry', '--rx', '--tx', '--ty'].forEach(function (k) { img.style.removeProperty(k); }); });
+    });
+  }
+
+  // FAQ answers type out when opened
+  document.querySelectorAll('.faq details').forEach(function (d) {
+    var p = d.querySelector('p'); if (!p) return;
+    var html = p.innerHTML, text = p.textContent, timer;
+    d.addEventListener('toggle', function () {
+      clearInterval(timer);
+      if (!d.open || reduce) { p.innerHTML = html; p.classList.remove('typing'); return; }
+      p.style.minHeight = p.offsetHeight + 'px';
+      var i = 0; p.textContent = ''; p.classList.add('typing');
+      timer = setInterval(function () {
+        i += 2; p.textContent = text.slice(0, i);
+        if (i >= text.length) { clearInterval(timer); p.innerHTML = html; p.classList.remove('typing'); p.style.minHeight = ''; }
+      }, 14);
+    });
+  });
 })();
