@@ -4,10 +4,10 @@
    ========================================================= */
 :root {
   --cream: #FBF4D7;
-  --pink: #DBC2CF;
+  --pink: #EAB4BF;
   --navy: #141B41;
   --ink: #01010B;
-  --green: #9CDE9F;
+  --green: #C2D9BC;
   --green-hover: #7DE282;
   --font: "EB Garamond", Georgia, serif;
   --max: 1400px;
@@ -78,7 +78,7 @@ h1, h2, h3, p { margin: 0; }
 }
 .mobile-menu.open { left: 0; visibility: visible; }
 .mobile-menu a { padding: 16px 20px; color: #000; text-decoration: none; font-size: 17px; }
-.mobile-menu a:hover { background: rgba(156, 222, 159, .5); }
+.mobile-menu a:hover { background: rgba(194,217,188, .5); }
 .menu-close { align-self: flex-end; background: none; border: 0; font-size: 32px; padding: 8px 20px; cursor: pointer; color: var(--ink); }
 body.no-scroll { overflow: hidden; }
 

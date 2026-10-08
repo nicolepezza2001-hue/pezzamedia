@@ -15,7 +15,7 @@
 
 /* ===== More motion ===== */
 @keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
-@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(156,222,159,.0); } 50% { box-shadow: 0 0 0 10px rgba(156,222,159,.35); } }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(194,217,188,.0); } 50% { box-shadow: 0 0 0 10px rgba(194,217,188,.35); } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 .anim .hero-title { animation: rise .9s cubic-bezier(.2,.8,.2,1) .1s both; }
 .anim .typing-text { animation: rise .9s cubic-bezier(.2,.8,.2,1) .25s both; }
@@ -122,7 +122,7 @@
 .case-card.tilting { transition: transform .08s linear, box-shadow .3s ease; }
 /* Stat icons bob on hover; result numbers glow while counting */
 .stat:hover img { animation: bob 1.2s ease-in-out infinite; }
-.result-card b.counting { text-shadow: 0 0 18px rgba(156,222,159,.5); }
+.result-card b.counting { text-shadow: 0 0 18px rgba(194,217,188,.5); }
 /* Sticky button nudges every few seconds */
 @keyframes nudge { 0%, 88%, 100% { transform: none; } 91% { transform: translateY(-6px) rotate(-3deg); } 94% { transform: translateY(0) rotate(2deg); } 97% { transform: translateY(-3px); } }
 .sticky-cta:not(.away) { animation: nudge 6s ease-in-out 3s infinite; }
@@ -141,7 +141,7 @@
 .versus-table i { font-size: 20px; }
 @keyframes pop { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.8) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
 .anim .versus-table.ticks-in td.me { animation: me-glow 1.2s ease 1.2s both; }
-@keyframes me-glow { 0% { box-shadow: inset 0 0 0 0 rgba(156,222,159,0); } 50% { box-shadow: inset 0 0 0 3px rgba(156,222,159,.9); } 100% { box-shadow: inset 0 0 0 0 rgba(156,222,159,0); } }
+@keyframes me-glow { 0% { box-shadow: inset 0 0 0 0 rgba(194,217,188,0); } 50% { box-shadow: inset 0 0 0 3px rgba(194,217,188,.9); } 100% { box-shadow: inset 0 0 0 0 rgba(194,217,188,0); } }
 @media (prefers-reduced-motion: reduce) { .anim .versus-table tbody tr { opacity: 1; transform: none; } }
 /* Brand mark top left */
 .header-inner { justify-content: space-between; }
