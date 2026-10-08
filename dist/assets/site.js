@@ -300,3 +300,22 @@
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('drawn'); io.unobserve(e.target); } }), { threshold: 0.4 });
   svcs.forEach(s => io.observe(s));
 })();
+
+// Contact letter: quill moves to the active field and writes while you type
+(function () {
+  const form = document.getElementById('contact-form');
+  const pen = form && form.querySelector('.quill-pen');
+  if (!pen || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let idle;
+  const place = el => {
+    const f = form.getBoundingClientRect(), r = el.getBoundingClientRect();
+    const len = Math.min(el.value.length * 7.5, r.width - 70);
+    pen.style.translate = `${r.left - f.left + 14 + len}px ${r.top - f.top - 38}px`;
+  };
+  form.querySelectorAll('input:not(.honeypot), textarea').forEach(el => {
+    el.addEventListener('focus', () => { pen.classList.add('on'); place(el); });
+    el.addEventListener('input', () => { place(el); pen.classList.add('writing'); clearTimeout(idle); idle = setTimeout(() => pen.classList.remove('writing'), 350); });
+    el.addEventListener('blur', () => setTimeout(() => { if (!form.contains(document.activeElement)) pen.classList.remove('on', 'writing'); }, 50));
+  });
+  form.addEventListener('submit', () => { pen.classList.remove('writing'); pen.classList.add('sent'); setTimeout(() => pen.classList.remove('sent', 'on'), 1100); });
+})();

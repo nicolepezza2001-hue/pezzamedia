@@ -299,3 +299,17 @@
 .svc:hover { background: var(--navy); color: var(--cream); transform: translateY(-6px); }
 .svc:hover h3, .svc:hover p { color: var(--cream); }
 .svc:hover::before { background: var(--green); }
+/* Avatars: single navy ring */
+.review-card .avatar { box-shadow: 0 0 0 3px var(--navy); }
+/* Contact letter: a quill that follows the field you're in and writes as you type */
+.envelope { position: relative; }
+.quill-pen { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; opacity: 0; transform-origin: 12% 92%; transition: opacity .3s ease, translate .55s cubic-bezier(.2,.8,.2,1); }
+.quill-pen.on { opacity: 1; animation: quill-bob 2.6s ease-in-out infinite; }
+.quill-pen.writing { animation: quill-write .28s ease-in-out infinite; }
+.quill-pen.sent { animation: quill-fly 1s ease-in forwards; }
+@keyframes quill-bob { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
+@keyframes quill-write { 0% { rotate: -10deg; transform: translateX(0); } 50% { rotate: 6deg; transform: translateX(3px); } 100% { rotate: -10deg; transform: translateX(0); } }
+@keyframes quill-fly { to { transform: translate(140px,-160px) rotate(40deg); opacity: 0; } }
+.envelope .field input, .envelope .field textarea { transition: border-color .3s ease, box-shadow .3s ease; }
+.envelope .field input:focus, .envelope .field textarea:focus { border-color: var(--navy); box-shadow: 0 3px 0 var(--green); outline: none; }
+@media (prefers-reduced-motion: reduce) { .quill-pen { display: none; } }
