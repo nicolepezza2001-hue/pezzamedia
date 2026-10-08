@@ -286,7 +286,7 @@
 .review-card .avatar { box-shadow: 0 0 0 3px var(--green), 0 0 0 5px var(--navy); }
 /* Diamocycle ring photo */
 .case-art.ring { position: relative; }
-.case-art.ring img { max-width: 190px; filter: drop-shadow(0 8px 10px rgba(20,27,65,.22)); }
+.case-art.ring img { max-width: 132px; height: auto; align-self: center; filter: drop-shadow(0 8px 10px rgba(20,27,65,.22)); }
 .case-art.ring .sparkle { position: absolute; top: -6px; right: 4px; font-style: normal; color: var(--navy); font-size: 18px; animation: twinkle 2.4s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .4; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
 /* Services v2: filled cards so the section has colour at rest */
@@ -326,3 +326,5 @@ main > section.hero { padding-top: 10px; }
 main > section.contact { padding-bottom: 70px; }
 @media (max-width: 767px) { main > section[class] { padding-top: 36px; padding-bottom: 36px; } main > section.hero { padding-top: 10px; } main > section.contact { padding-bottom: 50px; } }
 .case-card .case-metric { margin-bottom: 16px; }
+.envelope .field input, .envelope .field textarea { border-color: var(--navy); border-width: 2px; }
+.envelope .field input:focus, .envelope .field textarea:focus { box-shadow: 0 3px 0 var(--green); }
