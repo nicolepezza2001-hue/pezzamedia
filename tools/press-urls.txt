@@ -1,3 +1,6 @@
-ig.html https://www.instagram.com/diamocycle_insta/
-ig.dom https://www.instagram.com/diamocycle_insta/
-igapi.json https://www.instagram.com/api/v1/users/web_profile_info/?username=diamocycle_insta
+igembed.dom https://www.instagram.com/diamocycle_insta/embed/
+igembed.html https://www.instagram.com/diamocycle_insta/embed/
+bing.dom https://www.bing.com/images/search?q=diamocycle+diamond+ring&form=HDRSC2
+bing2.dom https://www.bing.com/images/search?q=diamocycle_insta
+www.dom https://www.diamocycle.com/
+ddg.dom https://duckduckgo.com/?q=diamocycle+ring&iax=images&ia=images
