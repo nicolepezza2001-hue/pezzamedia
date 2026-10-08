@@ -286,8 +286,8 @@
 .review-card .avatar { box-shadow: 0 0 0 3px var(--green), 0 0 0 5px var(--navy); }
 /* Diamocycle ring photo */
 .case-art.ring { position: relative; }
-.case-art.ring img { border-radius: 12px; border: 3px solid var(--navy); filter: none; box-shadow: 0 8px 16px rgba(20,27,65,.2); }
-.case-art.ring .sparkle { position: absolute; top: -8px; right: -6px; font-style: normal; color: var(--navy); font-size: 18px; animation: twinkle 2.4s ease-in-out infinite; }
+.case-art.ring img { max-width: 190px; filter: drop-shadow(0 8px 10px rgba(20,27,65,.22)); }
+.case-art.ring .sparkle { position: absolute; top: -6px; right: 4px; font-style: normal; color: var(--navy); font-size: 18px; animation: twinkle 2.4s ease-in-out infinite; }
 @keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .4; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
 /* Services v2: filled cards so the section has colour at rest */
 .service-cards { gap: 18px; }
@@ -313,3 +313,9 @@
 .envelope .field input, .envelope .field textarea { transition: border-color .3s ease, box-shadow .3s ease; }
 .envelope .field input:focus, .envelope .field textarea:focus { border-color: var(--navy); box-shadow: 0 3px 0 var(--green); outline: none; }
 @media (prefers-reduced-motion: reduce) { .quill-pen { display: none; } }
+
+/* One background everywhere: beige. Colour lives in the cards. */
+.journey, .about, .versus, .compare, .contact, .faq, .reviews, .services, .portfolio, .business { background: var(--cream); }
+.journey-map li { background: var(--pink); }
+.offer { background: var(--pink); }
+.versus-table .me { background: var(--pink); }
