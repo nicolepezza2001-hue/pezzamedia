@@ -284,3 +284,18 @@
 .anim .svc:nth-child(4).drawn .svc-ico { animation-delay: .36s; } .anim .svc:nth-child(5).drawn .svc-ico { animation-delay: .48s; } .anim .svc:nth-child(6).drawn .svc-ico { animation-delay: .6s; }
 /* Review faces: coloured ring */
 .review-card .avatar { box-shadow: 0 0 0 3px var(--green), 0 0 0 5px var(--navy); }
+/* Diamocycle ring photo */
+.case-art.ring { position: relative; }
+.case-art.ring img { border-radius: 12px; border: 3px solid var(--navy); filter: none; box-shadow: 0 8px 16px rgba(20,27,65,.2); }
+.case-art.ring .sparkle { position: absolute; top: -8px; right: -6px; font-style: normal; color: var(--navy); font-size: 18px; animation: twinkle 2.4s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .4; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
+/* Services v2: filled cards so the section has colour at rest */
+.service-cards { gap: 18px; }
+.svc { background: var(--pink); border-top: 0; border-radius: 14px; padding: 22px 22px 20px; box-shadow: 0 6px 0 -1px rgba(20,27,65,.10); }
+.svc::before { top: 0; left: 22px; height: 3px; border-radius: 3px; }
+.svc.drawn::before, .svc:hover::before { width: calc(100% - 44px); }
+.svc-ico { background: var(--cream); border-radius: 50%; padding: 6px; width: 48px; height: 48px; box-shadow: 0 0 0 2px var(--navy); }
+.svc:nth-child(even) { background: var(--green); }
+.svc:hover { background: var(--navy); color: var(--cream); transform: translateY(-6px); }
+.svc:hover h3, .svc:hover p { color: var(--cream); }
+.svc:hover::before { background: var(--green); }
