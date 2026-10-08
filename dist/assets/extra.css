@@ -509,3 +509,8 @@ main > section.contact { padding-bottom: 70px; }
 .signature.write .sig-ink .sig-flourish { animation: sig-draw var(--d) cubic-bezier(.3,0,.2,1) var(--t) forwards, sig-show 0s linear var(--t) forwards; }
 @keyframes sig-show { to { visibility: visible; } }
 .sig-ink path { stroke-width: 4.4; } .sig-ink .sig-flourish { stroke-width: 3; }
+.sig-ink .sig-flourish, .signature.write .sig-ink .sig-flourish { stroke-width: 4.4; }
+/* Laptop v4: plain outline like a classic laptop icon; screen fills with light when it opens */
+.ico-laptop .lid { transform-origin: 50% 70.3%; }
+.ico-laptop .screen { opacity: 1; fill: transparent; transition: fill .5s ease .6s; filter: none !important; }
+.stat:is(:hover, .play, .seen) .ico-laptop .screen { fill: #FBF4D7; }
