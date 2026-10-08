@@ -475,3 +475,5 @@ main > section.contact { padding-bottom: 70px; }
 .stat:is(:hover, .play, .seen) .ico-laptop .screen { opacity: 1; filter: drop-shadow(0 0 6px rgba(251,244,215,.9)); }
 .stat:is(:hover, .play, .seen) .ico-laptop .type path { stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: reduce) { .ico-laptop .lid { transform: none; } .ico-laptop .screen { opacity: 1; } .ico-mail .flap-open { transform: none; } .ico-mail .flap-shut { display: none; } }
+.ico-laptop .lid { transform-origin: 50% 73.4%; }
+.stat:is(:hover, .play, .seen) .ico-laptop .screen { filter: none; }
