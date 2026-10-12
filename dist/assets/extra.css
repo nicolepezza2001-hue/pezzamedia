@@ -567,3 +567,7 @@ main > section.contact { padding-bottom: 70px; }
 .cal-inline:has(iframe) .cal-loading { display: none; }
 .book-or { font-size: 26px; line-height: 34px; margin-top: 34px; opacity: 1; background: none; }
 @media (max-width: 767px) { .book-or { font-size: 22px; line-height: 30px; } }
+/* "or send a message below" as a clear divider heading between calendar and letter */
+.book-or { display: flex; align-items: center; justify-content: center; gap: 22px; font-size: 38px; line-height: 46px; font-style: italic; font-weight: 500; color: var(--navy); margin: 64px auto 40px; max-width: 900px; }
+.book-or::before, .book-or::after { content: ""; flex: 1 1 0; max-width: 200px; height: 2px; background: var(--green); border-radius: 2px; }
+@media (max-width: 767px) { .book-or { font-size: 28px; line-height: 36px; gap: 14px; margin: 48px auto 28px; } .book-or::before, .book-or::after { max-width: 60px; } }
