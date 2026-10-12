@@ -398,3 +398,25 @@
     });
   });
 })();
+
+// ----- Inline booking calendar (Cal.com), styled in the site palette.
+//       The booking link (e.g. "pezzamedia/intro-call") lives in data-cal-link on #book in index.html.
+(function () {
+  const box = document.getElementById('book');
+  const link = box && box.dataset.calLink;
+  if (!link || link === 'CAL_LINK_HERE') return;
+  (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement('script')).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === 'string') { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ['initNamespace', namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, 'https://app.cal.com/embed/embed.js', 'init');
+  // If the calendar can't load (blocked, offline), offer the plain booking link instead
+  setTimeout(() => { if (!box.querySelector('iframe')) { const l = box.querySelector('.cal-loading'); if (l) l.innerHTML = '<a class="btn btn-big" href="https://calendar.app.google/jk49wPB9YcYMxJ8T7" target="_blank" rel="noopener">Book a free intro call</a>'; } }, 9000);
+  Cal('init', 'intro', { origin: 'https://cal.com' });
+  Cal.ns.intro('inline', { elementOrSelector: '#cal-inline', calLink: link, config: { layout: 'month_view', theme: 'light' } });
+  Cal.ns.intro('ui', {
+    theme: 'light', hideEventTypeDetails: false, layout: 'month_view',
+    cssVarsPerTheme: { light: {
+      'cal-brand': '#141B41', 'cal-brand-emphasis': '#0d1230', 'cal-brand-text': '#FBF4D7',
+      'cal-bg': '#FBF4D7', 'cal-bg-muted': '#F3EBC9', 'cal-bg-subtle': '#E8D8D5', 'cal-bg-emphasis': '#C2D9BC',
+      'cal-text': '#141B41', 'cal-text-emphasis': '#141B41', 'cal-text-subtle': '#4a5074', 'cal-text-muted': '#6b7090',
+      'cal-border': '#d9cfb0', 'cal-border-subtle': '#e6dcbc', 'cal-border-booker': '#e6dcbc'
+    } }
+  });
+})();

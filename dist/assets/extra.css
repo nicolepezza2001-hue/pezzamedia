@@ -548,3 +548,14 @@ main > section.contact { padding-bottom: 70px; }
 .about-body .signature { margin-left: auto !important; margin-right: 0 !important; }
 @media (max-width: 767px) { .versus-table { min-width: 600px; font-size: 15px; line-height: 21px; } .versus-table th, .versus-table td { padding: 12px 12px; } .versus-table thead th { font-size: 17px; } }
 @media (max-width: 767px) { .versus-table tbody th { width: 130px; } }
+
+/* ===== Inline booking calendar (Cal.com) ===== */
+.book-cal { max-width: 1000px; margin: 34px auto 0; text-align: center; }
+.book-cal-label { font-size: 22px; line-height: 30px; font-style: italic; margin: 0 0 18px; }
+.cal-card { background: var(--pink); border-radius: 18px; padding: 14px; box-shadow: 0 12px 0 -2px rgba(20,27,65,.12); }
+.cal-inline { width: 100%; min-height: 520px; border-radius: 12px; overflow: hidden; background: var(--cream); }
+.cal-loading { padding: 220px 0 0; font-style: italic; opacity: .7; }
+.cal-fallback { font-size: 16px; margin: 14px 0 0; opacity: .8; }
+.cal-fallback a { color: var(--navy); }
+.book-or { display: block; margin-top: 26px; font-style: italic; font-size: 19px; opacity: .8; }
+@media (max-width: 767px) { .book-cal-label { font-size: 19px; line-height: 26px; } .cal-card { padding: 8px; border-radius: 14px; } .cal-inline { min-height: 560px; } }
