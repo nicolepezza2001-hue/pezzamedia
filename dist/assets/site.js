@@ -242,17 +242,22 @@
     requestAnimationFrame(tick);
   }, 0.6);
 
-  // Journey map: light each flow card in turn, looping while it is on screen
+  // Journey map: light each flow card in turn, looping while it is on screen.
+  // Hovering a card lights that card; the loop picks up again when the pointer leaves.
   const map = document.querySelector('.journey-map');
   if (map) {
     const cards = Array.from(map.children);
-    let idx = -1, timer = null;
-    const step = () => { cards.forEach(c => c.classList.remove('lit')); idx = (idx + 1) % (cards.length + 2); if (cards[idx]) cards[idx].classList.add('lit'); };
+    let idx = -1, timer = null, onScreen = false;
+    const light = i => cards.forEach((c, j) => c.classList.toggle('lit', j === i));
+    const step = () => { idx = (idx + 1) % cards.length; light(idx); };
+    const start = () => { if (!timer && onScreen) { step(); timer = setInterval(step, 2200); } };
+    const stop = () => { clearInterval(timer); timer = null; };
     new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !timer) timer = setInterval(step, 2800);
-      else if (!e.isIntersecting) { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); }
-    }, { threshold: 0.5 }).observe(map);
-    map.addEventListener('mouseenter', () => { clearInterval(timer); timer = null; cards.forEach(c => c.classList.remove('lit')); });
+      onScreen = e.isIntersecting;
+      if (onScreen) start(); else { stop(); light(-1); }
+    }, { threshold: 0.3 }).observe(map);
+    cards.forEach((c, i) => c.addEventListener('mouseenter', () => { stop(); idx = i; light(i); }));
+    map.addEventListener('mouseleave', start);
   }
 
   // Comparison table: ticks pop in row by row
