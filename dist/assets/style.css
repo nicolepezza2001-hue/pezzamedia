@@ -54,7 +54,7 @@ h1, h2, h3, p { margin: 0; }
   background-repeat: no-repeat; background-size: 100% auto;
 }
 .underline-freelance::after { background-image: url(underline-freelance.png); top: 75%; left: -7px; width: 110%; }
-.underline-nicky::after     { background-image: url(underline-nicky.png); top: 87%; left: -20px; width: 140%; }
+.underline-nicky::after     { background-image: none; background-color: var(--pink); -webkit-mask: url(underline-nicky.png) left top / 100% auto no-repeat; mask: url(underline-nicky.png) left top / 100% auto no-repeat; top: 87%; left: -20px; width: 140%; }
 .underline-services::after  { background-image: url(underline-services.png); top: 72%; }
 .underline-busy::after      { background-image: url(underline-busy.png); top: 71%; }
 .underline-business::after  { background-image: url(underline-business.png); top: 72%; }
