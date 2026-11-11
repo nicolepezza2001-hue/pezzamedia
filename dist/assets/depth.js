@@ -132,19 +132,19 @@
 
   // ---------- Cards tilt towards the pointer with a moving light (mouse and trackpad only) ----------
   if (finePointer) {
-    var cards = document.querySelectorAll('.case-card, .stat, .result-card, .svc, .journey-map li');
+    var cards = document.querySelectorAll('.case-card, .stat, .result-card, .svc');
     cards.forEach(function (card) {
       card.classList.add('tilt');
       var glare = document.createElement('span');
       glare.className = 'glare'; glare.setAttribute('aria-hidden', 'true');
       card.appendChild(glare);
-      var max = card.classList.contains('result-card') || card.matches('.journey-map li') ? 10 : 7;
+      var max = card.classList.contains('result-card') ? 10 : 7;
       var pending = null, rafId = 0;
       var apply = function () {
         rafId = 0; if (!pending) return;
         var r = card.getBoundingClientRect();
         var x = (pending.x - r.left) / r.width - 0.5, y = (pending.y - r.top) / r.height - 0.5;
-        var lifted = card.matches('.journey-map li.lit') ? ' translateY(-10px) translateZ(40px)' : ' translateY(-6px)';
+        var lifted = ' translateY(-6px)';
         card.style.transform = 'perspective(900px) rotateX(' + (-y * max).toFixed(2) + 'deg) rotateY(' + (x * max * 1.2).toFixed(2) + 'deg)' + lifted;
         card.style.setProperty('--gx', ((x + 0.5) * 100).toFixed(1) + '%');
         card.style.setProperty('--gy', ((y + 0.5) * 100).toFixed(1) + '%');

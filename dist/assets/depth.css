@@ -82,10 +82,6 @@
 .anim.depth .journey-map li.reveal { transform-origin: 50% 100%; transform: rotateX(70deg) translateY(30px); }
 .anim.depth .journey-map li.reveal.in { transform: none; }
 
-/* The flow card that is "live" lifts towards you */
-.depth .journey-map { perspective: 1100px; }
-.depth .journey-map li.lit { transform: translateY(-10px) translateZ(40px) rotateX(6deg); }
-@media (max-width: 767px) { .depth .journey-map li.lit { transform: translateY(-4px) translateZ(14px) rotateX(4deg); } }
 
 /* Section titles: words rise from slightly below the page plane */
 .anim.depth .section-title { perspective: 800px; }
