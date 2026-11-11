@@ -1,0 +1,100 @@
+/* ===== Depth pass: 3D layers, tilting cards, logo ring =====
+   Works with depth.js. Everything here is switched off for people who ask for reduced motion. */
+
+/* ---------- Hero: layered parallax ----------
+   depth.js sets --mx / --my (pointer, -0.5..0.5) and --sy (0..1 as the hero scrolls away) on .hero.
+   The individual `translate` property is used so it stacks on top of the existing grow/sway animations. */
+.hero { --mx: 0; --my: 0; --sy: 0; }
+.depth .hero::before { translate: calc(var(--mx) * -26px) calc(var(--my) * -18px + var(--sy) * 140px); }
+.depth .hero::after  { translate: calc(var(--mx) * -26px) calc(var(--my) * -18px + var(--sy) * 140px); }
+.depth .petals { translate: calc(var(--mx) * 46px) calc(var(--my) * 30px - var(--sy) * 90px); }
+.depth .hero-inner { translate: 0 calc(var(--sy) * 70px); }
+.depth .hero-title { translate: calc(var(--mx) * 12px) calc(var(--my) * 8px); }
+.depth .typing-text { translate: calc(var(--mx) * 7px) calc(var(--my) * 5px); }
+
+/* Laurel badges become gold medallions that lean towards the pointer and spin when touched */
+.depth .laurels { perspective: 700px; }
+.depth .laurel {
+  position: relative; transform-style: preserve-3d;
+  transform: rotateY(calc(var(--mx) * 30deg + var(--spin, 0deg))) rotateX(calc(var(--my) * -22deg));
+}
+.depth .laurel > span { display: block; transform: translateZ(26px); }
+.depth .laurel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 32%, rgba(255,248,214,.95) 48%, transparent 62%) no-repeat;
+  background-size: 300% 100%; background-position: calc(100% - (var(--mx) + .5) * 100%) 0;
+  -webkit-mask: url(laurel.svg) center / contain no-repeat; mask: url(laurel.svg) center / contain no-repeat;
+  opacity: .8;
+}
+.depth .laurel.spin { animation: medal-spin 1.1s cubic-bezier(.3,.7,.2,1); }
+@keyframes medal-spin { from { --spin: 0deg; } to { --spin: 360deg; } }
+@property --spin { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+/* ---------- Logo ring: brands and press orbit in 3D ---------- */
+.logo-marquee.ring { position: relative; height: 230px; padding: 0; overflow: hidden; perspective: 1400px; perspective-origin: 50% 0%; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.logo-marquee.ring.dragging { cursor: grabbing; }
+.logo-marquee.ring .logo-track { position: absolute; left: 50%; top: 40px; width: 0; height: 0; animation: none; transform-style: preserve-3d; }
+.logo-marquee.ring .logo-track li { position: absolute; left: -65px; top: 0; width: 130px; will-change: transform, opacity; backface-visibility: hidden; }
+.logo-marquee.ring .logo-track span { display: block; opacity: clamp(0, calc((var(--d, 1) - .82) * 6), 1); }
+.logo-marquee.ring .logo-track img { pointer-events: none; -webkit-user-drag: none; box-shadow: 0 14px 24px -14px rgba(20,27,65,.45); }
+.logo-marquee.ring .logo-track li:hover img { transform: translateY(-6px); }
+.logo-marquee.ring::after { /* soft floor shadow under the ring */
+  content: ""; position: absolute; left: 50%; bottom: 14px; width: min(980px, 90%); height: 26px; translate: -50% 0;
+  background: radial-gradient(closest-side, rgba(20,27,65,.14), transparent); pointer-events: none;
+}
+.ring-hint { display: block; text-align: center; font-size: 14px; font-style: italic; letter-spacing: 1px; opacity: .6; margin-top: -6px; }
+@media (max-width: 767px) {
+  .logo-marquee.ring { height: 180px; }
+  .logo-marquee.ring .logo-track { top: 26px; }
+  .logo-marquee.ring .logo-track li { left: -50px; width: 100px; }
+}
+
+/* ---------- Cards that tilt towards the pointer, with a moving light ---------- */
+.tilt { position: relative; transform-style: preserve-3d; }
+.tilt.tilting { transition: transform .12s linear, box-shadow .3s ease !important; }
+.tilt .glare {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2; opacity: 0;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255,255,255,.45), rgba(255,255,255,0) 55%);
+  mix-blend-mode: soft-light; transition: opacity .35s ease;
+}
+.result-card.tilt .glare { mix-blend-mode: screen; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(194,217,188,.18), rgba(194,217,188,0) 55%); }
+.tilt.tilting .glare { opacity: 1; }
+/* Inner layers float above the card surface */
+.tilt .ico, .tilt .case-art, .tilt .case-metric, .result-card.tilt b, .tilt .svc-head { transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.tilt.tilting .ico { transform: translateZ(46px); }
+.tilt.tilting .case-art { transform: translateZ(50px); }
+.tilt.tilting .case-metric { transform: translateZ(34px); }
+.result-card.tilt.tilting b { transform: translateZ(40px); }
+.tilt.tilting .svc-head { transform: translateZ(30px); }
+
+/* ---------- 3D scroll reveals: cards swing up off the page ---------- */
+.anim.depth .reveal:is(.case-card, .stat, .carousel, .envelope) {
+  transform-origin: 50% 100%;
+  transform: perspective(1000px) rotateX(24deg) translateY(50px);
+  transition: opacity .8s ease, transform 1s cubic-bezier(.2,.75,.2,1);
+}
+.anim.depth .reveal.in:is(.case-card, .stat, .carousel, .envelope) { transform: none; }
+/* Result cards flip down like tiles landing on a table */
+.anim.depth .result-cards { perspective: 1000px; }
+.anim.depth .result-card.reveal { transform-origin: 50% 0; transform: rotateX(-70deg); opacity: 0; transition: opacity .5s ease, transform .9s cubic-bezier(.25,1.4,.4,1); }
+.anim.depth .result-card.reveal.in { transform: none; opacity: 1; }
+/* Flow cards stand up one after another */
+.anim.depth .journey-map { perspective: 1100px; }
+.anim.depth .journey-map li.reveal { transform-origin: 50% 100%; transform: rotateX(70deg) translateY(30px); }
+.anim.depth .journey-map li.reveal.in { transform: none; }
+
+/* The flow card that is "live" lifts towards you */
+.depth .journey-map { perspective: 1100px; }
+.depth .journey-map li.lit { transform: translateY(-10px) translateZ(40px) rotateX(6deg); }
+@media (max-width: 767px) { .depth .journey-map li.lit { transform: translateY(-4px) translateZ(14px) rotateX(4deg); } }
+
+/* Section titles: words rise from slightly below the page plane */
+.anim.depth .section-title { perspective: 800px; }
+.anim.depth .section-title .w { transform: translateY(.45em) rotateX(-70deg); transform-origin: 50% 100%; }
+.anim.depth .section-title.words-in .w { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .depth .laurel, .depth .laurel > span { transform: none !important; }
+  .depth .hero::before, .depth .hero::after, .depth .petals, .depth .hero-inner, .depth .hero-title, .depth .typing-text { translate: none; }
+  .tilt .glare { display: none; }
+}
