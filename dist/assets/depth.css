@@ -95,15 +95,3 @@
 }
 
 
-/* ---------- Petals tumbling down the page in 3D (petals.js) ---------- */
-.petal-field { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; perspective: 700px; }
-.fpetal { position: absolute; top: 0; left: 0; transform-style: preserve-3d; will-change: transform; }
-.fpetal i {
-  display: block; transform-style: preserve-3d; backface-visibility: visible;
-  background: linear-gradient(135deg, #F7EDEA 0%, #E8D8D5 45%, #DDBDB7 100%);
-  border: 1.4px solid rgba(20,27,65,.7); border-radius: 80% 0 80% 0;
-}
-.fpetal.far i { filter: blur(.6px); }
-/* Petals stay behind everything: sections let the page's cream show through, content sits above the petals */
-.has-petals main > section { background: transparent; }
-.has-petals main, .has-petals .site-footer { position: relative; z-index: 1; }
