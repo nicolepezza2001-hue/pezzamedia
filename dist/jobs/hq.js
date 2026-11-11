@@ -134,7 +134,7 @@
   }
 
   function platCard(c) {
-    var stLabel = { live: "Live", setup: "Set up next", todo: "Later" }[c.status] || c.status;
+    var stLabel = { live: "Live", setup: "Set up next", todo: "Later", paused: "Paused" }[c.status] || c.status;
     return '<div class="card plat"><div class="plat-head"><h3><span class="dot" style="background:' + esc(c.color) + '"></span>' + esc(c.name) + '</h3><span class="pill st-' + esc(c.status) + '">' + esc(stLabel) + "</span></div>" +
       "<p>" + linkify(c.about || "") + "</p>" +
       (c.stats && c.stats.length ? '<div class="kv">' + c.stats.map(function (s) { return "<span>" + esc(s[0]) + "</span><span>" + esc(s[1]) + "</span>"; }).join("") + "</div>" : "") +
