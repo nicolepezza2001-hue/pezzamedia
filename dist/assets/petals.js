@@ -5,7 +5,8 @@
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var layer = document.createElement('div');
   layer.className = 'petal-field'; layer.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(layer);
+  document.body.insertBefore(layer, document.body.firstChild);
+  document.documentElement.classList.add('has-petals');
 
   var W = innerWidth, H = innerHeight;
   var count = W < 768 ? 7 : 13;
