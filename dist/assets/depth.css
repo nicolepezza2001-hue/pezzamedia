@@ -94,19 +94,13 @@
   .tilt .glare { display: none; }
 }
 
-/* ---------- The journey: an airmail route down the page (journey.js) ---------- */
-.has-route main { position: relative; }
-.route { position: absolute; top: 0; left: 0; z-index: 3; pointer-events: none; overflow: visible; }
-.route-base { fill: none; stroke: #141B41; stroke-opacity: .28; stroke-width: 1.6; stroke-dasharray: 2 9; stroke-linecap: round; }
-.route-done { fill: none; stroke: #141B41; stroke-width: 2.2; stroke-linecap: round; }
-.route-stops circle { fill: #FBF4D7; stroke: #141B41; stroke-width: 1.6; transition: fill .4s ease, r .4s ease; }
-.route-stops circle.passed { fill: #C2D9BC; }
-.route-plane-inner { animation: plane-bob 2.4s ease-in-out infinite; }
-.route-plane.landed .route-plane-inner { animation: none; }
-@keyframes plane-bob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(2px); } }
-@media (max-width: 767px) {
-  .route-plane-inner { scale: .75; }
-  .route-stops circle { r: 4; }
+
+/* ---------- Petals tumbling down the page in 3D (petals.js) ---------- */
+.petal-field { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; perspective: 700px; }
+.fpetal { position: absolute; top: 0; left: 0; transform-style: preserve-3d; will-change: transform; }
+.fpetal i {
+  display: block; transform-style: preserve-3d; backface-visibility: visible;
+  background: linear-gradient(135deg, #F7EDEA 0%, #E8D8D5 45%, #DDBDB7 100%);
+  border: 1.4px solid rgba(20,27,65,.7); border-radius: 80% 0 80% 0;
 }
-.route-stops text { font-family: 'EB Garamond', Georgia, serif; font-size: 13px; font-style: italic; letter-spacing: 1.5px; text-transform: uppercase; fill: #141B41; opacity: .55; transition: opacity .4s ease; }
-.route-stops circle.passed + text { opacity: .9; }
+.fpetal.far i { filter: blur(.6px); }
