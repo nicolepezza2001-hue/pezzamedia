@@ -42,7 +42,6 @@
   content: ""; position: absolute; left: 50%; bottom: 14px; width: min(980px, 90%); height: 26px; translate: -50% 0;
   background: radial-gradient(closest-side, rgba(20,27,65,.14), transparent); pointer-events: none;
 }
-.ring-hint { display: block; text-align: center; font-size: 14px; font-style: italic; letter-spacing: 1px; opacity: .6; margin-top: -6px; }
 @media (max-width: 767px) {
   .logo-marquee.ring { height: 180px; }
   .logo-marquee.ring .logo-track { top: 26px; }
@@ -98,3 +97,20 @@
   .depth .hero::before, .depth .hero::after, .depth .petals, .depth .hero-inner, .depth .hero-title, .depth .typing-text { translate: none; }
   .tilt .glare { display: none; }
 }
+
+/* ---------- The journey: an airmail route down the page (journey.js) ---------- */
+.has-route main { position: relative; }
+.route { position: absolute; top: 0; left: 0; z-index: 3; pointer-events: none; overflow: visible; }
+.route-base { fill: none; stroke: #141B41; stroke-opacity: .28; stroke-width: 1.6; stroke-dasharray: 2 9; stroke-linecap: round; }
+.route-done { fill: none; stroke: #141B41; stroke-width: 2.2; stroke-linecap: round; }
+.route-stops circle { fill: #FBF4D7; stroke: #141B41; stroke-width: 1.6; transition: fill .4s ease, r .4s ease; }
+.route-stops circle.passed { fill: #C2D9BC; }
+.route-plane-inner { animation: plane-bob 2.4s ease-in-out infinite; }
+.route-plane.landed .route-plane-inner { animation: none; }
+@keyframes plane-bob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(2px); } }
+@media (max-width: 767px) {
+  .route-plane-inner { scale: .75; }
+  .route-stops circle { r: 4; }
+}
+.route-stops text { font-family: 'EB Garamond', Georgia, serif; font-size: 13px; font-style: italic; letter-spacing: 1.5px; text-transform: uppercase; fill: #141B41; opacity: .55; transition: opacity .4s ease; }
+.route-stops circle.passed + text { opacity: .9; }

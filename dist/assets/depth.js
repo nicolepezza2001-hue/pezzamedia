@@ -64,10 +64,6 @@
     var n = items.length;
     if (n > 2) {
       wrap.classList.add('ring');
-      var hint = document.createElement('span');
-      hint.className = 'ring-hint'; hint.setAttribute('aria-hidden', 'true');
-      hint.textContent = finePointer ? 'Drag to spin' : 'Swipe to spin';
-      wrap.insertAdjacentElement('afterend', hint);
 
       var step = (Math.PI * 2) / n, angle = 0, vel = 0, auto = 0.0016, R = 380, lift = 46;
       var dragging = false, lastX = 0, lastT = 0, hover = false, ringOn = false, ringRaf = 0, last = 0;
