@@ -73,9 +73,10 @@
     var open = D.jobs.filter(function (j) { return !state.jobs[j.id]; }).length;
     var ws = weekStart(new Date()).getTime();
     var appliedLocal = Object.keys(state.jobs).filter(function (k) { var v = state.jobs[k]; return v && v.s === "applied" && v.t >= ws; }).length;
-    var applied = Math.max(appliedLocal, D.stats.applied_week || 0);
+    var leadsLocal = Object.keys(state.leads).filter(function (k) { var v = state.leads[k]; return v && !v.auto && v.t >= ws; }).length;
+    var applied = Math.max(appliedLocal + leadsLocal, D.stats.applied_week || 0);
     var leadsOpen = (D.leads || []).filter(function (l) { return !state.leads[l.id]; }).length;
-    var tiles = [[open, "Jobs waiting for you"], [applied, "Applied this week"], [D.stats.conversations || 0, "Open conversations"], [leadsOpen, "Outreach ready to send"]];
+    var tiles = [[open, "Jobs waiting for you"], [applied, "Sent this week (jobs + cold emails)"], [D.stats.conversations || 0, "Open conversations"], [leadsOpen, "Outreach ready to send"]];
     document.getElementById("tiles").innerHTML = tiles.map(function (t) { return '<div class="tile"><b>' + esc(t[0]) + "</b><span>" + esc(t[1]) + "</span></div>"; }).join("");
   }
 
