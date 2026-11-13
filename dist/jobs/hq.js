@@ -29,7 +29,8 @@
   function linkify(s) { return esc(s).replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
   var state = { jobs: {}, leads: {} };
   function loadState() { try { var s = JSON.parse(get("l", STATE_KEY) || "{}"); state.jobs = s.jobs || {}; state.leads = s.leads || {}; } catch (e) {}
-    D.jobs.forEach(function (j) { if (j.done && !state.jobs[j.id]) state.jobs[j.id] = { s: j.done, t: 0, auto: 1 }; }); }
+    D.jobs.forEach(function (j) { if (j.done && !state.jobs[j.id]) state.jobs[j.id] = { s: j.done, t: 0, auto: 1 }; });
+    (D.leads || []).forEach(function (l) { if (l.sent && !state.leads[l.id]) state.leads[l.id] = { t: 0, auto: 1 }; }); }
   function saveState() { set("l", STATE_KEY, JSON.stringify(state)); }
   function toast(msg) { var t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.appendChild(t); } t.textContent = msg; t.classList.add("on"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 1600); }
   function copy(text) {
