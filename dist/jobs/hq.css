@@ -87,7 +87,7 @@ section > h2 { font-size: 26px; font-weight: 600; margin-bottom: 14px; }
 .counter { font-size: 15px; color: var(--muted); }
 .empty { text-align: center; padding: 34px 18px; color: var(--muted); }
 .status-applied { color: var(--green-d); }
-.status-skipped { color: #8A4B2E; }
+.status-skipped { color: #8A4B2E; } .status-todo { color: #A07A12; }
 
 /* Platforms */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }

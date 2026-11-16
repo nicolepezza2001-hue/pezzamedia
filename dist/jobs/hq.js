@@ -104,7 +104,7 @@
     var facts = (j.facts || []).map(function (f) { return '<div class="fact"><small>' + esc(f[0]) + "</small>" + esc(f[1]) + "</div>"; }).join("");
     el.innerHTML = '<article class="job">' +
       '<div class="job-meta">' + tag(j.channel) + "<span>" + esc(j.client || "") + "</span>" + (j.posted ? "<span>Posted " + esc(j.posted) + "</span>" : "") +
-      (st ? '<span class="status-' + esc(st.s) + '">● ' + esc(st.s) + "</span>" : "") + "</div>" +
+      (st ? '<span class="status-' + esc(st.s) + '">● ' + (st.s === "applied" ? "Sent" : "Skipped") + "</span>" : '<span class="status-todo">● Not sent yet</span>') + "</div>" +
       '<h3><a href="' + esc(j.link) + '" target="_blank" rel="noopener">' + esc(j.title) + "</a></h3>" +
       (facts ? '<div class="facts">' + facts + "</div>" : "") +
       '<p class="why"><b>Why it fits:</b> ' + linkify(j.why || "") + "</p>" +
@@ -113,7 +113,7 @@
       '<div class="actions">' +
       '<a class="btn navy" href="' + esc(j.link) + '" target="_blank" rel="noopener">Open job ↗</a>' +
       (j.letter ? '<button class="btn ghost" data-a="copy">Copy letter</button>' : "") +
-      '<button class="btn" data-a="applied">Applied ✓</button>' +
+      '<button class="btn" data-a="applied">Mark as sent</button>' +
       '<button class="btn ghost" data-a="skipped">Skip</button>' +
       '<span class="counter">' + (jobIndex + 1) + " of " + q.length + "</span>" +
       '<button class="btn ghost small" data-a="prev" ' + (jobIndex ? "" : "disabled") + '>←</button>' +
@@ -127,7 +127,7 @@
       if (a === "next") { jobIndex++; return renderViewer(); }
       if (a === "applied" || a === "skipped") {
         state.jobs[j.id] = { s: a, t: Date.now() }; saveState();
-        toast(a === "applied" ? "Marked as applied" : "Skipped");
+        toast(a === "applied" ? "Marked as sent" : "Skipped");
         if (showDone) jobIndex++;
         renderViewer();
       }
