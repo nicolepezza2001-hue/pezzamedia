@@ -179,12 +179,20 @@
       return '<div class="lead"><div><h3><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.brand) + '</a></h3><div class="niche">' + esc(l.niche || "") + "</div></div>" +
         "<div>" + (l.why ? "<p><b>Why them:</b> " + linkify(l.why) + "</p>" : "") + (l.angle ? "<p><b>The angle:</b> " + linkify(l.angle) + "</p>" : "") +
         (l.draft ? '<div class="letter">' + linkify(l.draft) + "</div>" : "") +
-        '<div class="actions">' + (l.draft ? '<button class="btn small" data-copy="' + esc(l.id) + '">Copy message</button>' : "") +
+        '<div class="actions">' +
+        (l.draft && l.email ? '<button class="btn navy small" data-send="' + esc(l.id) + '">Send ✉</button>' : "") +
+        (l.draft && !l.email && l.send_url ? '<button class="btn navy small" data-open="' + esc(l.id) + '">Copy and open ' + esc(l.send_label || "contact page") + ' ↗</button>' : "") +
+        (l.draft ? '<button class="btn ghost small" data-copy="' + esc(l.id) + '">Copy message</button>' : "") +
         '<button class="btn ghost small" data-sent="' + esc(l.id) + '">' + (sent ? "Sent ✓" : "Mark as sent") + "</button></div></div>" +
-        '<div class="contact">' + linkify(l.contact || "Contact not found yet") + "</div></div>";
+        '<div class="contact">' + (l.email ? "<p><b>To:</b> " + esc(l.email) + "</p>" : "") + (l.subject ? "<p><b>Subject:</b> " + esc(l.subject) + "</p>" : "") + linkify(l.contact || "Contact not found yet") + "</div></div>";
     }).join("");
     body.onclick = function (e) {
       var b = e.target.closest("button"); if (!b) return;
+      var pick = function (id) { return list.filter(function (x) { return x.id === id; })[0]; };
+      if (b.dataset.send) { var m = pick(b.dataset.send); if (!m) return;
+        var u = "https://mail.google.com/mail/?" + (D.gmail ? "authuser=" + encodeURIComponent(D.gmail) + "&" : "") + "view=cm&fs=1&to=" + encodeURIComponent(m.email) + "&su=" + encodeURIComponent(m.subject || "") + "&body=" + encodeURIComponent(m.draft);
+        window.open(u, "_blank", "noopener"); state.leads[m.id] = { t: Date.now() }; saveState(); renderTabs(); renderTiles(); toast("Opened in Gmail. Press Send there."); return; }
+      if (b.dataset.open) { var o = pick(b.dataset.open); if (!o) return; copy(o.draft); window.open(o.send_url, "_blank", "noopener"); toast("Message copied. Paste it in and send."); return; }
       if (b.dataset.copy) { var l = list.filter(function (x) { return x.id === b.dataset.copy; })[0]; if (l) copy(l.draft); }
       if (b.dataset.sent) { var id = b.dataset.sent; if (state.leads[id]) delete state.leads[id]; else state.leads[id] = { t: Date.now() }; saveState(); renderTabs(); renderTiles(); }
     };
