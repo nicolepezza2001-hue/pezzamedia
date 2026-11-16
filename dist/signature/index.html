@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Email signatures | Pezza Media</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF4D7;color:#141B41;font:400 17px/1.5 "EB Garamond",Georgia,serif}
+.wrap{max-width:760px;margin:0 auto;padding:40px 16px 80px}
+h1{font-weight:600;font-size:34px;margin:0 0 6px}.lede{margin:0 0 30px;font-style:italic}
+.card{background:#fff;border-radius:14px;padding:22px 22px 18px;margin:0 0 26px;box-shadow:0 1px 0 #E8D8D5}
+.card h2{font-size:14px;letter-spacing:.2em;text-transform:uppercase;margin:0 0 4px;color:#4F7A45}
+.card p.note{margin:0 0 16px;font-size:15px}
+.mail{border-top:1px solid #eee;padding-top:16px;overflow-x:auto}
+.mail .fake{font-family:Arial,sans-serif;font-size:13px;color:#555;margin:0 0 14px}
+button{margin-top:16px;background:#141B41;color:#fff;border:0;border-radius:99px;padding:9px 18px;font:600 15px "EB Garamond",Georgia,serif;cursor:pointer}
+button.ok{background:#4F7A45}
+ol{padding-left:20px}
+</style></head><body><div class="wrap">
+<h1>Email signatures</h1>
+<p class="lede">Five options for Nicole Pezza. Each one has a small looping animation. Press "Copy" on the one you like, then paste it into Gmail.</p>
+<div id="list"></div>
+<div class="card"><h2>How to install in Gmail</h2><ol>
+<li>Press <b>Copy this signature</b> on your favourite above.</li>
+<li>In Gmail, open the gear icon, then <b>See all settings</b>.</li>
+<li>Scroll to <b>Signature</b>, press <b>Create new</b>, name it "Pezza Media" and paste (Cmd+V) into the box.</li>
+<li>Under <b>Signature defaults</b>, pick it for <b>new emails</b> and <b>reply/forward</b>.</li>
+<li>Scroll to the bottom and press <b>Save changes</b>.</li></ol></div>
+</div>
+<script>
+const U='https://pezzamedia.com/signature/';
+const F="font-family:Georgia,'Times New Roman',serif;color:#141B41;";
+const A=`color:#141B41;text-decoration:none;`;
+const dot=`<span style="color:#7FA676;padding:0 7px;">&#9679;</span>`.replace('&#9679;','&middot;');
+const links=`<a href="https://pezzamedia.com" style="${A}">pezzamedia.com</a>${dot}<a href="https://www.linkedin.com/in/nicolemariapezza" style="${A}">LinkedIn</a>${dot}<a href="https://calendar.app.google/jk49wPB9YcYMxJ8T7" style="${A}white-space:nowrap;">Book a call</a>`;
+const side=(img,w,h)=>`<table cellpadding="0" cellspacing="0" border="0" style="${F}"><tr>
+<td style="vertical-align:middle;padding-right:14px;"><img src="${U}${img}" width="${w}" height="${h}" alt="" style="display:block;border:0;"></td>
+<td style="vertical-align:middle;border-left:2px solid #C2D9BC;padding-left:14px;${F}">
+<div style="font-size:18px;font-weight:bold;line-height:1.2;">Nicole Pezza</div>
+<div style="font-size:13px;font-style:italic;line-height:1.5;color:#3d4366;">Senior Content Strategist and Copywriter, Pezza Media</div>
+<div style="font-size:13px;line-height:1.7;padding-top:3px;">${links}</div></td></tr></table>`;
+const S=[
+{t:'1. Garden',n:'Your LinkedIn banner in miniature. The right-hand vine sways and a petal drifts down.',h:`<table cellpadding="0" cellspacing="0" border="0" style="${F}"><tr><td><img src="${U}garden.gif" width="440" height="104" alt="Nicole Pezza, Senior Content Strategist and Copywriter" style="display:block;border:0;"></td></tr>
+<tr><td style="text-align:center;font-size:13px;line-height:1.6;padding-top:8px;${F}">${links}</td></tr></table>`},
+{t:'2. Handwritten',n:'Your name writes itself once in ink, a green line draws under it, a little flower lands at the end, and it stays still.',h:`<table cellpadding="0" cellspacing="0" border="0" style="${F}"><tr><td><img src="${U}ink.gif" width="260" height="62" alt="Nicole Pezza" style="display:block;border:0;"></td></tr>
+<tr><td style="font-size:13px;font-style:italic;color:#3d4366;line-height:1.5;padding:4px 0 0 4px;${F}">Senior Content Strategist and Copywriter, Pezza Media</td></tr>
+<tr><td style="font-size:13px;line-height:1.7;padding-left:4px;${F}">${links}</td></tr></table>`},
+{t:'3. Sprig',n:'The classic layout. A small sprig of the site flowers sways beside your details.',h:side('sprig.gif',72,63)},
+{t:'4. Portrait',n:'Your photo with a slow green ring turning around it and a sprig swaying at the corner.',h:side('portrait.gif',90,90)},
+{t:'5. Rotating line',n:'Your name and title stay put while the green line cycles through what you write: brand and website copy, SEO blogs, Klaviyo email, packaging copy.',h:`<table cellpadding="0" cellspacing="0" border="0" style="${F}"><tr><td><img src="${U}rotating.gif" width="400" height="87" alt="Nicole Pezza, Senior Content Strategist and Copywriter" style="display:block;border:0;"></td></tr>
+<tr><td style="font-size:13px;line-height:1.7;padding:8px 0 0 4px;${F}">${links}</td></tr></table>`}
+];
+const L=document.getElementById('list');
+S.forEach(s=>{const c=document.createElement('div');c.className='card';
+c.innerHTML=`<h2>${s.t}</h2><p class="note">${s.n}</p><div class="mail"><p class="fake">Thanks so much, speak soon.</p><div class="sig">${s.h}</div></div><button>Copy this signature</button>`;
+const b=c.querySelector('button');b.onclick=async()=>{const html=c.querySelector('.sig').innerHTML;
+try{await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([html],{type:'text/html'}),'text/plain':new Blob(['Nicole Pezza'],{type:'text/plain'})})]);}
+catch(e){const r=document.createRange();r.selectNodeContents(c.querySelector('.sig'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);document.execCommand('copy');sel.removeAllRanges();}
+b.textContent='Copied. Now paste it in Gmail';b.classList.add('ok');setTimeout(()=>{b.textContent='Copy this signature';b.classList.remove('ok')},4000)};
+L.appendChild(c)});
+</script></body></html>
