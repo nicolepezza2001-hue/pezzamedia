@@ -54,12 +54,13 @@
       '<header class="hero"><h1>' + esc(D.goal) + '</h1><p class="sub">Updated ' + esc(D.updated) + '</p></header>' +
       '<div class="tiles" id="tiles"></div>' +
       '<section><h2>Today</h2><div class="today">' + (D.today || []).map(function (t) {
-        return '<div class="todo' + (t.hot ? " hot" : "") + '"><div>' + tag(t.channel) + '</div><div><h3>' + (t.link ? '<a href="' + esc(t.link) + '" target="_blank" rel="noopener">' + esc(t.title) + "</a>" : esc(t.title)) + "</h3><p>" + linkify(t.detail || "") + "</p></div></div>";
+        var lk = t.link || ((t.channel === "cold" || t.channel === "hiring") ? "#outreach" : ""); var ext = lk && lk.charAt(0) !== "#";
+        return '<div class="todo' + (t.hot ? " hot" : "") + '"><div>' + tag(t.channel) + '</div><div><h3>' + (lk ? '<a href="' + esc(lk) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">" + esc(t.title) + "</a>" : esc(t.title)) + "</h3><p>" + linkify(t.detail || "") + "</p></div></div>";
       }).join("") + "</div></section>" +
       '<section id="jobs"><div class="viewer-head"><h2 style="margin:0">Jobs, one at a time</h2><div class="filters" id="filters"></div></div><div id="viewer"></div></section>' +
+      '<section id="outreach"><h2>Cold emails and hiring leads</h2><div class="tabs" id="tabs"></div><div class="card" id="tabbody"></div></section>' +
       '<section><h2>Platforms</h2><div class="grid">' + D.channels.map(platCard).join("") + "</div></section>" +
       '<section><h2>Applications per week</h2><div class="card">' + chart() + "</div></section>" +
-      '<section><div class="tabs" id="tabs"></div><div class="card" id="tabbody"></div></section>' +
       '<div class="foot"><span>Updated every morning. Your Applied and Skip clicks are saved in this browser.</span><button class="linkbtn" id="reset">Reset my clicks</button></div>' +
       "</div>";
     document.getElementById("logout").onclick = function () { del(PW_KEY); location.reload(); };
