@@ -22,6 +22,13 @@ Every call needs header `X-Key: <password>`. 10 wrong tries from one IP = locked
 - `GET /api/board` → `{ projects, tasks, notes, suggestions, lastSweep, updated }`.
 - `GET /api/export` → everything (backup). The page's footer "Backup" link downloads it.
 - `POST /api/projects` upsert a project by `id`.
+- `POST /api/tasks` add `{ project, kind, text, due?, who?, asked?, repeat?, detail?, link?, source? }`.
+- `PUT /api/tasks/:id` edit (same fields). `DELETE /api/tasks/:id` → bin (response has `trashed` = bin id for Undo).
+- `POST /api/tasks/:id/done` `{ done: true|false }`. Ticking a repeat adds the next copy (due + period) and stores `nextId`; unticking removes that copy if it wasn't touched.
+- `POST /api/tasks/:id/chased` resets `asked` to today.
+- `POST /api/notes` `{ project, text, detail? }` (Always remember rules), `PUT/DELETE /api/notes/:id`.
+- `POST /api/trash/:tid/restore` puts a binned item back.
+- All change calls send `today` (her local YYYY-MM-DD) and return the whole board.
 - `DELETE /api/projects/:id` moves it to trash.
 - `GET /api/trash` → last 500 deleted items `{ kind, item, deleted }`.
 
@@ -43,6 +50,6 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 
 ## Stages
 1. ✅ Worker + Board + password + lock screen + project cards (logos, counters, empty panel). Work row: SN, Tmrw, Pezza Media, Looking for a job (opens Jobs HQ). Personal row: Study, Family research, Tallulah writing, Frolicking Nicky. New default cards reach the live Board by bumping SEED_VERSION in the Worker.
-2. Tasks, waiting-on, repeating, Later, Always remember, add/edit/tick/delete, trash, export.
+2. ✅ Tasks, waiting-on, repeating, Later, Done (14 days, untick), Always remember, add/edit/tick/delete (tap twice), Bin + restore, Undo toasts, export.
 3. Suggestions tray + Start ▶. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
 6. Life Admin + habits. 7. Tools (Nicky 2026-11-17; no invoices/expenses/tax/subscriptions): Notes → Tasks, Brand kits, Proof bank, Content calendar, Swipe file, Tallulah tracker, Pitch tracker, Focus timer. 8. 30-day remember-me + Touch ID.

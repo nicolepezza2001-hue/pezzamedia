@@ -49,6 +49,40 @@ export default {
   },
 };
 
+
+const uid = () => crypto.randomUUID().slice(0, 8);
+const isDate = (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const KINDS = ["task", "waiting", "repeat"];
+const REPEATS = ["weekly", "monthly", "quarterly", "yearly"];
+function addPeriod(iso, repeat) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (repeat === "weekly") dt.setUTCDate(dt.getUTCDate() + 7);
+  else {
+    const months = { monthly: 1, quarterly: 3, yearly: 12 }[repeat] || 1;
+    const day = dt.getUTCDate();
+    dt.setUTCDate(1);
+    dt.setUTCMonth(dt.getUTCMonth() + months);
+    const last = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth() + 1, 0)).getUTCDate();
+    dt.setUTCDate(Math.min(day, last));
+  }
+  return dt.toISOString().slice(0, 10);
+}
+// Keep only the fields a task may have, trimmed and checked.
+function cleanTask(input, base = {}) {
+  const t = { ...base };
+  for (const k of ["text", "detail", "link", "source", "who"]) {
+    if (k in input) t[k] = String(input[k] ?? "").trim().slice(0, k === "detail" ? 4000 : 500);
+  }
+  for (const k of ["due", "asked"]) if (k in input) t[k] = isDate(input[k]) ? input[k] : "";
+  if ("kind" in input && KINDS.includes(input.kind)) t.kind = input.kind;
+  if ("repeat" in input) t.repeat = REPEATS.includes(input.repeat) ? input.repeat : "";
+  if ("project" in input) t.project = String(input.project);
+  t.kind ||= "task";
+  if (t.kind === "repeat" && !t.repeat) t.repeat = "monthly";
+  return t;
+}
+
 const DEFAULT_PROJECTS = [
   { id: "sn", name: "Simply Nootropics", group: "work", blurb: "Day job: senior content strategist.",
     logo: "logos/sn.png", color: "#A9D3EE", dashboard: "", order: 1 },
@@ -106,7 +140,7 @@ export class Board extends DurableObject {
     else f.n++;
   }
   trashItem(kind, item) {
-    this.data.trash.unshift({ kind, item, deleted: new Date().toISOString() });
+    this.data.trash.unshift({ tid: uid(), kind, item, deleted: new Date().toISOString() });
     this.data.trash.length = Math.min(this.data.trash.length, TRASH_MAX);
   }
 
@@ -138,6 +172,105 @@ export class Board extends DurableObject {
       return [200, { ok: true }];
     }
     if (p === "/api/trash" && method === "GET") return [200, d.trash];
+    const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
+                                lastSweep: d.lastSweep, updated: d.updated, ...extra }];
+    const hasProject = (id) => d.projects.some((x) => x.id === id);
+    const today = isDate(body?.today) ? body.today : new Date().toISOString().slice(0, 10);
+
+    // ----- tasks (kinds: task, waiting, repeat) -----
+    if (p === "/api/tasks" && method === "POST") {
+      const t = cleanTask(body);
+      if (!t.text) return [400, { error: "The task needs some text" }];
+      if (!hasProject(t.project)) return [400, { error: "Unknown card" }];
+      if (t.kind === "waiting" && !t.asked) t.asked = today;
+      Object.assign(t, { id: uid(), created: new Date().toISOString(), done: false });
+      d.tasks.push(t);
+      await this.save();
+      return board();
+    }
+    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased))?$/);
+    if (tm) {
+      const t = d.tasks.find((x) => x.id === tm[1]);
+      if (!t) return [404, { error: "That task isn't there any more" }];
+      if (!tm[2] && method === "PUT") {
+        const next = cleanTask(body, t);
+        if (!next.text) return [400, { error: "The task needs some text" }];
+        if (!hasProject(next.project)) return [400, { error: "Unknown card" }];
+        Object.assign(t, next, { edited: new Date().toISOString() });
+      } else if (!tm[2] && method === "DELETE") {
+        d.tasks.splice(d.tasks.indexOf(t), 1);
+        this.trashItem("task", t);
+        await this.save();
+        return board({ trashed: d.trash[0].tid });
+      } else if (tm[2] === "chased" && method === "POST") {
+        t.asked = today;
+        t.chasedCount = (t.chasedCount || 0) + 1;
+      } else if (tm[2] === "done" && method === "POST") {
+        const done = body?.done !== false;
+        if (done && !t.done) {
+          t.done = true;
+          t.doneAt = new Date().toISOString();
+          t.doneDay = today;
+          if (t.kind === "repeat" && t.repeat && !t.nextId) {
+            const copy = { ...t, id: uid(), created: new Date().toISOString(), done: false,
+                           due: addPeriod(t.due || today, t.repeat), prevId: t.id };
+            for (const k of ["doneAt", "doneDay", "nextId", "edited"]) delete copy[k];
+            t.nextId = copy.id;
+            d.tasks.push(copy);
+          }
+        } else if (!done && t.done) {
+          t.done = false;
+          delete t.doneAt; delete t.doneDay;
+          // Unticking a repeat removes the copy it made, unless that copy was already changed or ticked.
+          const next = t.nextId && d.tasks.find((x) => x.id === t.nextId);
+          if (next && !next.done && !next.edited) d.tasks.splice(d.tasks.indexOf(next), 1);
+          delete t.nextId;
+        }
+      } else return [405, { error: "Not allowed" }];
+      await this.save();
+      return board();
+    }
+
+    // ----- Always remember notes -----
+    if (p === "/api/notes" && method === "POST") {
+      const text = String(body?.text || "").trim().slice(0, 300);
+      if (!text) return [400, { error: "The note needs some text" }];
+      if (!hasProject(body.project)) return [400, { error: "Unknown card" }];
+      d.notes.push({ id: uid(), project: body.project, text, detail: String(body.detail || "").trim().slice(0, 4000),
+                     source: String(body.source || "").slice(0, 300), created: new Date().toISOString() });
+      await this.save();
+      return board();
+    }
+    const nm = p.match(/^\/api\/notes\/([\w-]+)$/);
+    if (nm) {
+      const n = d.notes.find((x) => x.id === nm[1]);
+      if (!n) return [404, { error: "That note isn't there any more" }];
+      if (method === "PUT") {
+        if ("text" in body) n.text = String(body.text || "").trim().slice(0, 300) || n.text;
+        if ("detail" in body) n.detail = String(body.detail || "").trim().slice(0, 4000);
+        n.edited = new Date().toISOString();
+      } else if (method === "DELETE") {
+        d.notes.splice(d.notes.indexOf(n), 1);
+        this.trashItem("note", n);
+        await this.save();
+        return board({ trashed: d.trash[0].tid });
+      } else return [405, { error: "Not allowed" }];
+      await this.save();
+      return board();
+    }
+
+    // ----- restore from trash -----
+    const rm = p.match(/^\/api\/trash\/([\w-]+)\/restore$/);
+    if (rm && method === "POST") {
+      const i = d.trash.findIndex((x) => x.tid === rm[1]);
+      if (i < 0) return [404, { error: "Not in the bin" }];
+      const [entry] = d.trash.splice(i, 1);
+      const list = { task: d.tasks, note: d.notes, project: d.projects }[entry.kind];
+      if (!list) return [400, { error: "Can't restore that kind yet" }];
+      if (!list.some((x) => x.id === entry.item.id)) list.push(entry.item);
+      await this.save();
+      return board();
+    }
     return [404, { error: "Not found" }];
   }
 }
