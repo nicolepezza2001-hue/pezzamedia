@@ -29,7 +29,7 @@
       const doneJ = (id) => (local.jobs || {})[id] || D.jobs.find((j) => j.id === id)?.done;
       const doneL = (id) => (local.leads || {})[id];
       const today = (D.today || []).filter((t) => !(t.job && doneJ(t.job)) && !(t.lead && doneL(t.lead)));
-      jobs = { open: D.jobs.filter((j) => !doneJ(j.id)).length, hot: today.some((t) => t.hot) };
+      jobs = { open: today.length, hot: today.some((t) => t.hot) };
       try { sessionStorage.setItem("hq-pw", key); } catch (e) {} // so Jobs HQ opens without asking for the password again
     } catch (e) { jobs = null; }
   }
@@ -40,6 +40,8 @@
 
   // ----- counting: what's open, what's hot -----
   function stats(pid) {
+    const pr = board.projects.find((x) => x.id === pid);
+    if (pr?.special === "jobs") return { open: jobs ? jobs.open : 0, hot: !!jobs?.hot, label: "to do" };
     const items = (board.tasks || []).filter((t) => t.project === pid && !t.done);
     let open = 0, hot = false;
     for (const t of items) {
@@ -58,25 +60,34 @@
     return { open, hot };
   }
 
-  function renderCards() {
-    const wrap = $("#tq-cards-work");
-    const projects = board.projects.filter((p) => (p.group || "work") === "work")
-      .map((p) => ({ p, s: stats(p.id) }))
-      .sort((a, b) => (b.s.hot - a.s.hot) || (b.s.open - a.s.open) || ((a.p.order ?? 99) - (b.p.order ?? 99)));
-    wrap.innerHTML = projects.map(({ p, s }) => `
+  function cardHTML(p, s) {
+    const logo = p.logo ? `<img src="${esc(p.logo)}" alt="${esc(p.name)} logo">` : `<span class="tq-icon" aria-hidden="true">${esc(p.icon || "•")}</span>`;
+    return `
       <div class="tq-card${openId === p.id ? " is-open" : ""}" data-id="${esc(p.id)}" style="--tq-tint:${esc(p.color)}" role="button" tabindex="0" aria-expanded="${openId === p.id}">
         <span class="tq-strip"></span>
-        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}" target="_blank" rel="noopener">📊 Dashboard ↗</a>` : ""}
-        <span class="tq-logo"><img src="${esc(p.logo)}" alt="${esc(p.name)} logo"></span>
+        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}">📊 Dashboard ↗</a>` : ""}
+        <span class="tq-logo">${logo}</span>
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
-        ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> open</span>` : `<span class="tq-clear">All clear</span>`}
-      </div>`).join("");
-    wrap.querySelectorAll(".tq-pill").forEach((a) => a.addEventListener("click", (e) => e.stopPropagation()));
-    wrap.querySelectorAll(".tq-card").forEach((c) => {
-      c.addEventListener("click", () => togglePanel(c.dataset.id));
-      c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); togglePanel(c.dataset.id); } });
-    });
+        ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : `<span class="tq-clear">All clear</span>`}
+      </div>`;
+  }
+
+  function renderCards() {
+    for (const group of ["work", "personal"]) {
+      const wrap = $("#tq-cards-" + group);
+      const list = board.projects.filter((p) => (p.group || "work") === group)
+        .map((p) => ({ p, s: stats(p.id) }))
+        .sort((a, b) => (b.s.hot - a.s.hot) || (b.s.open - a.s.open) || ((a.p.order ?? 99) - (b.p.order ?? 99)));
+      wrap.innerHTML = list.map(({ p, s }) => cardHTML(p, s)).join("");
+      wrap.querySelectorAll(".tq-pill").forEach((a) => a.addEventListener("click", (e) => e.stopPropagation()));
+      wrap.querySelectorAll(".tq-card").forEach((c) => {
+        const p = board.projects.find((x) => x.id === c.dataset.id);
+        const go = () => (p.special === "jobs" ? (location.href = p.dashboard) : togglePanel(p.id));
+        c.addEventListener("click", go);
+        c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      });
+    }
   }
 
   function togglePanel(id) {
@@ -94,7 +105,7 @@
     panel.style.setProperty("--tq-tint", p.color);
     panel.innerHTML = `
       <div class="tq-panel-head">
-        <img src="${esc(p.logo)}" alt="">
+        ${p.logo ? `<img src="${esc(p.logo)}" alt="">` : `<span class="tq-icon tq-icon-sm" aria-hidden="true">${esc(p.icon || "")}</span>`}
         <h2>${esc(p.name)}</h2>
         <button class="tq-x" type="button" aria-label="Close">✕</button>
       </div>
@@ -106,14 +117,7 @@
     panel.querySelector(".tq-x").addEventListener("click", () => togglePanel(openId));
   }
 
-  function renderJobsButton() {
-    const n = $("#tq-jobs-n");
-    n.hidden = !jobs || !jobs.open;
-    if (jobs) { n.textContent = jobs.open; n.classList.toggle("is-hot", jobs.hot); }
-  }
-
   function render() {
-    renderJobsButton();
     $("#tq-today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
     const u = board.updated ? new Date(board.updated) : null;
     $("#tq-updated").textContent = u ? "Last saved " + u.toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";

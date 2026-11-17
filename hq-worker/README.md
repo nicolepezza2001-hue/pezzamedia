@@ -32,7 +32,7 @@ Every call needs header `X-Key: <password>`. 10 wrong tries from one IP = locked
 
 ## Jobs HQ
 `pezzamedia.com/jobs/` stays its own page with its own encrypted data and sweep (see `/mnt/project-files/upwork/hq/README.md`).
-The green "Jobs HQ" button on Tasks HQ opens it. If both use the same password, Tasks HQ decrypts the jobs file to show the open-jobs badge and hands the password over, so Jobs HQ opens without asking again. Tasks HQ is the main HQ; Jobs HQ is a sub-part of it and has no link back (Nicky, 2026-11-17).
+The "Looking for a job" work card on Tasks HQ opens it (its counter = Today items still to do; red if one is marked hot). If both use the same password, Tasks HQ decrypts the jobs file to show the open-jobs badge and hands the password over, so Jobs HQ opens without asking again. Tasks HQ is the main HQ; Jobs HQ is a sub-part of it and has no link back (Nicky, 2026-11-17).
 
 ## Deploying
 - Page: commit to `main` (GitHub Pages). Bump `?v=` on `tq.css` / `tq.js` in `index.html` to bust caches.
@@ -42,7 +42,7 @@ The green "Jobs HQ" button on Tasks HQ opens it. If both use the same password, 
 Use clearly marked TEST items and delete them afterwards. Never tick or delete real tasks to test.
 
 ## Stages
-1. ✅ Worker + Board + password + lock screen + project cards (logos, counters, empty panel). Jobs HQ button.
+1. ✅ Worker + Board + password + lock screen + project cards (logos, counters, empty panel). Work row: SN, Tmrw, Pezza Media, Looking for a job (opens Jobs HQ). Personal row: Study, Family research, Tallulah writing, Frolicking Nicky. New default cards reach the live Board by bumping SEED_VERSION in the Worker.
 2. Tasks, waiting-on, repeating, Later, Always remember, add/edit/tick/delete, trash, export.
 3. Suggestions tray + Start ▶. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
 6. Life Admin + habits. 7. Tools. 8. 30-day remember-me + Touch ID.

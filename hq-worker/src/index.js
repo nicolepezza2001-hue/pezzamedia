@@ -50,13 +50,20 @@ export default {
 };
 
 const DEFAULT_PROJECTS = [
-  { id: "sn", name: "Simply Nootropics", group: "work", blurb: "Day job: senior content strategist (site, SEO blogs, Klaviyo, community, PR).",
+  { id: "sn", name: "Simply Nootropics", group: "work", blurb: "Day job: senior content strategist.",
     logo: "logos/sn.png", color: "#A9D3EE", dashboard: "", order: 1 },
-  { id: "tmrw", name: "Tmrw", group: "work", blurb: "Longevity drink: Klaviyo, Tmrw Lab newsletter, blogs, PR, Reddit.",
+  { id: "tmrw", name: "Tmrw", group: "work", blurb: "Klaviyo, Tmrw Lab, blogs, PR.",
     logo: "logos/tmrw.png", color: "#2755C4", dashboard: "", order: 2 },
-  { id: "pezza", name: "Pezza Media", group: "work", blurb: "My own business: freelance clients (Upwork, Delaway, Yenny), invoices, job hunt.",
+  { id: "pezza", name: "Pezza Media", group: "work", blurb: "Freelance clients and invoices.",
     logo: "logos/pezza.png", color: "#E8D8D5", dashboard: "", order: 3 },
+  { id: "jobs", name: "Looking for a job", group: "work", special: "jobs", blurb: "Job picks, proposals, outreach.",
+    icon: "💼", color: "#C2D9BC", dashboard: "/jobs/", order: 4 },
+  { id: "study", name: "Study", group: "personal", blurb: "My StudyHub.", icon: "📚", color: "#F3D9A4", dashboard: "", order: 11 },
+  { id: "family", name: "Family research", group: "personal", blurb: "Family history digging.", icon: "🌳", color: "#B8D8C8", dashboard: "", order: 12 },
+  { id: "tallulah", name: "Tallulah writing", group: "personal", blurb: "Tallulah Has Nothing.", icon: "✍️", color: "#D9C6EC", dashboard: "", order: 13 },
+  { id: "frolic", name: "Frolicking Nicky", group: "personal", blurb: "Travel, fun and adventures.", icon: "🌸", color: "#F6C6D0", dashboard: "", order: 14 },
 ];
+const SEED_VERSION = 2;
 
 export class Board extends DurableObject {
   constructor(ctx, env) {
@@ -72,6 +79,16 @@ export class Board extends DurableObject {
       await this.ctx.storage.put("board", d);
     }
     for (const k of ["projects", "tasks", "notes", "suggestions", "suggestionLog", "trash"]) d[k] ||= [];
+    d.settings ||= {};
+    if ((d.settings.seedVersion || 1) < SEED_VERSION) {
+      // Add new default cards and refresh the default ones; projects Nicky added herself are kept.
+      for (const def of DEFAULT_PROJECTS) {
+        const i = d.projects.findIndex((x) => x.id === def.id);
+        if (i >= 0) d.projects[i] = { ...d.projects[i], ...def }; else d.projects.push(def);
+      }
+      d.settings.seedVersion = SEED_VERSION;
+      await this.ctx.storage.put("board", d);
+    }
     this.data = d;
     return d;
   }

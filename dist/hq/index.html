@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tq.css?v=2">
+  <link rel="stylesheet" href="tq.css?v=3">
 </head>
 <body class="tq-body">
   <main id="tq-lock" class="tq-lock">
@@ -34,7 +34,6 @@
         <p class="tq-sub">One card per project. Tap a card to see what's open. Claude will suggest tasks in a yellow tray, and nothing gets added until you tap Add.</p>
       </div>
       <div class="tq-actions">
-        <a id="tq-jobs" class="tq-btn tq-btn-jobs" href="../jobs/">💼 Jobs HQ <b id="tq-jobs-n" class="tq-badge" hidden></b></a>
         <button id="tq-sync" class="tq-btn tq-btn-soft" type="button">↻ Sync</button>
       </div>
     </header>
@@ -42,6 +41,11 @@
     <section class="tq-group">
       <h2 class="tq-group-h">Work</h2>
       <div id="tq-cards-work" class="tq-cards"></div>
+    </section>
+
+    <section class="tq-group">
+      <h2 class="tq-group-h">Personal</h2>
+      <div id="tq-cards-personal" class="tq-cards"></div>
     </section>
 
     <section id="tq-panel" class="tq-panel" hidden aria-live="polite"></section>
@@ -55,6 +59,6 @@
   <div id="tq-toast" class="tq-toast" role="status" hidden></div>
 
   <script src="config.js?v=2"></script>
-  <script src="tq.js?v=1"></script>
+  <script src="tq.js?v=2"></script>
 </body>
 </html>
