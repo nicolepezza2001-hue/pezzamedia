@@ -54,7 +54,7 @@
       '<button class="btn ghost small" id="logout">Lock</button></div>' +
       '<header class="hero"><h1>' + esc(D.goal) + '</h1><p class="sub">Updated ' + esc(D.updated) + '</p></header>' +
       '<div class="tiles" id="tiles"></div>' +
-      '<section><h2>Today</h2><div class="today">' + (D.today || []).map(function (t) {
+      '<section><h2>Today</h2><div class="today">' + (D.today || []).filter(function (t) { return !(t.job && state.jobs[t.job]) && !(t.lead && state.leads[t.lead]); }).map(function (t) {
         var lk = t.link || ((t.channel === "cold" || t.channel === "hiring") ? "#outreach" : ""); var ext = lk && lk.charAt(0) !== "#";
         return '<div class="todo' + (t.hot ? " hot" : "") + '"><div>' + tag(t.channel) + '</div><div><h3>' + (lk ? '<a href="' + esc(lk) + '"' + (ext ? ' target="_blank" rel="noopener"' : "") + ">" + esc(t.title) + "</a>" : esc(t.title)) + "</h3><p>" + linkify(t.detail || "") + "</p></div></div>";
       }).join("") + "</div></section>" +
