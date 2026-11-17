@@ -41,6 +41,7 @@
 
   var D, channelById = {}, jobFilter = "all", jobIndex = 0, showDone = false, tab = "cold";
 
+  function bidOf(j) { var t = (j.facts || []).map(function (f) { return f[1]; }).join(" "); var m = t.match(/bid \$(\d+)(\/hr)?/i); return m ? "$" + m[1] + (m[2] || "") : ""; }
   function chan(id) { return channelById[id] || { name: id, color: "#999" }; }
   function tag(id) { var c = chan(id); return '<span class="pill" style="color:' + esc(c.color) + '">' + esc(c.short || c.name) + "</span>"; }
 
@@ -114,7 +115,8 @@
       '<div class="actions">' +
       '<a class="btn navy" href="' + esc(j.link) + '" target="_blank" rel="noopener">Open job ↗</a>' +
       (j.letter ? '<button class="btn ghost" data-a="copy">Copy letter</button>' : "") +
-      '<button class="btn" data-a="applied">Mark as sent</button>' +
+      (j.channel === "upwork" && j.letter && /~0\d+/.test(j.link || "") ? '<button class="btn" data-a="send">Send on Upwork ↗</button>' + (bidOf(j) ? '<span class="counter"><b>Bid ' + esc(bidOf(j)) + "</b></span>" : "") : "") +
+      '<button class="btn ' + (j.channel === "upwork" && j.letter ? "ghost" : "") + '" data-a="applied">Mark as sent</button>' +
       '<button class="btn ghost" data-a="skipped">Skip</button>' +
       '<span class="counter">' + (jobIndex + 1) + " of " + q.length + "</span>" +
       '<button class="btn ghost small" data-a="prev" ' + (jobIndex ? "" : "disabled") + '>←</button>' +
@@ -124,6 +126,8 @@
       var b = e.target.closest("button"); if (!b) return;
       var a = b.dataset.a;
       if (a === "copy") return copy(j.letter);
+      if (a === "send") { copy(j.letter); var m = (j.link || "").match(/~0\d+/); window.open("https://www.upwork.com/ab/proposals/job/" + m[0] + "/apply/", "_blank", "noopener");
+        state.jobs[j.id] = { s: "applied", t: Date.now() }; saveState(); toast("Letter copied. Paste it in, set the bid" + (bidOf(j) ? " to " + bidOf(j) : "") + " and submit."); if (showDone) jobIndex++; renderViewer(); return; }
       if (a === "prev") { jobIndex--; return renderViewer(); }
       if (a === "next") { jobIndex++; return renderViewer(); }
       if (a === "applied" || a === "skipped") {
