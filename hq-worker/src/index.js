@@ -58,12 +58,12 @@ const DEFAULT_PROJECTS = [
     logo: "logos/pezza.png", color: "#E8D8D5", dashboard: "", order: 3 },
   { id: "jobs", name: "Looking for a job", group: "work", special: "jobs", blurb: "Job picks, proposals, outreach.",
     icon: "💼", color: "#C2D9BC", dashboard: "/jobs/", order: 4 },
-  { id: "study", name: "Study", group: "personal", blurb: "My StudyHub.", icon: "📚", color: "#F3D9A4", dashboard: "", order: 11 },
+  { id: "study", name: "Study", group: "personal", blurb: "My StudyHub.", icon: "📚", color: "#F3D9A4", dashboard: "https://frolickingnicky.com/hub/", order: 11 },
   { id: "family", name: "Family research", group: "personal", blurb: "Family history digging.", icon: "🌳", color: "#B8D8C8", dashboard: "", order: 12 },
   { id: "tallulah", name: "Tallulah writing", group: "personal", blurb: "Tallulah Has Nothing.", icon: "✍️", color: "#D9C6EC", dashboard: "", order: 13 },
   { id: "frolic", name: "Frolicking Nicky", group: "personal", blurb: "Travel, fun and adventures.", icon: "🌸", color: "#F6C6D0", dashboard: "", order: 14 },
 ];
-const SEED_VERSION = 2;
+const SEED_VERSION = 3;
 
 export class Board extends DurableObject {
   constructor(ctx, env) {

@@ -65,7 +65,7 @@
     return `
       <div class="tq-card${openId === p.id ? " is-open" : ""}" data-id="${esc(p.id)}" style="--tq-tint:${esc(p.color)}" role="button" tabindex="0" aria-expanded="${openId === p.id}">
         <span class="tq-strip"></span>
-        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}">📊 Dashboard ↗</a>` : ""}
+        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}"${/^https?:/.test(p.dashboard) ? ' target="_blank" rel="noopener"' : ""}>📊 Dashboard ↗</a>` : ""}
         <span class="tq-logo">${logo}</span>
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
