@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="tq.css?v=7">
+  <link rel="stylesheet" href="tq.css?v=8">
+  <script>try{if(localStorage.getItem("tq-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
 </head>
 <body class="tq-body">
   <main id="tq-lock" class="tq-lock">
@@ -28,16 +29,30 @@
 
   <div id="tq-app" class="tq-app" hidden>
     <header class="tq-top">
-      <div>
+      <div class="tq-top-main">
         <p class="tq-eyebrow" id="tq-today"></p>
-        <h1 class="tq-title">Tasks HQ</h1>
-        <p class="tq-sub">One card per project. Tap a card to see what's open. Claude will suggest tasks in a yellow tray, and nothing gets added until you tap Add.</p>
+        <h1 class="tq-title">Get on top of your <span id="tq-rotate" class="tq-rotate">tasks.</span></h1>
+        <p class="tq-sub">Every project has a card. Tap one to see what's open, tick things off, and add your own. Claude reads your messages in the background and suggests tasks in a yellow tray, but nothing goes on your list until you tap Add.</p>
       </div>
       <div class="tq-actions">
-        <button id="tq-sync" class="tq-btn tq-btn-soft" type="button">↻ Sync</button>
+        <div class="tq-actions-btns">
+          <button id="tq-theme" class="tq-btn tq-btn-soft" type="button">🌙 Dark</button>
+          <button id="tq-sync" class="tq-btn tq-btn-soft" type="button">↻ Sync</button>
+        </div>
         <p id="tq-checks" class="tq-checks" aria-live="polite"></p>
       </div>
     </header>
+
+    <section id="tq-score" class="tq-score" aria-label="Scoreboard"></section>
+
+    <div class="tq-syncs" aria-label="Claude checks these">
+      <span class="tq-syncs-h">Syncs with</span>
+      <span class="tq-src"><img src="logos/src-gmail.svg" alt="">Gmail</span>
+      <span class="tq-src"><img src="logos/src-googlecalendar.svg" alt="">Calendar</span>
+      <span class="tq-src"><img src="logos/src-upwork.svg" alt="">Upwork</span>
+      <span class="tq-src"><img src="logos/src-slack.svg" alt="">Slack</span>
+      <span class="tq-src"><img src="logos/src-clickup.svg" alt="">ClickUp</span>
+    </div>
 
     <section class="tq-group">
       <h2 class="tq-group-h">Work</h2>
@@ -54,12 +69,13 @@
 
     <footer class="tq-foot">
       <span id="tq-updated"></span>
-      <span class="tq-foot-links"><a href="#" id="tq-settings">Settings</a> · <a href="#" id="tq-bin">Bin</a> · <a href="#" id="tq-export">Backup</a> · <a href="#" id="tq-signout">Sign out</a></span>
+      <span class="tq-foot-links"><a href="#" id="tq-anims">Animations</a> · <a href="#" id="tq-settings">Settings</a> · <a href="#" id="tq-bin">Bin</a> · <a href="#" id="tq-export">Backup</a> · <a href="#" id="tq-signout">Sign out</a></span>
     </footer>
   </div>
   <div id="tq-toast" class="tq-toast" role="status" hidden></div>
 
   <script src="config.js?v=2"></script>
-  <script src="tq.js?v=7"></script>
+  <script src="tq-fx.js?v=1"></script>
+  <script src="tq.js?v=8"></script>
 </body>
 </html>

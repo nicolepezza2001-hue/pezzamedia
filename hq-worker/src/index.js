@@ -202,6 +202,11 @@ export class Board extends DurableObject {
     }
     for (const k of ["projects", "tasks", "notes", "suggestions", "suggestionLog", "trash"]) d[k] ||= [];
     d.settings ||= {};
+    if (!d.stats) {
+      // First run of the scoreboard: count what was already ticked.
+      d.stats = { days: {} };
+      for (const t of d.tasks) if (t.done && t.doneDay) d.stats.days[t.doneDay] = (d.stats.days[t.doneDay] || 0) + 1;
+    }
     if ((d.settings.seedVersion || 1) < SEED_VERSION) {
       // Add new default cards and refresh the default ones; projects Nicky added herself are kept.
       for (const def of DEFAULT_PROJECTS) {
@@ -238,7 +243,7 @@ export class Board extends DurableObject {
     if (p === "/api/ping") return [200, { ok: true }];
     if (p === "/api/board" && method === "GET") {
       return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                     lastSweep: d.lastSweep, sweeps: d.sweeps || {}, updated: d.updated || d.created, settings: d.settings }];
+                     lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated || d.created, settings: d.settings }];
     }
     if (p === "/api/export" && method === "GET") return [200, { exported: new Date().toISOString(), ...d }];
 
@@ -261,7 +266,7 @@ export class Board extends DurableObject {
     }
     if (p === "/api/trash" && method === "GET") return [200, d.trash];
     const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                                lastSweep: d.lastSweep, sweeps: d.sweeps || {}, updated: d.updated, settings: d.settings, ...extra }];
+                                lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated, settings: d.settings, ...extra }];
     const hasProject = (id) => d.projects.some((x) => x.id === id);
     const today = isDate(body?.today) ? body.today : new Date().toISOString().slice(0, 10);
 
@@ -302,6 +307,9 @@ export class Board extends DurableObject {
           if (role !== "owner") { t.doneBy = role; t.doneWhy = String(body?.why || "").slice(0, 300); }
           t.doneAt = new Date().toISOString();
           t.doneDay = today;
+          // Scoreboard: count finished items per day (kept even if the task is later deleted).
+          d.stats ||= { days: {} };
+          d.stats.days[today] = (d.stats.days[today] || 0) + 1;
           if (t.kind === "repeat" && t.repeat && !t.nextId) {
             const copy = { ...t, id: uid(), created: new Date().toISOString(), done: false,
                            due: addPeriod(t.due || today, t.repeat), prevId: t.id };
@@ -311,6 +319,7 @@ export class Board extends DurableObject {
           }
         } else if (!done && t.done) {
           t.done = false;
+          if (t.doneDay && d.stats?.days?.[t.doneDay]) d.stats.days[t.doneDay]--;
           delete t.doneAt; delete t.doneDay;
           // Unticking a repeat removes the copy it made, unless that copy was already changed or ticked.
           const next = t.nextId && d.tasks.find((x) => x.id === t.nextId);
@@ -436,6 +445,11 @@ export class Board extends DurableObject {
     // ----- settings and sweep bookkeeping -----
     if (p === "/api/settings" && method === "PUT") {
       if ("claudeFolder" in body) d.settings.claudeFolder = String(body.claudeFolder || "").trim().slice(0, 300);
+      // Her animation picks: { tick: 0-3, add: 0-3, ... }
+      if (body.anims && typeof body.anims === "object") {
+        d.settings.anims ||= {};
+        for (const [k, v] of Object.entries(body.anims)) if (/^[a-z]{2,12}$/.test(k) && [0, 1, 2, 3].includes(v)) d.settings.anims[k] = v;
+      }
       await this.save();
       return [200, d.settings];
     }

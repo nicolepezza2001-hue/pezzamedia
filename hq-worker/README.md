@@ -69,3 +69,9 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 - Suggestions get `by` from the key (claude/work); the tray shows "✨ Claude" or "💼 Work Claude".
 - POST /api/sweep {kind: sweep|review, lastSweep, summary, failed} saves `sweeps[who]`; the header shows "Claude checked 5:30 PM".
 - Runbook for the checks: /mnt/project-files/upwork/hq/SWEEP.md. The cloud environment allows pezza-hq.nicole-pezza2001.workers.dev.
+
+## Stage 5: scoreboard, headline, syncs, animations, dark mode (2026-11-17)
+- `stats.days` {YYYY-MM-DD: count} counts every tick (decrements on untick); backfilled once from existing done tasks. The page works out today, best day, this week (Mon-today) and the workday streak (weekends never break it).
+- Animations live in dist/hq/tq-fx.js: 12 actions × 4 options. Nicky picks per action in the footer's "Animations" sheet; picks are saved in `settings.anims` (PUT /api/settings {anims:{tick:0-3,...}}).
+- Dark mode: toggle in the header, remembered per device in localStorage `tq-theme`; light by default. Colours are CSS variables on :root, overridden under :root[data-theme=dark].
+- Syncs-with logos: dist/hq/logos/src-*.svg (Simple Icons, recoloured).

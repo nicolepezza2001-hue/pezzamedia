@@ -268,6 +268,7 @@
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
     if (openId === "__bin") return renderBin();
     if (openId === "__settings") return renderSettings();
+    if (openId === "__anims") return renderAnims();
     const p = board.projects.find((x) => x.id === openId);
     panel.hidden = scrim.hidden = !p;
     if (!p) return;
@@ -330,6 +331,63 @@
     });
   }
 
+  // ----- animations -----
+  const fx = (action, ctx, el) => window.TQFX && TQFX.play(action, ctx, el);
+  const snap = (el) => (window.TQFX ? TQFX.capture(el) : null);
+  const rowEl = (id) => $(`#tq-panel [data-id="${CSS.escape(id)}"]`);
+
+  // ----- scoreboard: finished per day, best day, this week, workday streak -----
+  function score() {
+    const days = board.stats?.days || {};
+    const t = todayISO(), today = days[t] || 0;
+    const bestOther = Math.max(0, ...Object.entries(days).filter(([d]) => d !== t).map(([, n]) => n));
+    const best = Math.max(bestOther, today);
+    const d0 = today0(), dow = (d0.getDay() + 6) % 7; // Monday = 0
+    let week = 0;
+    for (let i = 0; i <= dow; i++) { const d = new Date(d0); d.setDate(d.getDate() - i); week += days[isoOf(d)] || 0; }
+    // Workday streak: weekends never break it; today only counts once something is done.
+    let streak = 0;
+    const d = new Date(d0);
+    if (!today) d.setDate(d.getDate() - 1);
+    for (let guard = 0; guard < 2000; guard++) {
+      const wd = d.getDay();
+      if (wd === 0 || wd === 6) { if (days[isoOf(d)]) streak++; d.setDate(d.getDate() - 1); continue; }
+      if (!days[isoOf(d)]) break;
+      streak++; d.setDate(d.getDate() - 1);
+    }
+    return { today, best, bestOther, week, streak };
+  }
+  function renderScore() {
+    const sc = score();
+    const slots = Math.min(Math.max(sc.best + 1, 3), 30);
+    let html = "";
+    for (let i = 1; i <= slots; i++) {
+      const last = i === slots;
+      html += `<span class="tq-slot${i <= sc.today ? " is-on" : ""}${last ? " is-goal" : ""}" title="${last ? "Beat your best to fill this one" : i + " done"}">${last ? "🏆" : i <= sc.today ? "✓" : ""}</span>`;
+    }
+    $("#tq-score").innerHTML = `
+      <div class="tq-score-top"><p><b>${sc.today}</b> done today</p>
+        <span class="tq-chip">Best day ${sc.best}</span><span class="tq-chip">This week ${sc.week}</span><span class="tq-chip">🔥 ${sc.streak} day streak</span></div>
+      <div class="tq-slots" aria-label="${sc.today} done today, best day ${sc.best}">${html}</div>
+      <p class="tq-score-hint">${sc.today > sc.bestOther && sc.bestOther > 0 ? "New record today! 🏆" : sc.best ? `${Math.max(sc.bestOther + 1 - sc.today, 0) || 1} more to beat your best day.` : "Tick your first task to start the scoreboard."}</p>`;
+  }
+
+  // ----- animation picker (4 options per action) -----
+  function renderAnims() {
+    const panel = $("#tq-panel"), scrim = $("#tq-scrim");
+    panel.hidden = scrim.hidden = false;
+    panel.style.setProperty("--tq-tint", "#F5C04E");
+    const picks = board.settings?.anims || {};
+    panel.innerHTML = `<div class="tq-panel-head"><span class="tq-icon tq-icon-sm" aria-hidden="true">🎬</span><h2>Animations</h2><button class="tq-x" type="button" aria-label="Close">✕</button></div>
+      <p class="tq-empty">Tap an option to see it on the sample row. The one you tap is saved straight away.</p>
+      <ul class="tq-anim-list">${Object.entries(TQFX.NAMES).map(([k, name]) => `<li class="tq-anim" data-anim="${k}">
+        <h3>${esc(name)}</h3>
+        <div class="tq-anim-demo"><span class="tq-anim-box"></span><span>Sample: Send the launch email</span></div>
+        <div class="tq-anim-opts">${TQFX.OPTIONS[k].map((o, i) => `<button type="button" class="tq-mini${(picks[k] ?? 0) === i ? " is-picked" : ""}" data-opt="${i}">${(picks[k] ?? 0) === i ? "✓ " : ""}${esc(o)}</button>`).join("")}</div>
+      </li>`).join("")}</ul>`;
+    $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+  }
+
   // ----- the bin (trash) -----
   async function renderBin() {
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
@@ -360,6 +418,16 @@
   const undoRestore = (tid) => () => change(`/api/trash/${tid}/restore`, "POST").then(() => toast("Back again"));
 
   $("#tq-panel").addEventListener("click", async (e) => {
+    const opt = e.target.closest("[data-opt]");
+    if (opt) {
+      const li = opt.closest("[data-anim]"), k = li.dataset.anim, v = +opt.dataset.opt;
+      const demo = $(".tq-anim-demo", li);
+      TQFX.play(k, TQFX.capture(demo), demo, v);
+      $$("[data-opt]", li).forEach((b, i) => { b.classList.toggle("is-picked", i === v); b.textContent = (i === v ? "✓ " : "") + TQFX.OPTIONS[k][i]; });
+      TQFX.picks[k] = v;
+      try { board.settings = await api("/api/settings", { method: "PUT", body: JSON.stringify({ anims: { [k]: v } }) }); } catch (err) { toast(err.message); }
+      return;
+    }
     const btn = e.target.closest("[data-act], [data-kind]");
     if (!btn) return;
     const row = btn.closest("[data-id]"), id = row?.dataset.id;
@@ -374,20 +442,24 @@
     }
     const act = btn.dataset.act;
     const sid = btn.closest("[data-sid]")?.dataset.sid;
-    if (act === "sadd") { await change(`/api/suggestions/${sid}/add`, "POST"); toast("✅ Added to your list"); return; }
-    if (act === "sdismiss") { await change(`/api/suggestions/${sid}/dismiss`, "POST"); toast("Dismissed. It won't be suggested again."); return; }
+    if (act === "sadd") { const c = snap(btn.closest(".tq-sug")); const b = await change(`/api/suggestions/${sid}/add`, "POST"); fx("add", c, b.added && rowEl(b.added)); toast("✅ Added to your list"); return; }
+    if (act === "sdismiss") { const c = snap(btn.closest(".tq-sug")); await change(`/api/suggestions/${sid}/dismiss`, "POST"); fx("dismiss", c); toast("Dismissed. It won't be suggested again."); return; }
     if (act === "scomment") { const f = $(".tq-c-form", btn.closest(".tq-sug")); f.hidden = false; $("textarea", f).focus(); return; }
     if (act === "ccancel") { btn.closest(".tq-c-form").hidden = true; return; }
     if (act === "edit") { editing = id; renderPanel(); $("#tq-panel .tq-form [name=text]")?.focus(); }
     else if (act === "cancel") { editing = null; renderPanel(); }
-    else if (act === "chased") { await change(`/api/tasks/${id}/chased`, "POST"); toast("🔔 Chased. The 5-day clock starts again."); }
+    else if (act === "chased") { const c = snap(row); await change(`/api/tasks/${id}/chased`, "POST"); fx("chased", c, rowEl(id)); toast("🔔 Chased. The 5-day clock starts again."); }
     else if (act === "del") armDelete(btn, async () => {
+      const c = snap(row);
       const b = await change(`/api/tasks/${id}`, "DELETE");
+      fx("del", c);
       toast("Deleted", "Undo", undoRestore(b.trashed));
     });
     else if (act === "nedit") { editing = "n:" + btn.closest("[data-note]").dataset.note; renderPanel(); }
     else if (act === "ndel") armDelete(btn, async () => {
+      const c = snap(btn.closest("[data-note]"));
       const b = await change(`/api/notes/${btn.closest("[data-note]").dataset.note}`, "DELETE");
+      fx("del", c);
       toast("Rule deleted", "Undo", undoRestore(b.trashed));
     });
     else if (act === "restore") {
@@ -401,7 +473,11 @@
     const id = e.target.closest("[data-id]").dataset.id;
     const done = e.target.checked;
     const t = board.tasks.find((x) => x.id === id);
-    await change(`/api/tasks/${id}/done`, "POST", { done }).catch(() => {});
+    const c = snap(e.target.closest("[data-id]")), before = score();
+    try { await change(`/api/tasks/${id}/done`, "POST", { done }); } catch (err) { return; }
+    fx(done ? "tick" : "untick", c, rowEl(id));
+    const after = score();
+    if (done && after.today > before.today && after.today > after.bestOther && before.today <= after.bestOther && after.bestOther > 0) setTimeout(() => fx("record"), 900);
     if (!done) toast("⏪ Back on the list");
     else if (t?.kind === "repeat") toast(`Done. The next one is on the list (${t.repeat}).`, "Undo", () => change(`/api/tasks/${id}/done`, "POST", { done: false }));
     else toast("Done", "Undo", () => change(`/api/tasks/${id}/done`, "POST", { done: false }));
@@ -415,6 +491,7 @@
       const sid = form.closest("[data-sid]").dataset.sid;
       if (!f.text.trim()) return;
       const btn = $("button[type=submit]", form); btn.disabled = true; btn.textContent = "✨ Fixing…";
+      fx("comment", snap(form.closest(".tq-sug")));
       try {
         const b = await change(`/api/suggestions/${sid}/comment`, "POST", { text: f.text });
         if (b.action === "accept") toast("✅ Fixed and added to your list");
@@ -426,8 +503,15 @@
     if (form.classList.contains("tq-note-form")) {
       const nid = form.dataset.id;
       editing = null;
-      if (nid) await change(`/api/notes/${nid}`, "PUT", f);
-      else { await change("/api/notes", "POST", { ...f, project: openId }); toast("📌 Rule pinned"); }
+      if (nid) { await change(`/api/notes/${nid}`, "PUT", f); fx("edit", null, $(`#tq-panel [data-note="${CSS.escape(nid)}"]`)); }
+      else {
+        const had = new Set(board.notes.map((n) => n.id));
+        await change("/api/notes", "POST", { ...f, project: openId });
+        const n = board.notes.find((x) => !had.has(x.id));
+        const el = n && $(`#tq-panel [data-note="${CSS.escape(n.id)}"]`);
+        fx("note", snap(el), el);
+        toast("📌 Rule pinned");
+      }
       return;
     }
     const kind = form.dataset.kind || $(".tq-seg-btn.is-on", form)?.dataset.kind || "task";
@@ -438,8 +522,15 @@
     if (kind === "repeat" && !body.due) body.due = todayISO();
     const tid = form.dataset.id;
     try {
-      if (tid) { editing = null; await change(`/api/tasks/${tid}`, "PUT", body); toast("Saved"); }
-      else { await change("/api/tasks", "POST", { ...body, project: openId }); toast(kind === "waiting" ? "Added to Waiting on others" : "Added"); $("#tq-panel .tq-sec-add [name=text]")?.focus(); }
+      if (tid) { editing = null; await change(`/api/tasks/${tid}`, "PUT", body); fx("edit", null, rowEl(tid)); toast("Saved"); }
+      else {
+        const had = new Set(board.tasks.map((x) => x.id));
+        await change("/api/tasks", "POST", { ...body, project: openId });
+        const nt = board.tasks.find((x) => !had.has(x.id));
+        const el = nt && rowEl(nt.id);
+        fx("newtask", snap(el || form), el);
+        toast(kind === "waiting" ? "Added to Waiting on others" : "Added"); $("#tq-panel .tq-sec-add [name=text]")?.focus();
+      }
     } catch (err) {}
   });
 
@@ -456,6 +547,8 @@
       return `<span class="tq-check${sw.failed ? " is-warn" : ""}" title="${esc(sw.summary || "")}${sw.failed ? " · Couldn't read: " + esc(sw.failed) : ""}">${name} checked ${when}${sw.failed ? " ⚠️" : ""}</span>`;
     }).filter(Boolean);
     $("#tq-checks").innerHTML = checks.length ? checks.join("") : `<span class="tq-check">Background checks start soon</span>`;
+    if (window.TQFX) TQFX.picks = { ...(board.settings?.anims || {}) };
+    renderScore();
     renderCards();
     // Don't redraw the panel under her while she's typing in the add form.
     const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form") && document.activeElement.value;
@@ -491,12 +584,35 @@
   });
 
   $("#tq-sync").addEventListener("click", async () => {
-    try { await load(); toast("Up to date"); } catch (e) { toast(e.message); }
+    const c = snap($("#tq-sync"));
+    try { await load(); fx("sync", c); toast("Up to date"); } catch (e) { toast(e.message); }
   });
   $("#tq-scrim").addEventListener("click", () => togglePanel(openId));
   $("#tq-signout").addEventListener("click", (e) => { e.preventDefault(); sessionStorage.removeItem(KEY_STORE); key = ""; showLock(); });
   $("#tq-bin").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__bin"); });
   $("#tq-settings").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__settings"); });
+  $("#tq-anims").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__anims"); });
+
+  // ----- light / dark (light by default, remembered on this device) -----
+  const setTheme = (t) => {
+    document.documentElement.dataset.theme = t;
+    $("#tq-theme").textContent = t === "dark" ? "☀️ Light" : "🌙 Dark";
+    $("meta[name=theme-color]").content = t === "dark" ? "#14171F" : "#F6F5F2";
+  };
+  try { setTheme(localStorage.getItem("tq-theme") === "dark" ? "dark" : "light"); } catch (e) { setTheme("light"); }
+  $("#tq-theme").addEventListener("click", () => {
+    const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    setTheme(t); try { localStorage.setItem("tq-theme", t); } catch (e) {}
+  });
+
+  // ----- headline: the last word rotates -----
+  const WORDS = ["tasks.", "clients.", "launches.", "inbox.", "family tree.", "novel.", "week."];
+  let wi = 0;
+  setInterval(() => {
+    const w = $("#tq-rotate"); if (!w || document.hidden) return;
+    w.classList.add("is-out");
+    setTimeout(() => { wi = (wi + 1) % WORDS.length; w.textContent = WORDS[wi]; w.classList.remove("is-out"); }, 350);
+  }, 2600);
   $("#tq-export").addEventListener("click", async (e) => {
     e.preventDefault();
     try {
