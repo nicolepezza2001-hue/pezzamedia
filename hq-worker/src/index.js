@@ -1,6 +1,7 @@
 // Tasks HQ Worker: one Durable Object ("Board") holds everything.
 // Every /api call needs the password in the X-Key header (Worker secret KEY).
 import { DurableObject } from "cloudflare:workers";
+import Anthropic from "@anthropic-ai/sdk";
 
 const ORIGINS = ["https://pezzamedia.com", "https://www.pezzamedia.com"];
 const TRASH_MAX = 500;
@@ -83,6 +84,67 @@ function cleanTask(input, base = {}) {
   return t;
 }
 
+// ----- suggestions -----
+const LOG_MAX = 3000;
+const norm = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+function similar(a, b) {
+  const A = new Set(norm(a).split(" ").filter((w) => w.length > 2)), B = new Set(norm(b).split(" ").filter((w) => w.length > 2));
+  if (!A.size || !B.size) return norm(a) === norm(b);
+  let both = 0; for (const w of A) if (B.has(w)) both++;
+  return both / (A.size + B.size - both) >= 0.8;
+}
+// Structured reply the comment fixer must return.
+const FIX_SCHEMA = {
+  type: "object", additionalProperties: false,
+  required: ["reply", "action", "changes", "rule"],
+  properties: {
+    reply: { type: "string", description: "One short plain sentence saying what you changed, e.g. 'Moved to Tmrw and set due Fri 21 Nov.'" },
+    action: { type: "string", enum: ["none", "accept", "dismiss"] },
+    changes: {
+      type: "object", additionalProperties: false,
+      required: ["project", "text", "detail", "due", "kind", "who", "repeat"],
+      properties: {
+        project: { anyOf: [{ type: "null" }, { type: "string" }] }, text: { anyOf: [{ type: "null" }, { type: "string" }] },
+        detail: { anyOf: [{ type: "null" }, { type: "string" }] },
+        due: { anyOf: [{ type: "null" }, { type: "string" }], description: "YYYY-MM-DD, or empty string to clear" },
+        kind: { anyOf: [{ type: "null" }, { type: "string", enum: ["task", "waiting", "repeat"] }] },
+        who: { anyOf: [{ type: "null" }, { type: "string" }] },
+        repeat: { anyOf: [{ type: "null" }, { type: "string", enum: ["weekly", "monthly", "quarterly", "yearly"] }] },
+      },
+    },
+    rule: { anyOf: [{ type: "null" }, {
+      type: "object", additionalProperties: false, required: ["project", "text", "detail"],
+      properties: { project: { type: "string" }, text: { type: "string" }, detail: { type: "string" } },
+    }] },
+  },
+};
+async function askClaudeToFix(env, { suggestion, comment, projects, today }) {
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  const system = `You fix one suggested task on Nicky's private task board after she comments on it.
+Today is ${today} (her local date). Cards (id: name, group, what it is):
+${projects.map((p) => `- ${p.id}: ${p.name} (${p.group}) ${p.blurb || ""}`).join("\n")}
+Rules:
+- Apply exactly what her comment asks. Leave every other field null (null = unchanged).
+- Personal things never go on a work card, and work things never on a personal card.
+- Task text starts with a verb, plain words, max ~90 characters. Only set a due date when there is a real one; turn "next Friday" etc. into YYYY-MM-DD from today's date.
+- "waiting" means she asked someone for something: set who to their first name.
+- action is "accept" only if she clearly says to add/accept it, "dismiss" only if she clearly says to drop/remove it; otherwise "none".
+- If her comment states a lasting rule for a card ("always...", "never...", "from now on..."), also return it as rule, with the card id; otherwise rule is null.
+- reply: one short friendly sentence in plain English saying what you changed. No jargon.`;
+  const res = await client.beta.messages.create({
+    model: "claude-opus-5-5",
+    max_tokens: 4000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: { effort: "low", format: { type: "json_schema", schema: FIX_SCHEMA } },
+    system,
+    messages: [{ role: "user", content: `Suggestion:\n${JSON.stringify(suggestion, null, 1)}\n\nHer comment:\n${comment}` }],
+  });
+  if (res.stop_reason === "refusal") throw new Error("Claude declined");
+  const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  return JSON.parse(text);
+}
+
 const DEFAULT_PROJECTS = [
   { id: "sn", name: "Simply Nootropics", group: "work", blurb: "Day job: senior content strategist.",
     logo: "logos/sn.png", color: "#A9D3EE", dashboard: "", order: 1 },
@@ -102,6 +164,7 @@ const SEED_VERSION = 3;
 export class Board extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
+    this.env = env;
     this.fails = new Map();
   }
   async load() {
@@ -150,7 +213,7 @@ export class Board extends DurableObject {
     if (p === "/api/ping") return [200, { ok: true }];
     if (p === "/api/board" && method === "GET") {
       return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                     lastSweep: d.lastSweep, updated: d.updated || d.created }];
+                     lastSweep: d.lastSweep, updated: d.updated || d.created, settings: d.settings }];
     }
     if (p === "/api/export" && method === "GET") return [200, { exported: new Date().toISOString(), ...d }];
 
@@ -173,7 +236,7 @@ export class Board extends DurableObject {
     }
     if (p === "/api/trash" && method === "GET") return [200, d.trash];
     const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                                lastSweep: d.lastSweep, updated: d.updated, ...extra }];
+                                lastSweep: d.lastSweep, updated: d.updated, settings: d.settings, ...extra }];
     const hasProject = (id) => d.projects.some((x) => x.id === id);
     const today = isDate(body?.today) ? body.today : new Date().toISOString().slice(0, 10);
 
@@ -257,6 +320,102 @@ export class Board extends DurableObject {
       } else return [405, { error: "Not allowed" }];
       await this.save();
       return board();
+    }
+
+    // ----- suggestions (Claude never adds tasks itself; Nicky taps Add) -----
+    if (p === "/api/suggestions/log" && method === "GET") return [200, { log: d.suggestionLog, open: d.suggestions }];
+    if (p === "/api/suggestions" && method === "POST") {
+      const items = Array.isArray(body?.items) ? body.items : [body];
+      const result = { posted: [], skipped: [] };
+      for (const raw of items) {
+        const t = cleanTask(raw || {});
+        t.why = String(raw?.why || "").trim().slice(0, 300);
+        if (!t.text || !hasProject(t.project)) { result.skipped.push({ text: t.text, reason: "missing text or unknown card" }); continue; }
+        const dup = [...d.suggestions, ...d.suggestionLog, ...d.tasks.filter((x) => !x.done)].find((x) => similar(x.text, t.text));
+        if (dup) { result.skipped.push({ text: t.text, reason: "already suggested or on the list" }); continue; }
+        if (t.kind === "waiting" && !t.asked) t.asked = today;
+        Object.assign(t, { id: uid(), created: new Date().toISOString(), by: String(raw?.by || "claude").slice(0, 40), comments: [] });
+        d.suggestions.push(t);
+        result.posted.push({ id: t.id, project: t.project, text: t.text });
+      }
+      if (result.posted.length) await this.save();
+      return [200, result];
+    }
+    const sm = p.match(/^\/api\/suggestions\/([\w-]+)\/(add|dismiss|comment|reply)$/);
+    if (sm && method === "POST") {
+      const sg = d.suggestions.find((x) => x.id === sm[1]);
+      if (!sg) return [404, { error: "That suggestion has already been handled" }];
+      const close = (status) => {
+        d.suggestions.splice(d.suggestions.indexOf(sg), 1);
+        d.suggestionLog.unshift({ ...sg, status, closed: new Date().toISOString() });
+        d.suggestionLog.length = Math.min(d.suggestionLog.length, LOG_MAX);
+      };
+      const addTask = () => {
+        const t = cleanTask(sg);
+        if (t.kind === "waiting" && !t.asked) t.asked = today;
+        Object.assign(t, { id: uid(), created: new Date().toISOString(), done: false, fromSuggestion: sg.id });
+        d.tasks.push(t);
+        close("added");
+        return t.id;
+      };
+      if (sm[2] === "add") { const id = addTask(); await this.save(); return board({ added: id }); }
+      if (sm[2] === "dismiss") { close("dismissed"); await this.save(); return board(); }
+      if (sm[2] === "reply") {
+        // Used by the background sweep to answer a comment the instant fix couldn't handle.
+        const c = sg.comments.find((x) => x.id === body?.comment);
+        if (!c) return [404, { error: "No such comment" }];
+        c.reply = String(body.reply || "").slice(0, 500); c.pending = false;
+        if (body.changes) Object.assign(sg, cleanTask(body.changes, sg));
+        await this.save();
+        return board();
+      }
+      // comment: save it first, then try the instant fix.
+      const text = String(body?.text || "").trim().slice(0, 1000);
+      if (!text) return [400, { error: "Type a comment first" }];
+      const c = { id: uid(), text, at: new Date().toISOString(), pending: true };
+      sg.comments.push(c);
+      await this.save();
+      if (!this.env.ANTHROPIC_API_KEY) {
+        c.reply = "Saved. The next background check will sort this out (instant fixes switch on once the Anthropic key is added).";
+        await this.save();
+        return board();
+      }
+      try {
+        const before = { project: sg.project, kind: sg.kind, text: sg.text, detail: sg.detail, due: sg.due, who: sg.who, repeat: sg.repeat, why: sg.why, source: sg.source };
+        const fix = await askClaudeToFix(this.env, { suggestion: before, comment: text, projects: d.projects, today });
+        const ch = {};
+        for (const [k, v] of Object.entries(fix.changes || {})) if (v !== null && v !== undefined) ch[k] = v;
+        if (ch.project && !hasProject(ch.project)) delete ch.project;
+        Object.assign(sg, cleanTask(ch, sg));
+        if (fix.rule?.text && hasProject(fix.rule.project)) {
+          d.notes.push({ id: uid(), project: fix.rule.project, text: fix.rule.text.slice(0, 300), detail: (fix.rule.detail || "").slice(0, 4000),
+                         source: "Your comment", created: new Date().toISOString() });
+          fix.reply += " I also pinned it as a rule.";
+        }
+        c.reply = fix.reply; c.pending = false;
+        let added;
+        if (fix.action === "accept") added = addTask();
+        else if (fix.action === "dismiss") close("dismissed");
+        await this.save();
+        return board({ fixed: sg.id, added, action: fix.action });
+      } catch (e) {
+        c.reply = "Saved. I couldn't fix it instantly, so the next background check will.";
+        await this.save();
+        return board();
+      }
+    }
+
+    // ----- settings and sweep bookkeeping -----
+    if (p === "/api/settings" && method === "PUT") {
+      if ("claudeFolder" in body) d.settings.claudeFolder = String(body.claudeFolder || "").trim().slice(0, 300);
+      await this.save();
+      return [200, d.settings];
+    }
+    if (p === "/api/sweep" && method === "POST") {
+      if (body?.lastSweep) d.lastSweep = String(body.lastSweep);
+      if (body?.summary) { d.sweepLog = [{ at: new Date().toISOString(), summary: String(body.summary).slice(0, 1000) }, ...(d.sweepLog || [])].slice(0, 200); }
+      await this.save();
+      return [200, { lastSweep: d.lastSweep }];
     }
 
     // ----- restore from trash -----

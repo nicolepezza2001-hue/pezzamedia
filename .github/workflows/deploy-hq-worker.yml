@@ -1,5 +1,6 @@
 # Deploys the Tasks HQ Worker (hq-worker/) to Cloudflare whenever it changes on main.
-# Needs GitHub secrets: CLOUDFLARE_API_TOKEN (Cloudflare "Edit Cloudflare Workers" token) and HQ_KEY (the HQ password).
+# GitHub secrets: CLOUDFLARE_API_TOKEN (Cloudflare "Edit Cloudflare Workers" token), HQ_KEY (the HQ password),
+# and optionally ANTHROPIC_API_KEY (for the instant comment fixes; skipped while it's not set).
 name: Deploy Tasks HQ Worker
 
 on:
@@ -13,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Worker packages
+        working-directory: hq-worker
+        run: npm ci
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -22,3 +26,10 @@ jobs:
             KEY
         env:
           KEY: ${{ secrets.HQ_KEY }}
+      - name: Add the Anthropic key to the Worker (only if it's set)
+        working-directory: hq-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          AK: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$AK" ]; then printf '%s' "$AK" | npx wrangler secret put ANTHROPIC_API_KEY; else echo "No ANTHROPIC_API_KEY secret yet, skipping."; fi

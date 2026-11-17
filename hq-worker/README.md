@@ -12,7 +12,7 @@ Cloudflare Worker (`hq-worker/`). Read this before changing anything.
 
 ## Secrets (never in this repo)
 - GitHub repo secrets: `CLOUDFLARE_API_TOKEN` (Cloudflare token from the "Edit Cloudflare Workers" template), `HQ_KEY` (the HQ password; same as the Jobs HQ password so one password opens both).
-- Worker secrets: `KEY` (set from `HQ_KEY` by the deploy), later `ANTHROPIC_API_KEY` (`npx wrangler secret put ANTHROPIC_API_KEY`, or add it as a GitHub secret and to the workflow).
+- Worker secrets: `KEY` (set from `HQ_KEY` by the deploy) and `ANTHROPIC_API_KEY` (set from the GitHub secret of the same name by the deploy, if present).
 - Local testing: `hq-worker/.dev.vars` with `KEY=...` (git-ignored), then `npx wrangler dev`.
 
 ## API
@@ -28,6 +28,12 @@ Every call needs header `X-Key: <password>`. 10 wrong tries from one IP = locked
 - `POST /api/tasks/:id/chased` resets `asked` to today.
 - `POST /api/notes` `{ project, text, detail? }` (Always remember rules), `PUT/DELETE /api/notes/:id`.
 - `POST /api/trash/:tid/restore` puts a binned item back.
+- `POST /api/suggestions` `{ items: [{ project, kind, text, why, source, due?, who?, repeat?, detail?, link?, by? }] }` → `{ posted, skipped }`. Skips anything that looks the same (80% word overlap) as an open suggestion, the suggestion log (added + dismissed) or an open task.
+- `GET /api/suggestions/log` → `{ log, open }` (the sweep reads this so nothing reworded comes back).
+- `POST /api/suggestions/:id/add` | `/dismiss` | `/comment {text}` | `/reply {comment, reply, changes?}` (reply = the sweep answering a comment the instant fix missed; open comments have `pending: true`).
+- Comment fix: Worker calls Claude (`claude-opus-5-5`, effort low, structured JSON, server-side fallback) with the suggestion + comment, applies the changes, can accept/dismiss only if she clearly says so, and pins a rule to Always remember when the comment is a lasting rule.
+- `PUT /api/settings { claudeFolder }` (folder for Start ▶). `POST /api/sweep { lastSweep, summary }` for the background sweep.
+- Start ▶ = `claude://code/new?q=<prompt>&folder=<claudeFolder>`; the prompt carries the task id and how to tick it done via the API.
 - All change calls send `today` (her local YYYY-MM-DD) and return the whole board.
 - `DELETE /api/projects/:id` moves it to trash.
 - `GET /api/trash` → last 500 deleted items `{ kind, item, deleted }`.
@@ -51,5 +57,5 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 ## Stages
 1. ✅ Worker + Board + password + lock screen + project cards (logos, counters, empty panel). Work row: SN, Tmrw, Pezza Media, Looking for a job (opens Jobs HQ). Personal row: Study, Family research, Tallulah writing, Frolicking Nicky. New default cards reach the live Board by bumping SEED_VERSION in the Worker.
 2. ✅ Tasks, waiting-on, repeating, Later, Done (14 days, untick), Always remember, add/edit/tick/delete (tap twice), Bin + restore, Undo toasts, export.
-3. Suggestions tray + Start ▶. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
+3. ✅ Suggestions tray (Add / Dismiss / Comment with instant AI fix) + Start ▶ + Settings. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
 6. Life Admin + habits. 7. Tools (Nicky 2026-11-17; no invoices/expenses/tax/subscriptions): Notes → Tasks, Brand kits, Proof bank, Content calendar, Swipe file, Tallulah tracker, Pitch tracker, Focus timer. 8. 30-day remember-me + Touch ID.

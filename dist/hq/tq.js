@@ -99,7 +99,7 @@
     if (pr?.special === "jobs") return { open: jobs ? jobs.open : 0, hot: !!jobs?.hot, label: "to do" };
     const s = sections(pid);
     const hot = s.tasks.some((t) => t.chase || (t.due && daysUntil(t.due) <= 2));
-    return { open: s.tasks.length, hot };
+    return { open: s.tasks.length, hot, sug: (board.suggestions || []).filter((x) => x.project === pid).length };
   }
 
   // ----- cards -----
@@ -113,6 +113,7 @@
         <span class="tq-logo">${logo}</span>
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
+        ${s.sug ? `<span class="tq-sug-chip">✨ ${s.sug} suggested</span>` : ""}
         ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : `<span class="tq-clear">All clear</span>`}
       </div>`;
   }
@@ -142,6 +143,50 @@
     if (openId && window.innerWidth > 640) $("#tq-panel").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  // ----- Start ▶: opens a new Claude Code session already filled in (not sent) -----
+  function startHref(item, isSuggestion) {
+    const p = board.projects.find((x) => x.id === item.project);
+    const rules = board.notes.filter((n) => n.project === item.project).map((n) => "- " + n.text).join("\n");
+    const lines = [
+      `Help me with this ${p ? p.name + " " : ""}task from my Tasks HQ: ${item.kind === "waiting" ? `chase ${item.who || "them"} about: ` : ""}${item.text}`,
+      item.due ? `Due: ${item.due}` : "", item.detail ? `Detail: ${item.detail}` : "", item.link ? `Link: ${item.link}` : "",
+      item.source ? `Where it came from: ${item.source}` : "", rules ? `Standing rules for this card:\n${rules}` : "",
+      isSuggestion
+        ? `(This is still a suggestion, id ${item.id}.)`
+        : `When it's fully done, tick it off: POST ${API}/api/tasks/${item.id}/done with header "X-Key: <my HQ password>" and body {"done":true}. Ask me for the password if you don't have it. Task id: ${item.id}.`,
+    ].filter(Boolean).join("\n");
+    const folder = board.settings?.claudeFolder;
+    return "claude://code/new?q=" + encodeURIComponent(lines) + (folder ? "&folder=" + encodeURIComponent(folder) : "");
+  }
+
+  // ----- the yellow tray -----
+  function suggestionHTML(sg) {
+    const bits = [];
+    if (sg.kind === "waiting") bits.push(`Waiting on ${esc(sg.who || "someone")}`);
+    if (sg.due) { const d = dueLabel(sg.due); bits.push(`<span class="tq-due ${d.cls}">${esc(d.text)}</span>`); }
+    if (sg.kind === "repeat") bits.push(`🔁 ${esc(sg.repeat)}`);
+    if (sg.source) bits.push(`from ${esc(sg.source)}`);
+    if (sg.link) bits.push(`<a href="${esc(sg.link)}" target="_blank" rel="noopener">Open ↗</a>`);
+    const thread = (sg.comments || []).map((c) => `<li><p class="tq-c-me">💬 ${esc(c.text)}</p>${c.reply ? `<p class="tq-c-claude">✨ ${esc(c.reply)}</p>` : c.pending ? `<p class="tq-c-claude">✨ Working on it…</p>` : ""}</li>`).join("");
+    return `<li class="tq-sug" data-sid="${esc(sg.id)}">
+      <p class="tq-row-text">${sg.kind === "waiting" ? `<b>${esc(sg.who || "Someone")}</b>: ` : ""}${esc(sg.text)}</p>
+      ${sg.why ? `<p class="tq-sug-why">${esc(sg.why)}</p>` : ""}
+      ${bits.length ? `<p class="tq-row-meta">${bits.join(" · ")}</p>` : ""}
+      ${sg.detail ? `<details class="tq-row-detail"><summary>Details</summary><p>${esc(sg.detail)}</p></details>` : ""}
+      ${thread ? `<ul class="tq-thread">${thread}</ul>` : ""}
+      <div class="tq-sug-btns">
+        <button type="button" class="tq-btn tq-btn-tint tq-btn-sm" data-act="sadd">Add</button>
+        <button type="button" class="tq-mini" data-act="sdismiss">Dismiss</button>
+        <a class="tq-mini tq-start" href="${esc(startHref(sg, true))}">Start ▶</a>
+        <button type="button" class="tq-mini" data-act="scomment">💬 Comment</button>
+      </div>
+      <form class="tq-c-form" hidden>
+        <textarea class="tq-input" name="text" rows="2" placeholder="What's wrong? e.g. this belongs under Tmrw, due next Friday, it's a waiting-on"></textarea>
+        <div class="tq-form-btns"><button class="tq-btn tq-btn-tint tq-btn-sm" type="submit">Send</button><button class="tq-mini" type="button" data-act="ccancel">Cancel</button></div>
+      </form>
+    </li>`;
+  }
+
   // ----- one task row -----
   function rowHTML(t) {
     if (editing === t.id) return formHTML(t);
@@ -164,6 +209,7 @@
         </div>
         <div class="tq-row-btns">
           ${t.kind === "waiting" && !t.done ? `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>` : ""}
+          ${t.done ? "" : `<a class="tq-mini tq-start" href="${esc(startHref(t))}" title="Open a new Claude Code session filled in with this task">Start ▶</a>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="edit">Edit</button>`}
           <button type="button" class="tq-mini tq-del" data-act="del" aria-label="Delete">🗑</button>
         </div>
@@ -219,11 +265,13 @@
   function renderPanel() {
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
     if (openId === "__bin") return renderBin();
+    if (openId === "__settings") return renderSettings();
     const p = board.projects.find((x) => x.id === openId);
     panel.hidden = scrim.hidden = !p;
     if (!p) return;
     const s = sections(p.id);
     const notes = board.notes.filter((n) => n.project === p.id);
+    const sugs = (board.suggestions || []).filter((x) => x.project === p.id);
     panel.style.setProperty("--tq-tint", p.color);
     panel.innerHTML = `
       <div class="tq-panel-head">
@@ -242,7 +290,9 @@
           </form>
         </details>
       </div>
-      <div class="tq-sec tq-sec-suggest"><h3>Suggested by Claude</h3><p class="tq-empty">Nothing suggested yet. This tray switches on in stage 3.</p></div>
+      <div class="tq-sec tq-sec-suggest"><h3>Suggested by Claude <span class="tq-n">${sugs.length}</span></h3>
+        ${sugs.length ? `<ul class="tq-list">${sugs.map(suggestionHTML).join("")}</ul>` : `<p class="tq-empty">Nothing to suggest right now. Claude checks your messages in the background and puts ideas here. Nothing goes on your list until you tap Add.</p>`}
+      </div>
       <div class="tq-sec tq-sec-white"><h3>Tasks <span class="tq-n">${s.tasks.length}</span></h3>
         <ul class="tq-list">${s.tasks.map(rowHTML).join("")}</ul>
         ${s.tasks.length ? "" : `<p class="tq-empty">Nothing due this week.</p>`}
@@ -257,6 +307,25 @@
         <ul class="tq-list">${s.done.map(rowHTML).join("")}</ul></details>` : ""}
       <div class="tq-sec tq-sec-add"><h3>Add to ${esc(p.name)}</h3><ul class="tq-list">${formHTML(null)}</ul></div>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+  }
+
+  // ----- settings -----
+  function renderSettings() {
+    const panel = $("#tq-panel"), scrim = $("#tq-scrim");
+    panel.hidden = scrim.hidden = false;
+    panel.style.setProperty("--tq-tint", "#C2D9BC");
+    panel.innerHTML = `<div class="tq-panel-head"><span class="tq-icon tq-icon-sm" aria-hidden="true">⚙️</span><h2>Settings</h2><button class="tq-x" type="button" aria-label="Close">✕</button></div>
+      <form class="tq-set-form">
+        <label class="tq-form-row"><span>Folder Start ▶ opens Claude Code in <small>(optional, e.g. /Users/Utente/Documents)</small></span>
+        <input class="tq-input" name="claudeFolder" value="${esc(board.settings?.claudeFolder || "")}" placeholder="Leave empty to choose each time"></label>
+        <div class="tq-form-btns"><button class="tq-btn tq-btn-tint" type="submit">Save</button></div>
+      </form>`;
+    $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+    $(".tq-set-form", panel).addEventListener("submit", async (e) => {
+      e.preventDefault();
+      try { board.settings = await api("/api/settings", { method: "PUT", body: JSON.stringify({ claudeFolder: e.target.claudeFolder.value }) }); toast("Saved"); }
+      catch (err) { toast(err.message); }
+    });
   }
 
   // ----- the bin (trash) -----
@@ -302,6 +371,11 @@
       return;
     }
     const act = btn.dataset.act;
+    const sid = btn.closest("[data-sid]")?.dataset.sid;
+    if (act === "sadd") { await change(`/api/suggestions/${sid}/add`, "POST"); toast("✅ Added to your list"); return; }
+    if (act === "sdismiss") { await change(`/api/suggestions/${sid}/dismiss`, "POST"); toast("Dismissed. It won't be suggested again."); return; }
+    if (act === "scomment") { const f = $(".tq-c-form", btn.closest(".tq-sug")); f.hidden = false; $("textarea", f).focus(); return; }
+    if (act === "ccancel") { btn.closest(".tq-c-form").hidden = true; return; }
     if (act === "edit") { editing = id; renderPanel(); $("#tq-panel .tq-form [name=text]")?.focus(); }
     else if (act === "cancel") { editing = null; renderPanel(); }
     else if (act === "chased") { await change(`/api/tasks/${id}/chased`, "POST"); toast("🔔 Chased. The 5-day clock starts again."); }
@@ -334,6 +408,19 @@
   $("#tq-panel").addEventListener("submit", async (e) => {
     e.preventDefault();
     const form = e.target, f = Object.fromEntries(new FormData(form));
+    if (form.classList.contains("tq-set-form")) return;
+    if (form.classList.contains("tq-c-form")) {
+      const sid = form.closest("[data-sid]").dataset.sid;
+      if (!f.text.trim()) return;
+      const btn = $("button[type=submit]", form); btn.disabled = true; btn.textContent = "✨ Fixing…";
+      try {
+        const b = await change(`/api/suggestions/${sid}/comment`, "POST", { text: f.text });
+        if (b.action === "accept") toast("✅ Fixed and added to your list");
+        else if (b.action === "dismiss") toast("Dismissed");
+        else toast(b.fixed ? "✨ Updated" : "💬 Comment saved");
+      } catch (err) { btn.disabled = false; btn.textContent = "Send"; }
+      return;
+    }
     if (form.classList.contains("tq-note-form")) {
       const nid = form.dataset.id;
       editing = null;
@@ -360,7 +447,7 @@
     $("#tq-updated").textContent = u ? "Last saved " + u.toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
     renderCards();
     // Don't redraw the panel under her while she's typing in the add form.
-    const typing = document.activeElement?.closest?.(".tq-sec-add form") && document.activeElement.value;
+    const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form") && document.activeElement.value;
     if (!typing) renderPanel();
   }
 
@@ -398,6 +485,7 @@
   $("#tq-scrim").addEventListener("click", () => togglePanel(openId));
   $("#tq-signout").addEventListener("click", (e) => { e.preventDefault(); sessionStorage.removeItem(KEY_STORE); key = ""; showLock(); });
   $("#tq-bin").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__bin"); });
+  $("#tq-settings").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__settings"); });
   $("#tq-export").addEventListener("click", async (e) => {
     e.preventDefault();
     try {
