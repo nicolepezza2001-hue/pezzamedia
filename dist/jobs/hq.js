@@ -112,6 +112,7 @@
       '<p class="why"><b>Why it fits:</b> ' + linkify(j.why || "") + "</p>" +
       (j.flags && j.flags.length ? '<ul class="flags">' + j.flags.map(function (f) { return "<li>" + linkify(f) + "</li>"; }).join("") + "</ul>" : "") +
       (j.letter ? '<div class="letter" id="letter">' + linkify(j.letter) + "</div>" : '<p class="why" style="color:var(--muted)">No letter drafted yet. Tell me in the project chat and I\'ll write it.</p>') +
+      (j.channel === "upwork" && j.letter && !st ? '<p class="why" style="margin-top:14px"><b>Easiest:</b> type <b>send ' + esc(j.sendname || j.title) + '</b> in the project chat and Claude submits it for you, bid and attachments included. Nothing to copy.</p>' : "") +
       '<div class="actions">' +
       '<a class="btn navy" href="' + esc(j.link) + '" target="_blank" rel="noopener">Open job ↗</a>' +
       (j.letter ? '<button class="btn ghost" data-a="copy">Copy letter</button>' : "") +
