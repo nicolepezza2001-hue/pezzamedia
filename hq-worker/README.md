@@ -45,4 +45,4 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 1. ✅ Worker + Board + password + lock screen + project cards (logos, counters, empty panel). Work row: SN, Tmrw, Pezza Media, Looking for a job (opens Jobs HQ). Personal row: Study, Family research, Tallulah writing, Frolicking Nicky. New default cards reach the live Board by bumping SEED_VERSION in the Worker.
 2. Tasks, waiting-on, repeating, Later, Always remember, add/edit/tick/delete, trash, export.
 3. Suggestions tray + Start ▶. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
-6. Life Admin + habits. 7. Tools. 8. 30-day remember-me + Touch ID.
+6. Life Admin + habits. 7. Tools (Nicky 2026-11-17; no invoices/expenses/tax/subscriptions): Notes → Tasks, Brand kits, Proof bank, Content calendar, Swipe file, Tallulah tracker, Pitch tracker, Focus timer. 8. 30-day remember-me + Touch ID.
