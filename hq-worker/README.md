@@ -59,3 +59,13 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 2. ✅ Tasks, waiting-on, repeating, Later, Done (14 days, untick), Always remember, add/edit/tick/delete (tap twice), Bin + restore, Undo toasts, export.
 3. ✅ Suggestions tray (Add / Dismiss / Comment with instant AI fix) + Start ▶ + Settings. 4. Scheduled sweep + review. 5. Scoreboard, headline, animations, dark mode.
 6. Life Admin + habits. 7. Tools (Nicky 2026-11-17; no invoices/expenses/tax/subscriptions): Notes → Tasks, Brand kits, Proof bank, Content calendar, Swipe file, Tallulah tracker, Pitch tracker, Focus timer. 8. 30-day remember-me + Touch ID.
+
+## Stage 4: background checks (live 2026-11-17)
+- Checkers sign in with `X-Sweep: <key>` instead of the password. Keys are HMAC-SHA256(KEY, "tasks-hq-sweep:<who>"),
+  first 40 hex chars, prefixed `sw_`; who = `claude` (Nicky's own Claude) or `work` (her work Claude). No extra secret needed;
+  changing the password changes both keys. Keys live only in /mnt/project-files/upwork/hq/.sweep-key-* (never in the repo).
+- A sweep key may only: GET /api/board, GET /api/suggestions/log, POST /api/suggestions, POST /api/suggestions/:id/reply,
+  POST /api/sweep, POST /api/tasks/:id/done (tick only, with `why`; never untick). Everything else is 403.
+- Suggestions get `by` from the key (claude/work); the tray shows "✨ Claude" or "💼 Work Claude".
+- POST /api/sweep {kind: sweep|review, lastSweep, summary, failed} saves `sweeps[who]`; the header shows "Claude checked 5:30 PM".
+- Runbook for the checks: /mnt/project-files/upwork/hq/SWEEP.md. The cloud environment allows pezza-hq.nicole-pezza2001.workers.dev.
