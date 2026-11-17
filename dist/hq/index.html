@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="theme-color" content="#F6F5F2">
+  <title>Tasks HQ</title>
+  <link rel="icon" href="../assets/favicon-32.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tq.css?v=1">
+</head>
+<body class="tq-body">
+  <main id="tq-lock" class="tq-lock">
+    <form id="tq-lock-form" class="tq-lock-card" autocomplete="on">
+      <img src="logos/pezza.png" alt="" width="52" height="52">
+      <p class="tq-eyebrow">Pezza Media</p>
+      <h1>Tasks HQ</h1>
+      <input type="text" name="username" value="nicky" autocomplete="username" hidden>
+      <label for="tq-pw" class="tq-sr">Password</label>
+      <input id="tq-pw" class="tq-input" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="tq-btn tq-btn-main" type="submit">Open</button>
+      <p id="tq-lock-msg" class="tq-lock-msg" role="alert"></p>
+    </form>
+  </main>
+
+  <div id="tq-app" class="tq-app" hidden>
+    <header class="tq-top">
+      <div>
+        <p class="tq-eyebrow" id="tq-today"></p>
+        <h1 class="tq-title">Tasks HQ</h1>
+        <p class="tq-sub">One card per project. Tap a card to see what's open. Claude will suggest tasks in a yellow tray, and nothing gets added until you tap Add.</p>
+      </div>
+      <div class="tq-actions">
+        <a id="tq-jobs" class="tq-btn tq-btn-jobs" href="../jobs/">💼 Jobs HQ <b id="tq-jobs-n" class="tq-badge" hidden></b></a>
+        <button id="tq-sync" class="tq-btn tq-btn-soft" type="button">↻ Sync</button>
+      </div>
+    </header>
+
+    <section class="tq-group">
+      <h2 class="tq-group-h">Work</h2>
+      <div id="tq-cards-work" class="tq-cards"></div>
+    </section>
+
+    <section id="tq-panel" class="tq-panel" hidden aria-live="polite"></section>
+    <div id="tq-scrim" class="tq-scrim" hidden></div>
+
+    <footer class="tq-foot">
+      <span id="tq-updated"></span>
+      <span class="tq-foot-links"><a href="#" id="tq-export">Backup</a> · <a href="#" id="tq-signout">Sign out</a></span>
+    </footer>
+  </div>
+  <div id="tq-toast" class="tq-toast" role="status" hidden></div>
+
+  <script src="config.js?v=1"></script>
+  <script src="tq.js?v=1"></script>
+</body>
+</html>

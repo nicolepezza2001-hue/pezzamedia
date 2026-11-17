@@ -1,0 +1,24 @@
+# Deploys the Tasks HQ Worker (hq-worker/) to Cloudflare whenever it changes on main.
+# Needs GitHub secrets: CLOUDFLARE_API_TOKEN (Cloudflare "Edit Cloudflare Workers" token) and HQ_KEY (the HQ password).
+name: Deploy Tasks HQ Worker
+
+on:
+  push:
+    branches: [main]
+    paths: ["hq-worker/**", ".github/workflows/deploy-hq-worker.yml"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: hq-worker
+          wranglerVersion: "4.164.0"
+          secrets: |
+            KEY
+        env:
+          KEY: ${{ secrets.HQ_KEY }}

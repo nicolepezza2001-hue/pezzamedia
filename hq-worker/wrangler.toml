@@ -1,0 +1,14 @@
+# Tasks HQ data Worker. Deployed by .github/workflows/deploy-hq-worker.yml on push to main.
+# Secrets (never in this repo): KEY (the HQ password), later ANTHROPIC_API_KEY.
+name = "pezza-hq"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "BOARD"
+class_name = "Board"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Board"]
