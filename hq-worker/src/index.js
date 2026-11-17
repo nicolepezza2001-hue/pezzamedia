@@ -12,7 +12,7 @@ function cors(req) {
   return {
     "Access-Control-Allow-Origin": ok ? o : ORIGINS[0],
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-Key",
+    "Access-Control-Allow-Headers": "Content-Type, X-Key, X-Sweep",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };
