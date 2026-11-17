@@ -5,7 +5,7 @@
   "use strict";
   var DATA_URL = "data.enc.json";
   var PW_KEY = "hq-pw";
-  var STATE_KEY = "hq-state-v1";
+  var STATE_KEY = "hq-state-v2";
 
   function store(kind) { try { return kind === "s" ? window.sessionStorage : window.localStorage; } catch (e) { return null; } }
   function get(kind, k) { try { var s = store(kind); return s ? s.getItem(k) : null; } catch (e) { return null; } }
@@ -128,7 +128,7 @@
       var a = b.dataset.a;
       if (a === "copy") return copy(j.letter);
       if (a === "send") { copy(j.letter); var m = (j.link || "").match(/~0\d+/); window.open("https://www.upwork.com/ab/proposals/job/" + m[0] + "/apply/", "_blank", "noopener");
-        state.jobs[j.id] = { s: "applied", t: Date.now() }; saveState(); toast("Letter copied. Paste it in, set the bid" + (bidOf(j) ? " to " + bidOf(j) : "") + " and submit."); if (showDone) jobIndex++; renderViewer(); return; }
+        toast("Letter copied. Paste it in, set the bid" + (bidOf(j) ? " to " + bidOf(j) : "") + " and submit."); return; }
       if (a === "prev") { jobIndex--; return renderViewer(); }
       if (a === "next") { jobIndex++; return renderViewer(); }
       if (a === "applied" || a === "skipped") {
