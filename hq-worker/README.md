@@ -32,7 +32,7 @@ Every call needs header `X-Key: <password>`. 10 wrong tries from one IP = locked
 
 ## Jobs HQ
 `pezzamedia.com/jobs/` stays its own page with its own encrypted data and sweep (see `/mnt/project-files/upwork/hq/README.md`).
-The green "Jobs HQ" button on Tasks HQ opens it. If both use the same password, Tasks HQ decrypts the jobs file to show the open-jobs badge and hands the password over, so Jobs HQ opens without asking again. Jobs HQ has a "← Tasks HQ" button back.
+The green "Jobs HQ" button on Tasks HQ opens it. If both use the same password, Tasks HQ decrypts the jobs file to show the open-jobs badge and hands the password over, so Jobs HQ opens without asking again. Tasks HQ is the main HQ; Jobs HQ is a sub-part of it and has no link back (Nicky, 2026-11-17).
 
 ## Deploying
 - Page: commit to `main` (GitHub Pages). Bump `?v=` on `tq.css` / `tq.js` in `index.html` to bust caches.
