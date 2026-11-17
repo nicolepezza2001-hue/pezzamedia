@@ -167,6 +167,7 @@
     if (sg.kind === "repeat") bits.push(`🔁 ${esc(sg.repeat)}`);
     if (sg.source) bits.push(`from ${esc(sg.source)}`);
     if (sg.link) bits.push(`<a href="${esc(sg.link)}" target="_blank" rel="noopener">Open ↗</a>`);
+    bits.push(sg.by === "work" ? "💼 Work Claude" : "✨ Claude");
     const thread = (sg.comments || []).map((c) => `<li><p class="tq-c-me">💬 ${esc(c.text)}</p>${c.reply ? `<p class="tq-c-claude">✨ ${esc(c.reply)}</p>` : c.pending ? `<p class="tq-c-claude">✨ Working on it…</p>` : ""}</li>`).join("");
     return `<li class="tq-sug" data-sid="${esc(sg.id)}">
       <p class="tq-row-text">${sg.kind === "waiting" ? `<b>${esc(sg.who || "Someone")}</b>: ` : ""}${esc(sg.text)}</p>
@@ -205,6 +206,7 @@
         <div class="tq-row-main">
           <p class="tq-row-text">${title}</p>
           ${bits.length ? `<p class="tq-row-meta">${bits.join(" · ")}</p>` : ""}
+          ${t.done && t.doneBy ? `<p class="tq-row-meta">✨ Ticked by ${t.doneBy === "work" ? "Work Claude" : "Claude"}${t.doneWhy ? `: ${esc(t.doneWhy)}` : ""}</p>` : ""}
           ${t.detail ? `<details class="tq-row-detail"><summary>Details</summary><p>${esc(t.detail)}</p></details>` : ""}
         </div>
         <div class="tq-row-btns">
@@ -445,6 +447,15 @@
     $("#tq-today").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
     const u = board.updated ? new Date(board.updated) : null;
     $("#tq-updated").textContent = u ? "Last saved " + u.toLocaleString(undefined, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+    const fmt = (iso) => new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    const checks = [["claude", "Claude"], ["work", "Work Claude"]].map(([k, name]) => {
+      const sw = board.sweeps?.[k];
+      if (!sw?.at) return "";
+      const old = (Date.now() - Date.parse(sw.at)) / 36e5;
+      const when = old < 20 ? fmt(sw.at) : new Date(sw.at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) + " " + fmt(sw.at);
+      return `<span class="tq-check${sw.failed ? " is-warn" : ""}" title="${esc(sw.summary || "")}${sw.failed ? " · Couldn't read: " + esc(sw.failed) : ""}">${name} checked ${when}${sw.failed ? " ⚠️" : ""}</span>`;
+    }).filter(Boolean);
+    $("#tq-checks").innerHTML = checks.length ? checks.join("") : `<span class="tq-check">Background checks start soon</span>`;
     renderCards();
     // Don't redraw the panel under her while she's typing in the add form.
     const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form") && document.activeElement.value;

@@ -27,6 +27,23 @@ function sameKey(a, b) {
   return d === 0 && x.length > 0;
 }
 
+// The two background checkers: Nicky's own Claude and her work Claude.
+const SWEEPERS = ["claude", "work"];
+async function sweepKey(password, who) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", k, new TextEncoder().encode("tasks-hq-sweep:" + who));
+  return "sw_" + [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 40);
+}
+// What a background check may do: read the board, post suggestions, answer comments,
+// record its run, and tick a task done when there's clear evidence (review only).
+function sweepAllowed(method, path) {
+  const p = path.replace(/\/+$/, "");
+  if (method === "GET") return ["/api/board", "/api/suggestions/log", "/api/ping"].includes(p);
+  if (method === "POST") return p === "/api/suggestions" || p === "/api/sweep" ||
+    /^\/api\/suggestions\/[\w-]+\/reply$/.test(p) || /^\/api\/tasks\/[\w-]+\/done$/.test(p);
+  return false;
+}
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(req) });
@@ -36,13 +53,21 @@ export default {
     const stub = env.BOARD.get(env.BOARD.idFromName("main"));
     const ip = req.headers.get("CF-Connecting-IP") || "local";
     if (await stub.tooManyFails(ip)) return json({ error: "Too many wrong tries. Wait 10 minutes." }, 429, req);
-    if (!sameKey(req.headers.get("X-Key"), env.KEY)) {
+    // Owner = the password. Background checks use their own limited key (X-Sweep),
+    // derived from the password, so no extra secret is needed and they can't edit tasks.
+    let role = null;
+    if (sameKey(req.headers.get("X-Key"), env.KEY)) role = "owner";
+    else if (req.headers.get("X-Sweep")) {
+      for (const who of SWEEPERS) if (sameKey(req.headers.get("X-Sweep"), await sweepKey(env.KEY, who))) role = who;
+    }
+    if (!role) {
       await stub.fail(ip);
       return json({ error: "Wrong password" }, 401, req);
     }
+    if (role !== "owner" && !sweepAllowed(req.method, url.pathname)) return json({ error: "The background check can't do that" }, 403, req);
     try {
       const body = ["POST", "PUT"].includes(req.method) ? await req.json().catch(() => ({})) : null;
-      const [status, data] = await stub.handle(req.method, url.pathname, body);
+      const [status, data] = await stub.handle(req.method, url.pathname, body, role);
       return json(data, status, req);
     } catch (e) {
       return json({ error: String(e.message || e) }, 500, req);
@@ -207,13 +232,13 @@ export class Board extends DurableObject {
     this.data.trash.length = Math.min(this.data.trash.length, TRASH_MAX);
   }
 
-  async handle(method, path, body) {
+  async handle(method, path, body, role = "owner") {
     const d = await this.load();
     const p = path.replace(/\/+$/, "");
     if (p === "/api/ping") return [200, { ok: true }];
     if (p === "/api/board" && method === "GET") {
       return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                     lastSweep: d.lastSweep, updated: d.updated || d.created, settings: d.settings }];
+                     lastSweep: d.lastSweep, sweeps: d.sweeps || {}, updated: d.updated || d.created, settings: d.settings }];
     }
     if (p === "/api/export" && method === "GET") return [200, { exported: new Date().toISOString(), ...d }];
 
@@ -236,7 +261,7 @@ export class Board extends DurableObject {
     }
     if (p === "/api/trash" && method === "GET") return [200, d.trash];
     const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
-                                lastSweep: d.lastSweep, updated: d.updated, settings: d.settings, ...extra }];
+                                lastSweep: d.lastSweep, sweeps: d.sweeps || {}, updated: d.updated, settings: d.settings, ...extra }];
     const hasProject = (id) => d.projects.some((x) => x.id === id);
     const today = isDate(body?.today) ? body.today : new Date().toISOString().slice(0, 10);
 
@@ -270,8 +295,11 @@ export class Board extends DurableObject {
         t.chasedCount = (t.chasedCount || 0) + 1;
       } else if (tm[2] === "done" && method === "POST") {
         const done = body?.done !== false;
+        // A background check may only tick things done, with its evidence; never untick.
+        if (role !== "owner" && !done) return [403, { error: "The background check can't untick tasks" }];
         if (done && !t.done) {
           t.done = true;
+          if (role !== "owner") { t.doneBy = role; t.doneWhy = String(body?.why || "").slice(0, 300); }
           t.doneAt = new Date().toISOString();
           t.doneDay = today;
           if (t.kind === "repeat" && t.repeat && !t.nextId) {
@@ -334,7 +362,7 @@ export class Board extends DurableObject {
         const dup = [...d.suggestions, ...d.suggestionLog, ...d.tasks.filter((x) => !x.done)].find((x) => similar(x.text, t.text));
         if (dup) { result.skipped.push({ text: t.text, reason: "already suggested or on the list" }); continue; }
         if (t.kind === "waiting" && !t.asked) t.asked = today;
-        Object.assign(t, { id: uid(), created: new Date().toISOString(), by: String(raw?.by || "claude").slice(0, 40), comments: [] });
+        Object.assign(t, { id: uid(), created: new Date().toISOString(), by: role === "owner" ? String(raw?.by || "claude").slice(0, 40) : role, comments: [] });
         d.suggestions.push(t);
         result.posted.push({ id: t.id, project: t.project, text: t.text });
       }
@@ -412,10 +440,19 @@ export class Board extends DurableObject {
       return [200, d.settings];
     }
     if (p === "/api/sweep" && method === "POST") {
-      if (body?.lastSweep) d.lastSweep = String(body.lastSweep);
-      if (body?.summary) { d.sweepLog = [{ at: new Date().toISOString(), summary: String(body.summary).slice(0, 1000) }, ...(d.sweepLog || [])].slice(0, 200); }
+      const who = role === "owner" ? (SWEEPERS.includes(body?.by) ? body.by : "claude") : role;
+      const kind = body?.kind === "review" ? "review" : "sweep";
+      const at = new Date().toISOString();
+      d.sweeps = d.sweeps || {};
+      const prev = d.sweeps[who] || {};
+      // lastSweep = how far the checker has read; it only moves forward.
+      const upTo = body?.lastSweep && !isNaN(Date.parse(body.lastSweep)) ? new Date(body.lastSweep).toISOString() : at;
+      d.sweeps[who] = { ...prev, at, kind, lastSweep: prev.lastSweep && prev.lastSweep > upTo ? prev.lastSweep : upTo,
+                        summary: String(body?.summary || "").slice(0, 1000), failed: String(body?.failed || "").slice(0, 300) };
+      if (who === "claude") d.lastSweep = d.sweeps[who].lastSweep;
+      d.sweepLog = [{ at, who, kind, summary: d.sweeps[who].summary, failed: d.sweeps[who].failed }, ...(d.sweepLog || [])].slice(0, 300);
       await this.save();
-      return [200, { lastSweep: d.lastSweep }];
+      return [200, { lastSweep: d.sweeps[who].lastSweep, sweeps: d.sweeps }];
     }
 
     // ----- restore from trash -----
