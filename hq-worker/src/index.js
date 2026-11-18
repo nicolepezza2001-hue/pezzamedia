@@ -41,7 +41,7 @@ async function sweepKey(password, who) {
 function sweepAllowed(method, path) {
   const p = path.replace(/\/+$/, "");
   if (method === "GET") return ["/api/board", "/api/suggestions/log", "/api/ping"].includes(p);
-  if (method === "POST") return p === "/api/suggestions" || p === "/api/sweep" ||
+  if (method === "POST") return p === "/api/suggestions" || p === "/api/sweep" || p === "/api/events" ||
     /^\/api\/suggestions\/[\w-]+\/reply$/.test(p) || /^\/api\/tasks\/[\w-]+\/done$/.test(p);
   return false;
 }
@@ -158,6 +158,7 @@ export default {
 
 
 const uid = () => crypto.randomUUID().slice(0, 8);
+const plusDaysUTC = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const isDate = (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
 const KINDS = ["task", "waiting", "repeat"];
 const REPEATS = ["weekly", "monthly", "quarterly", "yearly"];
@@ -632,6 +633,34 @@ export class Board extends DurableObject {
       d.sweepLog = [{ at, who, kind, summary: d.sweeps[who].summary, failed: d.sweeps[who].failed }, ...(d.sweepLog || [])].slice(0, 300);
       await this.save();
       return [200, { lastSweep: d.sweeps[who].lastSweep, sweeps: d.sweeps }];
+    }
+
+    // ----- calendar of everything (main page) -----
+    // Google Calendar events come from the background checks: each checker replaces its own events
+    // for the dates it read ("claude" = personal calendar, "work" = work calendar).
+    if (p === "/api/events" && method === "POST") {
+      const from = isDate(body?.from) ? body.from : today, to = isDate(body?.to) ? body.to : from;
+      const who = role === "owner" ? (body?.who === "work" ? "work" : "claude") : role;
+      const all = (await this.ctx.storage.get("events")) || [];
+      const keep = all.filter((e) => e.who !== who || e.date < from || e.date > to);
+      const items = (Array.isArray(body?.items) ? body.items : []).slice(0, 500).map((x) => cleanItem(x))
+        .filter((x) => isDate(x.date) && x.title && x.date >= from && x.date <= to)
+        .map((x) => ({ id: uid(), who, date: x.date, time: String(x.time || "").slice(0, 5), end: String(x.end || "").slice(0, 5),
+                       title: String(x.title).slice(0, 200), where: String(x.where || "").slice(0, 200), link: String(x.link || "").slice(0, 500),
+                       calendar: String(x.calendar || "").slice(0, 60), project: hasProject(x.project) ? x.project : "" }));
+      const next = [...keep, ...items].filter((e) => e.date >= plusDaysUTC(today, -60)).slice(-3000);
+      await this.ctx.storage.put("events", next);
+      return [200, { saved: items.length }];
+    }
+    if (p === "/api/agenda" && method === "GET") {
+      const col = async (c) => (await this.ctx.storage.get("col:" + c)) || [];
+      const [posts, pitches, queries] = await Promise.all([col("calendar"), col("pitches"), col("queries")]);
+      return [200, {
+        events: (await this.ctx.storage.get("events")) || [],
+        posts: posts.filter((x) => isDate(x.date)).map(({ id, date, title, project, channel, status }) => ({ id, date, title, project, channel, status })),
+        pitches: pitches.filter((x) => isDate(x.followUp) && !["won", "lost", "replied"].includes(x.status)).map(({ id, followUp, who, company, project }) => ({ id, date: followUp, who, company, project })),
+        queries: queries.filter((x) => isDate(x.followUp) && !["rejected", "offer"].includes(x.status)).map(({ id, followUp, name, kind }) => ({ id, date: followUp, name, kind })),
+      }];
     }
 
     // ----- stage 8: set up / list / remove passkeys (password needed) -----

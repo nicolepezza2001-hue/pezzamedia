@@ -724,6 +724,7 @@
     if (window.TQFX) TQFX.picks = { ...(board.settings?.anims || {}) };
     renderScore();
     renderCards();
+    renderCalendar();
     // Don't redraw the panel under her while she's typing in the add form.
     const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form, .tq-habit-form") && document.activeElement.value;
     if (!typing) renderPanel();
@@ -737,7 +738,85 @@
     ["pitches", "Pitch tracker", "Follow-ups and wins"], ["focus", "Focus timer", "Time on what matters"],
   ];
   let toolSum = null;
-  async function loadTools() { try { toolSum = await api("/api/tools/summary"); } catch (e) { toolSum = null; } renderTools(); }
+  async function loadTools() {
+    try { toolSum = await api("/api/tools/summary"); } catch (e) { toolSum = null; }
+    renderTools();
+    try { agenda = await api("/api/agenda"); } catch (e) { agenda = null; }
+    renderCalendar();
+  }
+
+  // ----- calendar of everything: tasks, waiting-on chase days, calendar events, posts, pitch and query follow-ups -----
+  let agenda = null, calMonth = null, calDay = null, calShow = "all";
+  function calItems() {
+    const out = [], proj = (id) => board.projects.find((p) => p.id === id);
+    const grp = (id) => proj(id)?.group || "work";
+    for (const t of board.tasks || []) {
+      if (t.done) continue;
+      if (t.kind === "waiting") {
+        const d = plusDaysISO(t.asked || t.created.slice(0, 10), CHASE_DAYS);
+        out.push({ date: d, title: `Chase ${t.who || ""}: ${t.text}`, kind: "chase", project: t.project, group: grp(t.project), id: t.id });
+      } else if (t.due) out.push({ date: t.due, title: t.text, kind: t.kind === "repeat" ? "repeat" : "task", project: t.project, group: grp(t.project), id: t.id });
+    }
+    if (agenda) {
+      for (const e of agenda.events || []) out.push({ date: e.date, time: e.time, title: e.title, kind: "event", group: e.who === "work" ? "work" : (e.project ? grp(e.project) : "personal"), project: e.project, where: e.where, link: e.link, label: e.who === "work" ? "Work calendar" : "Calendar" });
+      for (const x of agenda.posts || []) out.push({ date: x.date, title: x.title, kind: "post", project: x.project, group: x.project ? grp(x.project) : "work", label: x.channel, href: "tools/calendar.html" });
+      for (const x of agenda.pitches || []) out.push({ date: x.date, title: `Follow up ${x.who} (${x.company})`, kind: "pitch", project: x.project, group: "work", href: "tools/pitches.html" });
+      for (const x of agenda.queries || []) out.push({ date: x.date, title: `${x.kind}: ${x.name}`, kind: "query", project: "tallulah", group: "personal", href: "tools/tallulah.html" });
+    }
+    return out.filter((x) => calShow === "all" || x.group === calShow);
+  }
+  const CAL_KIND = { task: "Task", repeat: "Repeating", chase: "Chase", event: "Calendar", post: "Post", pitch: "Pitch follow-up", query: "Tallulah" };
+  function calColour(x) { return board.projects.find((p) => p.id === x.project)?.color || (x.group === "work" ? "#A9D3EE" : "#E8D8D5"); }
+  function renderCalendar() {
+    const wrap = $("#tq-calendar"); if (!wrap || !board) return;
+    const t = todayISO();
+    calMonth ||= t.slice(0, 7); calDay ||= t;
+    const items = calItems();
+    const first = new Date(calMonth + "-01T00:00:00");
+    const start = (first.getDay() + 6) % 7, days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    const byDay = {};
+    for (const x of items) (byDay[x.date] ||= []).push(x);
+    for (const k in byDay) byDay[k].sort((a, b) => (a.time || "99").localeCompare(b.time || "99"));
+    const cell = (i) => {
+      const iso = `${calMonth}-${pad(i + 1)}`, on = byDay[iso] || [];
+      return `<button type="button" class="tq-cal-d${iso === t ? " is-today" : ""}${iso === calDay ? " is-sel" : ""}${iso < t ? " is-past" : ""}" data-calday="${iso}">
+        <i>${i + 1}</i>${on.slice(0, 3).map((x) => `<span class="tq-cal-ev is-${x.kind}" style="--c:${esc(calColour(x))}">${x.time ? `<b>${esc(x.time)}</b> ` : ""}${esc(x.title)}</span>`).join("")}${on.length > 3 ? `<span class="tq-cal-more">+${on.length - 3} more</span>` : ""}
+        ${on.length ? `<span class="tq-cal-dots">${on.slice(0, 5).map((x) => `<span style="background:${esc(calColour(x))}"></span>`).join("")}</span>` : ""}</button>`;
+    };
+    const sel = byDay[calDay] || [];
+    const overdue = calDay === t ? items.filter((x) => x.date < t && ["task", "repeat", "chase"].includes(x.kind)) : [];
+    const row = (x) => `<li class="tq-cal-item" ${x.id ? `data-calopen="${esc(x.project)}"` : ""}>
+        <span class="tq-cal-bar" style="background:${esc(calColour(x))}"></span>
+        <div><p>${x.time ? `<b>${esc(x.time)}</b> · ` : ""}${esc(x.title)}</p>
+        <small>${esc(CAL_KIND[x.kind])}${x.label && x.kind !== "event" ? " · " + esc(x.label) : x.label ? " · " + esc(x.label) : ""}${x.project ? " · " + esc(board.projects.find((p) => p.id === x.project)?.name || "") : ""}${x.where ? " · " + esc(x.where) : ""}${x.date < t ? " · was due " + esc(shortDate(x.date)) : ""}</small></div>
+        ${x.href ? `<a class="tq-mini" href="${esc(x.href)}">Open</a>` : x.link ? `<a class="tq-mini" href="${esc(x.link)}" target="_blank" rel="noopener">Open ↗</a>` : x.id ? `<span class="tq-mini">Open card</span>` : ""}</li>`;
+    const noEvents = !(agenda?.events || []).length;
+    wrap.innerHTML = `<h2 class="tq-group-h">Calendar</h2>
+      <div class="tq-cal-box">
+        <div class="tq-cal-top">
+          <button class="tq-mini" type="button" data-calnav="-1" aria-label="Last month">‹</button>
+          <h3>${esc(first.toLocaleDateString(undefined, { month: "long", year: "numeric" }))}</h3>
+          <button class="tq-mini" type="button" data-calnav="1" aria-label="Next month">›</button>
+          <button class="tq-mini" type="button" data-calnav="0">Today</button>
+          <div class="tq-seg tq-cal-filter">${[["all", "All"], ["work", "Work"], ["personal", "Personal"]].map(([k, l]) => `<button type="button" class="tq-seg-btn${calShow === k ? " is-on" : ""}" data-calshow="${k}">${l}</button>`).join("")}</div>
+        </div>
+        <div class="tq-cal">${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => `<b class="tq-cal-h">${d}</b>`).join("")}${[...Array(start)].map(() => `<span class="tq-cal-d is-blank"></span>`).join("")}${[...Array(days)].map((_, i) => cell(i)).join("")}</div>
+        <div class="tq-cal-day"><h3>${esc(shortDate(calDay))}${calDay === t ? " · today" : ""}</h3>
+          <ul class="tq-cal-list">${[...overdue, ...sel].map(row).join("") || `<li class="tq-empty">Nothing on this day.</li>`}</ul>
+          ${noEvents ? `<p class="tq-empty tq-cal-note">Your Google Calendar events (personal and work) will appear here after the next background check.</p>` : ""}</div>
+      </div>`;
+  }
+  $("#tq-calendar").addEventListener("click", (e) => {
+    const nav = e.target.closest("[data-calnav]"), show = e.target.closest("[data-calshow]"), day = e.target.closest("[data-calday]"), open = e.target.closest("[data-calopen]");
+    if (nav) {
+      if (nav.dataset.calnav === "0") { calMonth = todayISO().slice(0, 7); calDay = todayISO(); }
+      else { const d = new Date(calMonth + "-01T00:00:00"); d.setMonth(d.getMonth() + +nav.dataset.calnav); calMonth = isoOf(d).slice(0, 7); calDay = calMonth + "-01"; }
+    } else if (show) calShow = show.dataset.calshow;
+    else if (day) calDay = day.dataset.calday;
+    else if (open && !e.target.closest("a")) { if (openId !== open.dataset.calopen) togglePanel(open.dataset.calopen); $("#tq-panel").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    else return;
+    renderCalendar();
+  });
   function toolStat(id) {
     const s = toolSum; if (!s) return "";
     const t = todayISO(), n = (x, one, many) => `${x} ${x === 1 ? one : many}`;

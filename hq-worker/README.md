@@ -121,3 +121,13 @@ New animation pickers: "Focus session finished" and "Copy". The Slipped options 
 - Storage keys: "passkeys" = [{id, publicKey (base64url), counter, transports, label, created, lastUsed}], "pk:reg" / "pk:logins" = list of {challenge, exp} (5 minutes).
 - Footer: "Set up Touch ID" opens a panel to add this device or remove one (tap twice). Lock screens show "Use Touch ID / Face ID".
 - Local test: Playwright with a CDP virtual authenticator (WebAuthn.addVirtualAuthenticator) against wrangler dev with DEV_ORIGIN=http://localhost:8080.
+
+## Calendar of everything (2026-11-18)
+Main page section "Calendar" (between Personal and Tools): month grid + the chosen day's list, filters All / Work / Personal.
+Shows open tasks by due date, waiting-on items on their chase day (asked + 5 days), repeating tasks, Google Calendar events,
+Content calendar posts, Pitch follow-ups and Tallulah query deadlines. Overdue tasks also show under today. Colours = the card's colour.
+- GET /api/agenda (owner) → {events, posts, pitches, queries}.
+- POST /api/events {from, to, items[{date, time, end, title, where, link, project}]} — allowed for the sweep keys. Each checker replaces only
+  its own events ("claude" = personal calendar, "work" = work calendar) in that date range. Storage key "events" (keeps the last 60 days).
+- Runbook step for the checks: "Calendar events for the HQ calendar" in /mnt/project-files/upwork/hq/SWEEP.md;
+  work Claude's paste-in: /mnt/project-files/hq/message-for-work-claude-3.md.

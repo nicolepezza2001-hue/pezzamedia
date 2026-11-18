@@ -282,3 +282,40 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 /* ----- stage 8: Touch ID / Face ID ----- */
 .tq-passkey{width:100%;padding:12px}
 .tq-pk-h{font-size:14px!important;margin:16px 0 8px!important}
+
+/* ----- calendar of everything ----- */
+.tq-cal-box{background:var(--tq-card);border-radius:var(--tq-radius);box-shadow:var(--tq-shadow);padding:16px;display:grid;gap:12px}
+.tq-cal-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tq-cal-top h3{font-size:18px;min-width:150px;text-align:center}
+.tq-cal-filter{margin-left:auto}
+.tq-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.tq-cal-h{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--tq-muted);text-align:center;padding:2px 0}
+.tq-cal-d{min-height:92px;border:0;border-radius:10px;background:var(--tq-row);padding:4px;display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;font:inherit;color:inherit;overflow:hidden;min-width:0}
+.tq-cal-d.is-blank{background:transparent;cursor:default}
+.tq-cal-d.is-past{opacity:.6}
+.tq-cal-d i{font-style:normal;font-size:12px;font-weight:600;color:var(--tq-muted)}
+.tq-cal-d.is-today i{background:var(--tq-ink);color:var(--tq-bg);border-radius:999px;padding:0 6px;align-self:flex-start}
+.tq-cal-d.is-sel{outline:2px solid var(--tq-ink)}
+.tq-cal-ev{font-size:11px;line-height:1.25;border-radius:6px;padding:2px 5px;background:color-mix(in srgb,var(--c) 45%,var(--tq-mix));color:var(--tq-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tq-cal-ev.is-event{background:transparent;border-left:3px solid var(--c);border-radius:2px}
+.tq-cal-ev.is-chase{background:var(--tq-chase)}
+.tq-cal-more{font-size:10px;color:var(--tq-muted)}
+.tq-cal-dots{display:none;gap:3px;flex-wrap:wrap}
+.tq-cal-dots span{width:7px;height:7px;border-radius:50%}
+.tq-cal-day h3{font-size:15px;margin-bottom:8px!important}
+.tq-cal-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.tq-cal-item{display:flex;gap:10px;align-items:center;background:var(--tq-row);border-radius:12px;padding:8px 10px}
+.tq-cal-item[data-calopen]{cursor:pointer}
+.tq-cal-item>div{flex:1;min-width:0}
+.tq-cal-item p{margin:0;font-weight:600}
+.tq-cal-item small{color:var(--tq-muted);font-size:12px}
+.tq-cal-bar{width:4px;align-self:stretch;border-radius:4px;flex:none}
+.tq-cal-note{margin-top:8px}
+@media (max-width:640px){
+  .tq-cal-box{padding:10px}
+  .tq-cal-filter{margin-left:0;width:100%}
+  .tq-cal{gap:2px}
+  .tq-cal-d{min-height:50px;align-items:center}
+  .tq-cal-ev,.tq-cal-more{display:none}
+  .tq-cal-dots{display:flex;justify-content:center}
+}
