@@ -221,7 +221,7 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 .tq-ghost{background:var(--tq-card);border-radius:14px;box-shadow:var(--tq-shadow);overflow:hidden;list-style:none;color:var(--tq-ink);font:15px/1.5 Inter,sans-serif}
 .tq-ghost li{list-style:none;margin:0}
 .tq-ghost .tq-row-btns,.tq-ghost .tq-sug-btns{display:none}
-.tq-fx-shine{position:absolute;top:0;bottom:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent)}
+.tq-fx-shine{position:absolute;top:0;bottom:0;width:40%;background:linear-gradient(90deg,transparent,rgba(245,192,78,.55),rgba(255,255,255,.8),rgba(245,192,78,.55),transparent)}
 .tq-anim-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .tq-anim{background:var(--tq-bg);border-radius:14px;padding:14px 16px}
 .tq-anim h3{font-size:15px;margin-bottom:8px}

@@ -108,6 +108,13 @@
   const shake = [{ transform: "translate(-50%,-50%) rotate(0)" }, { transform: "translate(-50%,-50%) rotate(-25deg)" }, { transform: "translate(-50%,-50%) rotate(22deg)" },
     { transform: "translate(-50%,-50%) rotate(-18deg)" }, { transform: "translate(-50%,-50%) rotate(14deg)" }, { transform: "translate(-50%,-50%) rotate(-8deg)" }, { transform: "translate(-50%,-50%) rotate(0)", opacity: 0 }];
 
+  const targets = (el) => (el ? [el] : [...document.querySelectorAll(".tq-card")]);
+  function shine(t) {
+    const r = t.getBoundingClientRect();
+    const box = node('<i class="tq-fx-shine"></i>', { left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", overflow: "hidden", borderRadius: "16px" });
+    done(box.firstChild.animate([{ transform: "translateX(-120%) skewX(-20deg)" }, { transform: "translateX(320%) skewX(-20deg)" }], { duration: 900, easing: "ease-in-out" }), box);
+  }
+
   // ----- the 4 options for each action -----
   // ctx: { rect, html (snapshot of the old element) }, el: the element after the page redrew (may be null)
   const FX = {
@@ -172,10 +179,11 @@
       (c, el) => { bigEmoji(c.rect, "🔮", [{ transform: "translate(-50%,-50%) scale(.5)", opacity: 0, filter: "drop-shadow(0 0 0 #A88BFF)" }, { transform: "translate(-50%,-50%) scale(1.2)", opacity: 1, filter: "drop-shadow(0 0 18px #A88BFF)", offset: .5 }, { transform: "translate(-50%,-50%) scale(1)", opacity: 0 }], 1200); },
     ],
     sync: [
-      () => document.querySelectorAll(".tq-card").forEach((el, i) => el.animate([{ transform: "perspective(600px) rotateY(0)" }, { transform: "perspective(600px) rotateY(180deg)", offset: .5 }, { transform: "perspective(600px) rotateY(360deg)" }], { duration: 800, delay: i * 70, easing: "ease-in-out" })),
-      () => document.querySelectorAll(".tq-card").forEach((el, i) => el.animate([{ transform: "translateY(0)" }, { transform: "translateY(-12px)", offset: .4 }, { transform: "translateY(0)" }], { duration: 500, delay: i * 80, easing: "ease-out" })),
-      (c) => bigEmoji(c.rect, "🔄", [{ transform: "translate(-50%,-50%) rotate(0)", opacity: 0 }, { transform: "translate(-50%,-50%) rotate(360deg)", opacity: 1, offset: .5 }, { transform: "translate(-50%,-50%) rotate(720deg)", opacity: 0 }], 1000, 40),
-      () => document.querySelectorAll(".tq-card").forEach((el, i) => el.animate([{ filter: "brightness(1)" }, { filter: "brightness(1.12) saturate(1.3)", offset: .5 }, { filter: "brightness(1)" }], { duration: 700, delay: i * 60 })),
+      // On a real sync these play on all the project cards; in the preview they play on the sample row.
+      (c, el) => targets(el).forEach((t, i) => t.animate([{ transform: "perspective(600px) rotateY(0)" }, { transform: "perspective(600px) rotateY(180deg)", offset: .5 }, { transform: "perspective(600px) rotateY(360deg)" }], { duration: 900, delay: i * 70, easing: "ease-in-out" })),
+      (c, el) => targets(el).forEach((t, i) => t.animate([{ transform: "translateY(0)" }, { transform: "translateY(-16px)", offset: .35 }, { transform: "translateY(3px)", offset: .7 }, { transform: "translateY(0)" }], { duration: 650, delay: i * 80, easing: "ease-out" })),
+      (c) => bigEmoji(c.rect, "🔄", [{ transform: "translate(-50%,-50%) rotate(0) scale(.6)", opacity: 0 }, { transform: "translate(-50%,-50%) rotate(360deg) scale(1.2)", opacity: 1, offset: .5 }, { transform: "translate(-50%,-50%) rotate(720deg) scale(1)", opacity: 0 }], 1100, 48),
+      (c, el) => targets(el).forEach((t, i) => setTimeout(() => shine(t), i * 90)),
     ],
     record: [
       () => { banner("🏆 New record!"); confetti(screen(), { n: 60, spread: 2.5 }); },

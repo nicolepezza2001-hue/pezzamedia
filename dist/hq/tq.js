@@ -585,7 +585,7 @@
 
   $("#tq-sync").addEventListener("click", async () => {
     const c = snap($("#tq-sync"));
-    try { await load(); fx("sync", c); toast("Up to date"); } catch (e) { toast(e.message); }
+    try { await load(); fx("sync", c, null); toast("Up to date"); } catch (e) { toast(e.message); }
   });
   $("#tq-scrim").addEventListener("click", () => togglePanel(openId));
   $("#tq-signout").addEventListener("click", (e) => { e.preventDefault(); sessionStorage.removeItem(KEY_STORE); key = ""; showLock(); });
