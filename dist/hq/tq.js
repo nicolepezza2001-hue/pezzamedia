@@ -104,7 +104,7 @@
 
   // ----- cards -----
   function cardHTML(p, s) {
-    const logo = p.logo ? `<img src="${esc(p.logo)}" alt="${esc(p.name)} logo">` : `<span class="tq-icon" aria-hidden="true">${esc(p.icon || "•")}</span>`;
+    const logo = p.logo ? `<img src="${esc(p.logo)}" alt="${esc(p.name)} logo">` : iconHTML(p, "");
     const ext = /^https?:/.test(p.dashboard || "") ? ' target="_blank" rel="noopener"' : "";
     return `
       <div class="tq-card${openId === p.id ? " is-open" : ""}" data-id="${esc(p.id)}" style="--tq-tint:${esc(p.color)}" role="button" tabindex="0" aria-expanded="${openId === p.id}">
@@ -269,6 +269,7 @@
     if (openId === "__bin") return renderBin();
     if (openId === "__settings") return renderSettings();
     if (openId === "__anims") return renderAnims();
+    if (openId === "__icons") return renderIcons();
     const p = board.projects.find((x) => x.id === openId);
     panel.hidden = scrim.hidden = !p;
     if (!p) return;
@@ -278,7 +279,7 @@
     panel.style.setProperty("--tq-tint", p.color);
     panel.innerHTML = `
       <div class="tq-panel-head">
-        ${p.logo ? `<img src="${esc(p.logo)}" alt="">` : `<span class="tq-icon tq-icon-sm" aria-hidden="true">${esc(p.icon || "")}</span>`}
+        ${p.logo ? `<img src="${esc(p.logo)}" alt="">` : iconHTML(p, " tq-icon-sm")}
         <h2>${esc(p.name)}</h2>
         <button class="tq-x" type="button" aria-label="Close">✕</button>
       </div>
@@ -372,6 +373,27 @@
       <p class="tq-score-hint">${sc.today > sc.bestOther && sc.bestOther > 0 ? "New record today! 🏆" : sc.best ? `${Math.max(sc.bestOther + 1 - sc.today, 0) || 1} more to beat your best day.` : "Tick your first task to start the scoreboard."}</p>`;
   }
 
+  // ----- card icons: 4 drawn options per card without a logo (picked in the Icons sheet) -----
+  const ICON_CARDS = ["jobs", "study", "family", "tallulah", "frolic"];
+  const ICON_NAMES = ["Soft tile", "Solid circle", "Different symbol", "Outline"];
+  function iconHTML(p, cls) {
+    if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="icons/${p.id}-${board.settings?.icons?.[p.id] ?? 0}.svg" alt="">`;
+    return `<span class="tq-icon${cls}" aria-hidden="true">${esc(p.icon || "•")}</span>`;
+  }
+  function renderIcons() {
+    const panel = $("#tq-panel"), scrim = $("#tq-scrim");
+    panel.hidden = scrim.hidden = false;
+    panel.style.setProperty("--tq-tint", "#C2D9BC");
+    const picks = board.settings?.icons || {};
+    panel.innerHTML = `<div class="tq-panel-head"><span class="tq-icon tq-icon-sm" aria-hidden="true">🎨</span><h2>Card icons</h2><button class="tq-x" type="button" aria-label="Close">✕</button></div>
+      <p class="tq-empty">Tap the icon you like for each card. It's saved straight away.</p>
+      <ul class="tq-anim-list">${ICON_CARDS.map((id) => { const p = board.projects.find((x) => x.id === id); return p ? `<li class="tq-anim" data-icons="${id}">
+        <h3>${esc(p.name)}</h3>
+        <div class="tq-icon-opts">${[0, 1, 2, 3].map((i) => `<button type="button" class="tq-icon-opt${(picks[id] ?? 0) === i ? " is-picked" : ""}" data-iopt="${i}" aria-label="${ICON_NAMES[i]}"><img src="icons/${id}-${i}.svg" alt=""><span>${ICON_NAMES[i]}</span></button>`).join("")}</div>
+      </li>` : ""; }).join("")}</ul>`;
+    $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+  }
+
   // ----- animation picker (4 options per action) -----
   function renderAnims() {
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
@@ -418,6 +440,13 @@
   const undoRestore = (tid) => () => change(`/api/trash/${tid}/restore`, "POST").then(() => toast("Back again"));
 
   $("#tq-panel").addEventListener("click", async (e) => {
+    const iopt = e.target.closest("[data-iopt]");
+    if (iopt) {
+      const id = iopt.closest("[data-icons]").dataset.icons, v = +iopt.dataset.iopt;
+      $$("[data-iopt]", iopt.parentNode).forEach((b) => b.classList.toggle("is-picked", b === iopt));
+      try { board.settings = await api("/api/settings", { method: "PUT", body: JSON.stringify({ icons: { [id]: v } }) }); renderCards(); toast("Saved"); } catch (err) { toast(err.message); }
+      return;
+    }
     const opt = e.target.closest("[data-opt]");
     if (opt) {
       const li = opt.closest("[data-anim]"), k = li.dataset.anim, v = +opt.dataset.opt;
@@ -592,6 +621,7 @@
   $("#tq-bin").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__bin"); });
   $("#tq-settings").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__settings"); });
   $("#tq-anims").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__anims"); });
+  $("#tq-icons").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__icons"); });
 
   // ----- light / dark (light by default, remembered on this device) -----
   const setTheme = (t) => {

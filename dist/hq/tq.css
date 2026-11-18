@@ -234,3 +234,9 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
   .tq-actions-btns{justify-content:flex-start}
   .tq-slot{width:26px;height:26px}
 }
+.tq-icon-img{width:56px;height:56px;display:block}
+.tq-icon-img.tq-icon-sm{width:40px;height:40px}
+.tq-icon-opts{display:flex;flex-wrap:wrap;gap:10px}
+.tq-icon-opt{display:grid;justify-items:center;gap:6px;background:var(--tq-surface);border:2px solid transparent;border-radius:14px;padding:10px 12px;cursor:pointer;font:600 12px Inter,sans-serif;color:var(--tq-ink)}
+.tq-icon-opt img{width:56px;height:56px}
+.tq-icon-opt.is-picked{border-color:#F5C04E;background:color-mix(in srgb,#F5C04E 18%,var(--tq-surface))}
