@@ -114,10 +114,16 @@
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
         ${s.sug ? `<span class="tq-sug-chip">✨ ${s.sug} suggested</span>` : ""}
+        ${p.special === "admin" && (board.habits || []).length ? `<span class="tq-habit-chip">🌱 ${habitChip()}</span>` : ""}
         ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : (s.sug ? "" : `<span class="tq-clear">All clear</span>`)}
       </div>`;
   }
 
+  function habitChip() {
+    const hs = board.habits || [], daily = hs.filter((h) => h.kind !== "avoid");
+    if (daily.length) return `${daily.filter((h) => habitStats(h).today).length} of ${daily.length} done today`;
+    return `${hs.length} ${hs.length === 1 ? "habit" : "habits"}`;
+  }
   function renderCards() {
     for (const group of ["work", "personal"]) {
       const wrap = $("#tq-cards-" + group);
@@ -283,6 +289,7 @@
         <h2>${esc(p.name)}</h2>
         <button class="tq-x" type="button" aria-label="Close">✕</button>
       </div>
+      ${p.special === "admin" ? habitsHTML() : ""}
       <div class="tq-sec tq-sec-remember"><h3>📌 Always remember</h3>
         <ul class="tq-notes">${notes.map(noteHTML).join("")}</ul>
         ${notes.length ? "" : `<p class="tq-empty">No standing rules yet.</p>`}
@@ -312,6 +319,58 @@
       <div class="tq-sec tq-sec-add"><h3>Add to ${esc(p.name)}</h3><ul class="tq-list">${formHTML(null)}</ul></div>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
   }
+
+  // ----- habits (Life Admin only; personal, never shown on a work card) -----
+  const dayDiff = (a, b) => Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000);
+  const plusDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return isoOf(d); };
+  function habitStats(h) {
+    const t = todayISO();
+    if (h.kind === "avoid") {
+      const now = Math.max(0, dayDiff(h.lastSlip || t, t));
+      const dates = [...(h.slips || []), h.lastSlip].filter(Boolean);
+      let best = now;
+      for (let i = 1; i < dates.length; i++) best = Math.max(best, dayDiff(dates[i - 1], dates[i]));
+      return { now, best };
+    }
+    const set = new Set(h.days || []);
+    let d = set.has(t) ? t : plusDays(t, -1), streak = 0;
+    while (set.has(d)) { streak++; d = plusDays(d, -1); }
+    let best = 0, run = 0, prev = null;
+    for (const x of [...set].sort()) { run = prev && dayDiff(prev, x) === 1 ? run + 1 : 1; best = Math.max(best, run); prev = x; }
+    return { streak, best, today: set.has(t), set };
+  }
+  function habitHTML(h) {
+    const s = habitStats(h);
+    const del = `<button class="tq-mini tq-del" type="button" data-act="hdel" aria-label="Delete habit">🗑</button>`;
+    if (h.kind === "avoid") return `<li class="tq-habit is-avoid" data-habit="${esc(h.id)}">
+        <div class="tq-habit-big"><b>${s.now}</b><small>${s.now === 1 ? "day" : "days"}</small></div>
+        <div class="tq-habit-main"><span class="tq-habit-name">${esc(h.name)}</span>
+          <small>since you last slipped${s.best > s.now ? ` · best ${s.best} days` : s.now > 0 ? " · your best run" : ""}</small></div>
+        <button class="tq-btn tq-slip" type="button" data-act="hslip">Slipped</button>${del}</li>`;
+    const week = [...Array(7)].map((_, i) => plusDays(todayISO(), i - 6));
+    return `<li class="tq-habit is-daily" data-habit="${esc(h.id)}">
+        <label class="tq-tick tq-habit-tick"><input type="checkbox" data-act="htick"${s.today ? " checked" : ""} aria-label="Done today"><span></span></label>
+        <div class="tq-habit-main"><span class="tq-habit-name">${esc(h.name)}</span>
+          <span class="tq-week">${week.map((d) => `<button type="button" class="tq-dot${s.set.has(d) ? " is-on" : ""}" data-act="hday" data-day="${d}" title="${esc(shortDate(d))}" aria-label="${esc(shortDate(d))}">${new Date(d + "T00:00:00").toLocaleDateString(undefined, { weekday: "narrow" })}</button>`).join("")}</span></div>
+        <div class="tq-streak${s.streak ? "" : " is-zero"}">🔥 <b>${s.streak}</b><small>${s.best > s.streak ? `best ${s.best}` : s.streak === 1 ? "day" : "days"}</small></div>${del}</li>`;
+  }
+  function habitsHTML() {
+    const hs = board.habits || [];
+    const avoid = hs.filter((h) => h.kind === "avoid"), daily = hs.filter((h) => h.kind !== "avoid");
+    return `<div class="tq-sec tq-sec-habits"><h3>🌱 Habits</h3>
+      ${daily.length ? `<h4>Every day</h4><ul class="tq-habits">${daily.map(habitHTML).join("")}</ul>` : ""}
+      ${avoid.length ? `<h4>Trying to avoid</h4><ul class="tq-habits">${avoid.map(habitHTML).join("")}</ul>` : ""}
+      ${hs.length ? "" : `<p class="tq-empty">No habits yet. Add one you want to do every day, or one you're trying to stop.</p>`}
+      <details class="tq-add-note"${editing === "h:new" ? " open" : ""}><summary>+ Add a habit</summary>
+        <form class="tq-habit-form" data-hkind="daily">
+          <div class="tq-seg"><button type="button" class="tq-seg-btn is-on" data-hkind="daily">Every day</button><button type="button" class="tq-seg-btn" data-hkind="avoid">Trying to avoid</button></div>
+          <input class="tq-input" name="name" maxlength="80" placeholder="e.g. Read 10 pages" required>
+          <label class="tq-lbl" data-hshow="avoid" hidden>Last slip (leave empty for today) <input class="tq-input" type="date" name="lastSlip"></label>
+          <div class="tq-form-btns"><button class="tq-btn tq-btn-tint" type="submit">Add habit</button></div>
+        </form>
+      </details></div>`;
+  }
+  const habitEl = (id) => $(`#tq-panel [data-habit="${CSS.escape(id)}"]`);
 
   // ----- settings -----
   function renderSettings() {
@@ -374,13 +433,14 @@
   }
 
   // ----- card icons: 4 drawn options per card without a logo (picked in the Icons sheet) -----
-  const ICON_CARDS = ["jobs", "study", "family", "tallulah", "frolic"];
+  const ICON_CARDS = ["jobs", "study", "family", "tallulah", "frolic", "admin"];
   const ICON_NAMES = ["Soft tile", "Solid circle", "Different symbol", "Outline", "From the website"];
   // Option 4 (the default) is the icon taken from the card's own website.
   const SITE_ICON = { jobs: "icons/jobs-site.svg", study: "icons/study-site.png", family: "icons/family-site.png", tallulah: "icons/tallulah-site.svg", frolic: "icons/frolic-site.png" };
+  const defIcon = (id) => (SITE_ICON[id] ? 4 : 0);
   const iconSrc = (id, v) => (v === 4 ? SITE_ICON[id] : `icons/${id}-${v}.svg`);
   function iconHTML(p, cls) {
-    if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="${iconSrc(p.id, board.settings?.icons?.[p.id] ?? 4)}" alt="">`;
+    if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="${iconSrc(p.id, board.settings?.icons?.[p.id] ?? defIcon(p.id))}" alt="">`;
     return `<span class="tq-icon${cls}" aria-hidden="true">${esc(p.icon || "•")}</span>`;
   }
   function renderIcons() {
@@ -392,7 +452,7 @@
       <p class="tq-empty">Tap the icon you like for each card. It's saved straight away.</p>
       <ul class="tq-anim-list">${ICON_CARDS.map((id) => { const p = board.projects.find((x) => x.id === id); return p ? `<li class="tq-anim" data-icons="${id}">
         <h3>${esc(p.name)}</h3>
-        <div class="tq-icon-opts">${[4, 0, 1, 2, 3].map((i) => `<button type="button" class="tq-icon-opt${(picks[id] ?? 4) === i ? " is-picked" : ""}" data-iopt="${i}" aria-label="${ICON_NAMES[i]}"><img src="${iconSrc(id, i)}" alt=""><span>${ICON_NAMES[i]}</span></button>`).join("")}</div>
+        <div class="tq-icon-opts">${(SITE_ICON[id] ? [4, 0, 1, 2, 3] : [0, 1, 2, 3]).map((i) => `<button type="button" class="tq-icon-opt${(picks[id] ?? defIcon(id)) === i ? " is-picked" : ""}" data-iopt="${i}" aria-label="${ICON_NAMES[i]}"><img src="${iconSrc(id, i)}" alt=""><span>${ICON_NAMES[i]}</span></button>`).join("")}</div>
       </li>` : ""; }).join("")}</ul>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
   }
@@ -460,6 +520,35 @@
       try { board.settings = await api("/api/settings", { method: "PUT", body: JSON.stringify({ anims: { [k]: v } }) }); } catch (err) { toast(err.message); }
       return;
     }
+    const hk = e.target.closest("[data-hkind]");
+    if (hk && hk.tagName === "BUTTON") {
+      const form = hk.closest("form");
+      $$("[data-hkind]", form).forEach((b) => b.classList.toggle("is-on", b === hk));
+      form.dataset.hkind = hk.dataset.hkind;
+      $("[data-hshow]", form).hidden = hk.dataset.hkind !== "avoid";
+      $("[name=name]", form).placeholder = hk.dataset.hkind === "avoid" ? "e.g. Doomscrolling in bed" : "e.g. Read 10 pages";
+      return;
+    }
+    const hrow = e.target.closest("[data-habit]");
+    if (hrow && e.target.closest("button[data-act]")) {
+      const hid = hrow.dataset.habit, a = e.target.closest("button[data-act]");
+      if (a.dataset.act === "hslip") {
+        const c = snap(hrow), h = board.habits.find((x) => x.id === hid), was = habitStats(h).now;
+        await change(`/api/habits/${hid}/slip`, "POST");
+        fx("slip", c, habitEl(hid));
+        toast(`Reset to 0 (it was ${was} ${was === 1 ? "day" : "days"})`, "Undo", () => change(`/api/habits/${hid}/unslip`, "POST").then(() => toast("Back to " + was)));
+      } else if (a.dataset.act === "hday") {
+        const on = !a.classList.contains("is-on"), c = snap(a);
+        await change(`/api/habits/${hid}/tick`, "POST", { day: a.dataset.day, done: on });
+        if (on) fx("habit", c, habitEl(hid));
+      } else if (a.dataset.act === "hdel") armDelete(a, async () => {
+        const c = snap(hrow);
+        const b = await change(`/api/habits/${hid}`, "DELETE");
+        fx("del", c);
+        toast("Habit deleted", "Undo", undoRestore(b.trashed));
+      });
+      return;
+    }
     const btn = e.target.closest("[data-act], [data-kind]");
     if (!btn) return;
     const row = btn.closest("[data-id]"), id = row?.dataset.id;
@@ -501,6 +590,12 @@
   });
 
   $("#tq-panel").addEventListener("change", async (e) => {
+    if (e.target.dataset.act === "htick") {
+      const hid = e.target.closest("[data-habit]").dataset.habit, done = e.target.checked, c = snap(e.target.closest("[data-habit]"));
+      try { await change(`/api/habits/${hid}/tick`, "POST", { done }); } catch (err) { return; }
+      if (done) { fx("habit", c, habitEl(hid)); const st = habitStats(board.habits.find((x) => x.id === hid)).streak; toast(st > 1 ? `🔥 ${st} days in a row` : "Done for today"); }
+      return;
+    }
     if (e.target.dataset.act !== "tick") return;
     const id = e.target.closest("[data-id]").dataset.id;
     const done = e.target.checked;
@@ -519,6 +614,18 @@
     e.preventDefault();
     const form = e.target, f = Object.fromEntries(new FormData(form));
     if (form.classList.contains("tq-set-form")) return;
+    if (form.classList.contains("tq-habit-form")) {
+      const kind = form.dataset.hkind || "daily";
+      if (!f.name.trim()) return;
+      const had = new Set((board.habits || []).map((x) => x.id));
+      editing = null;
+      try { await change("/api/habits", "POST", { name: f.name, kind, lastSlip: kind === "avoid" ? f.lastSlip : "" }); } catch (err) { return; }
+      const nh = (board.habits || []).find((x) => !had.has(x.id));
+      const el = nh && habitEl(nh.id);
+      fx("newtask", snap(el), el);
+      toast("🌱 Habit added");
+      return;
+    }
     if (form.classList.contains("tq-c-form")) {
       const sid = form.closest("[data-sid]").dataset.sid;
       if (!f.text.trim()) return;
@@ -583,7 +690,7 @@
     renderScore();
     renderCards();
     // Don't redraw the panel under her while she's typing in the add form.
-    const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form") && document.activeElement.value;
+    const typing = document.activeElement?.closest?.(".tq-sec-add form, .tq-c-form, .tq-set-form, .tq-habit-form") && document.activeElement.value;
     if (!typing) renderPanel();
   }
 

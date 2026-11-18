@@ -5,6 +5,7 @@
     tick: "Tick a task", untick: "Untick (back on the list)", add: "Add a suggestion", dismiss: "Dismiss a suggestion",
     newtask: "New task", edit: "Save an edit", del: "Delete", chased: "Chased", note: "New rule (Always remember)",
     comment: "Comment on a suggestion", sync: "Sync", record: "New record!",
+    habit: "Tick a daily habit", slip: "Slipped (habit to avoid)",
   };
   const OPTIONS = {
     tick: ["Confetti + DONE stamp", "Green check bloom", "Rubber stamp slam", "Party emoji burst"],
@@ -19,6 +20,8 @@
     comment: ["Magic wand 🪄", "Speech bubble pop 💬", "Sparkle trail ✨", "Crystal ball 🔮"],
     sync: ["Card flip", "Ripple wave", "Spinning arrows", "Shimmer"],
     record: ["Trophy + confetti 🏆", "Fireworks 🎆", "Ribbon banner", "Gold rain"],
+    habit: ["Flame burst 🔥", "Seedling grows 🌱", "Green confetti", "Star pop ⭐"],
+    slip: ["Gentle shake", "Counter rolls back to 0", "Soft rain 🌧", "Restart arrow 🔄"],
   };
   const reduce = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   const R = (a, b) => a + Math.random() * (b - a);
@@ -192,6 +195,20 @@
       () => { banner("New record!", { bg: "#F5C04E" }); emojis(screen(), ["🪙", "⭐", "✨"], { n: 30, mode: "rain", size: 26, dur: 1600 }); },
     ],
   };
+
+  const grow = [{ transform: "translate(-50%,-30%) scale(.2)", opacity: 0 }, { transform: "translate(-50%,-60%) scale(1.3)", opacity: 1, offset: .5 }, { transform: "translate(-50%,-80%) scale(1)", opacity: 0 }];
+  FX.habit = [
+    (c, el) => { bigEmoji(c.rect, "🔥", grow, 1100, 48); emojis(c.rect, ["🔥", "✨"], { n: 8, mode: "rise", size: 20 }); },
+    (c, el) => { bigEmoji(c.rect, "🌱", grow, 1200, 46); onEl(el, [{ background: "#E6F2E1" }, { background: "" }], { duration: 1200 }); },
+    (c, el) => confetti(c.rect, { colors: ["#2E7D32", "#7CB342", "#C2D9BC", "#A5D6A7"], n: 30 }),
+    (c, el) => emojis(c.rect, ["⭐", "🌟"], { n: 12 }),
+  ];
+  FX.slip = [
+    (c, el) => onEl(el, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(-5px)" }, { transform: "translateX(0)" }], { duration: 500 }),
+    (c, el) => { const b = el && el.querySelector(".tq-habit-big b"); onEl(b, [{ transform: "translateY(-100%)", opacity: 0 }, { transform: "translateY(10%)", opacity: 1, offset: .7 }, { transform: "translateY(0)" }], { duration: 650, easing: "cubic-bezier(.3,1.4,.6,1)" }); },
+    (c, el) => emojis(c.rect, ["💧"], { n: 12, mode: "rain", size: 18, dur: 1200 }),
+    (c, el) => bigEmoji(c.rect, "🔄", [{ transform: "translate(-50%,-50%) rotate(0) scale(.4)", opacity: 0 }, { transform: "translate(-50%,-50%) rotate(-360deg) scale(1.2)", opacity: 1, offset: .6 }, { transform: "translate(-50%,-50%) rotate(-360deg) scale(1)", opacity: 0 }], 1000),
+  ];
 
   window.TQFX = {
     NAMES, OPTIONS,

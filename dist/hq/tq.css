@@ -240,3 +240,26 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 .tq-icon-opt{display:grid;justify-items:center;gap:6px;background:var(--tq-surface);border:2px solid transparent;border-radius:14px;padding:10px 12px;cursor:pointer;font:600 12px Inter,sans-serif;color:var(--tq-ink)}
 .tq-icon-opt img{width:56px;height:56px;border-radius:16px;object-fit:cover}
 .tq-icon-opt.is-picked{border-color:#F5C04E;background:color-mix(in srgb,#F5C04E 18%,var(--tq-surface))}
+
+/* ----- stage 6: habits (Life Admin) ----- */
+.tq-sec-habits h4{margin:12px 0 6px;font:600 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--tq-muted,#6B7280)}
+.tq-habits{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.tq-habit{display:flex;align-items:center;gap:12px;background:var(--tq-row);border-radius:14px;padding:10px 12px}
+.tq-habit-main{flex:1;min-width:0;display:grid;gap:4px}
+.tq-habit-name{font-weight:600;color:var(--tq-ink)}
+.tq-habit-main small{color:var(--tq-muted,#6B7280);font-size:12px}
+.tq-habit-big{display:grid;justify-items:center;min-width:52px;overflow:hidden}
+.tq-habit-big b{font:700 28px/1 Poppins,sans-serif;color:var(--tq-ink)}
+.tq-habit-big small{font-size:11px;color:var(--tq-muted,#6B7280)}
+.tq-slip{background:#FBE3E3;color:#9B2C2C;border:0}
+.tq-week{display:flex;gap:4px}
+.tq-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid #C9CDD3;background:transparent;font:600 10px Inter,sans-serif;color:var(--tq-muted,#6B7280);padding:0;cursor:pointer}
+.tq-dot.is-on{background:#7CB342;border-color:#7CB342;color:#fff}
+.tq-streak{display:grid;justify-items:center;min-width:52px;font-size:15px}
+.tq-streak b{font:700 20px/1 Poppins,sans-serif;color:#D9480F}
+.tq-streak.is-zero{opacity:.45}
+.tq-streak small{font-size:11px;color:var(--tq-muted,#6B7280)}
+.tq-habit-chip{display:inline-block;margin-top:6px;background:#E6F2E1;color:#2E5E22;border-radius:999px;padding:4px 10px;font:600 13px Inter,sans-serif}
+:root[data-theme="dark"] .tq-slip{background:#4A2323;color:#F5B5B5}
+:root[data-theme="dark"] .tq-habit-chip{background:#253A22;color:#CDE6C4}
+@media (max-width:560px){.tq-habit{gap:8px;padding:10px}.tq-dot{width:19px;height:19px;font-size:9px}.tq-week{gap:3px}.tq-slip{padding:8px 10px;font-size:13px}.tq-habit-big,.tq-streak{min-width:40px}.tq-habit .tq-del{flex:none}}

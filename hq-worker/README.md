@@ -75,3 +75,13 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
 - Animations live in dist/hq/tq-fx.js: 12 actions × 4 options. Nicky picks per action in the footer's "Animations" sheet; picks are saved in `settings.anims` (PUT /api/settings {anims:{tick:0-3,...}}).
 - Dark mode: toggle in the header, remembered per device in localStorage `tq-theme`; light by default. Colours are CSS variables on :root, overridden under :root[data-theme=dark].
 - Syncs-with logos: dist/hq/logos/src-*.svg (Simple Icons, recoloured).
+
+## Stage 6: Life Admin + habits (2026-11-18)
+- New personal card `admin` (Life Admin: tax, accountant, personal bills). Personal only; nothing from it goes on a work card.
+- Habit tracker at the top of the Life Admin panel. Data: `habits` in the board JSON.
+  - `daily`: `days` = list of YYYY-MM-DD ticked. Tick today, or tap the last 7 days' dots to fix a missed one. 🔥 streak counts back from today (or yesterday if today isn't ticked yet).
+  - `avoid`: `lastSlip` date, `slips` = older slip dates. Shows days since the last slip and the best run. "Slipped" resets to 0 with an Undo toast (`/unslip` puts the old date back).
+  - Routes (owner only; background checks get 403): POST /api/habits {name, kind, lastSlip?}, PUT/DELETE /api/habits/:id, POST /api/habits/:id/slip, /unslip, /tick {day?, done}.
+  - Deleted habits go to the Bin and can be restored.
+- Two new animation pickers: "Tick a daily habit" and "Slipped".
+- Family research icon: Nicky's own engraved tree picture (icons/family-site.png).

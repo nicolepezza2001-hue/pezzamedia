@@ -183,8 +183,9 @@ const DEFAULT_PROJECTS = [
   { id: "family", name: "Family research", group: "personal", blurb: "Family history digging.", icon: "🌳", color: "#B8D8C8", dashboard: "", order: 12 },
   { id: "tallulah", name: "Tallulah writing", group: "personal", blurb: "Tallulah Has Nothing.", icon: "✍️", color: "#D9C6EC", dashboard: "", order: 13 },
   { id: "frolic", name: "Frolicking Nicky", group: "personal", blurb: "Travel, fun and adventures.", icon: "🌸", color: "#F6C6D0", dashboard: "", order: 14 },
+  { id: "admin", name: "Life Admin", group: "personal", special: "admin", blurb: "Tax, accountant, bills and habits.", icon: "🗂️", color: "#E6D3B3", dashboard: "", order: 15 },
 ];
-const SEED_VERSION = 3;
+const SEED_VERSION = 4;
 
 export class Board extends DurableObject {
   constructor(ctx, env) {
@@ -200,8 +201,10 @@ export class Board extends DurableObject {
             suggestions: [], suggestionLog: [], trash: [], lastSweep: null, settings: {} };
       await this.ctx.storage.put("board", d);
     }
-    for (const k of ["projects", "tasks", "notes", "suggestions", "suggestionLog", "trash"]) d[k] ||= [];
+    for (const k of ["projects", "tasks", "notes", "suggestions", "suggestionLog", "trash", "habits"]) d[k] ||= [];
     d.settings ||= {};
+    // 2026-11-18: Nicky chose her own tree picture for Family research, so drop the older icon pick once.
+    if ((d.settings.iconsV || 1) < 2) { if (d.settings.icons) delete d.settings.icons.family; d.settings.iconsV = 2; }
     if (!d.stats) {
       // First run of the scoreboard: count what was already ticked.
       d.stats = { days: {} };
@@ -242,7 +245,7 @@ export class Board extends DurableObject {
     const p = path.replace(/\/+$/, "");
     if (p === "/api/ping") return [200, { ok: true }];
     if (p === "/api/board" && method === "GET") {
-      return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
+      return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions, habits: d.habits,
                      lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated || d.created, settings: d.settings }];
     }
     if (p === "/api/export" && method === "GET") return [200, { exported: new Date().toISOString(), ...d }];
@@ -265,7 +268,7 @@ export class Board extends DurableObject {
       return [200, { ok: true }];
     }
     if (p === "/api/trash" && method === "GET") return [200, d.trash];
-    const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions,
+    const board = (extra = {}) => [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions, habits: d.habits,
                                 lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated, settings: d.settings, ...extra }];
     const hasProject = (id) => d.projects.some((x) => x.id === id);
     const today = isDate(body?.today) ? body.today : new Date().toISOString().slice(0, 10);
@@ -326,6 +329,47 @@ export class Board extends DurableObject {
           if (next && !next.done && !next.edited) d.tasks.splice(d.tasks.indexOf(next), 1);
           delete t.nextId;
         }
+      } else return [405, { error: "Not allowed" }];
+      await this.save();
+      return board();
+    }
+
+    // ----- habits (Life Admin): "avoid" = days since the last slip, "daily" = a tick per day with a streak -----
+    if (p === "/api/habits" && method === "POST") {
+      const name = String(body?.name || "").trim().slice(0, 80);
+      if (!name) return [400, { error: "The habit needs a name" }];
+      const kind = body?.kind === "avoid" ? "avoid" : "daily";
+      const h = { id: uid(), name, kind, created: new Date().toISOString(), since: today };
+      if (kind === "avoid") { h.lastSlip = isDate(body?.lastSlip) ? body.lastSlip : today; h.slips = []; }
+      else h.days = [];
+      d.habits.push(h);
+      await this.save();
+      return board();
+    }
+    const hm = p.match(/^\/api\/habits\/([\w-]+)(?:\/(slip|unslip|tick))?$/);
+    if (hm) {
+      const h = d.habits.find((x) => x.id === hm[1]);
+      if (!h) return [404, { error: "That habit isn't there any more" }];
+      if (!hm[2] && method === "PUT") {
+        if ("name" in body) h.name = String(body.name || "").trim().slice(0, 80) || h.name;
+        if (h.kind === "avoid" && isDate(body?.lastSlip)) h.lastSlip = body.lastSlip;
+      } else if (!hm[2] && method === "DELETE") {
+        d.habits.splice(d.habits.indexOf(h), 1);
+        this.trashItem("habit", h);
+        await this.save();
+        return board({ trashed: d.trash[0].tid });
+      } else if (hm[2] === "slip" && method === "POST" && h.kind === "avoid") {
+        // Keep the old date so Undo can put it back.
+        h.slips = [...(h.slips || []), h.lastSlip].slice(-200);
+        h.lastSlip = today;
+      } else if (hm[2] === "unslip" && method === "POST" && h.kind === "avoid") {
+        if (!h.slips?.length) return [400, { error: "Nothing to undo" }];
+        h.lastSlip = h.slips.pop();
+      } else if (hm[2] === "tick" && method === "POST" && h.kind === "daily") {
+        const day = isDate(body?.day) ? body.day : today;
+        const set = new Set(h.days || []);
+        if (body?.done === false) set.delete(day); else set.add(day);
+        h.days = [...set].sort().slice(-800);
       } else return [405, { error: "Not allowed" }];
       await this.save();
       return board();
@@ -480,7 +524,7 @@ export class Board extends DurableObject {
       const i = d.trash.findIndex((x) => x.tid === rm[1]);
       if (i < 0) return [404, { error: "Not in the bin" }];
       const [entry] = d.trash.splice(i, 1);
-      const list = { task: d.tasks, note: d.notes, project: d.projects }[entry.kind];
+      const list = { task: d.tasks, note: d.notes, project: d.projects, habit: d.habits }[entry.kind];
       if (!list) return [400, { error: "Can't restore that kind yet" }];
       if (!list.some((x) => x.id === entry.item.id)) list.push(entry.item);
       await this.save();
