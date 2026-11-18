@@ -214,6 +214,8 @@
           <p class="tq-row-text">${title}</p>
           ${bits.length ? `<p class="tq-row-meta">${bits.join(" · ")}</p>` : ""}
           ${t.done && t.doneBy ? `<p class="tq-row-meta">✨ Ticked by ${t.doneBy === "work" ? "Work Claude" : "Claude"}${t.doneWhy ? `: ${esc(t.doneWhy)}` : ""}</p>` : ""}
+          ${t.addedBy ? `<p class="tq-row-meta tq-by">✨ Added by ${t.addedBy === "work" ? "Work Claude" : "Claude"}</p>` : ""}
+          ${t.done && t.closedBy ? `<p class="tq-row-meta tq-by">✨ Closed by ${t.closedBy === "work" ? "Work Claude" : "Claude"}${t.resolution?.answer ? `: ${esc(t.resolution.answer)}` : ""}${t.resolution?.source ? ` (${esc(t.resolution.source)})` : ""}${t.resolution?.link ? ` · <a href="${esc(t.resolution.link)}" target="_blank" rel="noopener">Open ↗</a>` : ""}</p>` : ""}
           ${t.detail ? `<details class="tq-row-detail"><summary>Details</summary><p>${esc(t.detail)}</p></details>` : ""}
         </div>
         <div class="tq-row-btns">
@@ -242,7 +244,7 @@
           <label data-show="waiting"${kind === "waiting" ? "" : " hidden"}>Asked on<input class="tq-input" type="date" name="asked" value="${esc(t?.asked || todayISO())}"></label>
           <label data-show="task repeat"${kind === "waiting" ? " hidden" : ""}>Due <small>(only if there's a real date)</small><input class="tq-input" type="date" name="due" value="${esc(t?.due || "")}"></label>
           <label data-show="repeat"${kind === "repeat" ? "" : " hidden"}>Repeats<select class="tq-input" name="repeat">
-            ${["weekly", "monthly", "quarterly", "yearly"].map((r) => `<option${(t?.repeat || "monthly") === r ? " selected" : ""}>${r}</option>`).join("")}
+            ${[["daily", "daily"], ["weekdays", "weekdays (Mon to Fri)"], ["weekly", "weekly"], ["monthly", "monthly"], ["quarterly", "quarterly"], ["yearly", "yearly"]].map(([r, l]) => `<option value="${r}"${(t?.repeat || "monthly") === r ? " selected" : ""}>${l}</option>`).join("")}
           </select></label>
         </div>
         <details class="tq-more"${t && (t.detail || t.link || t.source) ? " open" : ""}><summary>More (detail, link, where it came from)</summary>
@@ -732,7 +734,7 @@
 
   // ----- Tools row (stage 7): each tool is its own page -----
   const TOOL_CARDS = [
-    ["notes", "Notes → Tasks", "Paste notes, pick the tasks"], ["kits", "Brand kits", "Logos, colours, fonts"],
+    ["notes", "Notes → Tasks", "Paste notes, pick the tasks"], ["kits", "Brand guides", "Voice, rules, logos, colours"],
     ["proof", "Proof bank", "Your numbers, ready to copy"], ["calendar", "Content calendar", "What goes out when"],
     ["swipe", "Swipe file", "Lines you love"], ["tallulah", "Tallulah tracker", "Words and queries"],
     ["pitches", "Pitch tracker", "Follow-ups and wins"], ["focus", "Focus timer", "Time on what matters"],

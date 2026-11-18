@@ -38,13 +38,24 @@ async function sweepKey(password, who) {
 }
 // What a background check may do: read the board, post suggestions, answer comments,
 // record its run, and tick a task done when there's clear evidence (review only).
-function sweepAllowed(method, path) {
+function sweepAllowed(method, path, who) {
   const p = path.replace(/\/+$/, "");
-  if (method === "GET") return ["/api/board", "/api/suggestions/log", "/api/ping"].includes(p);
-  if (method === "POST") return p === "/api/suggestions" || p === "/api/sweep" || p === "/api/events" ||
-    /^\/api\/suggestions\/[\w-]+\/reply$/.test(p) || /^\/api\/tasks\/[\w-]+\/done$/.test(p);
+  // Brand guide text sections: both checkers may read and write them (cards checked in the handler).
+  if (/^\/api\/kits\/[\w-]+(\/sections)?$/.test(p) && (method === "GET" || (method === "PUT" && p.endsWith("/sections")))) return true;
+  if (method === "GET" && ["/api/board", "/api/suggestions/log", "/api/ping"].includes(p)) return true;
+  if (method === "POST" && (p === "/api/suggestions" || p === "/api/sweep" || p === "/api/events" ||
+    /^\/api\/suggestions\/[\w-]+\/(reply|withdraw)$/.test(p) || /^\/api\/tasks\/[\w-]+\/done$/.test(p))) return true;
+  // Extra powers Nicky gave her work Claude (2026-11-18), on the sn and tmrw cards only.
+  if (who === "work") {
+    if (method === "POST" && (p === "/api/tasks" || /^\/api\/tasks\/[\w-]+\/resolve$/.test(p))) return true;
+    if (p === "/api/calendar" && (method === "GET" || method === "POST")) return true;
+    if (/^\/api\/calendar\/[\w-]+$/.test(p) && method === "PUT") return true;
+  }
   return false;
 }
+// Cards each background check may change. Work Claude: the two brands only.
+const WORK_CARDS = ["sn", "tmrw"];
+const mayTouch = (role, project) => role === "owner" || (role === "work" ? WORK_CARDS.includes(project) : !WORK_CARDS.includes(project));
 
 // ----- stage 7 tools -----
 // Each tool keeps its own list under its own storage key ("col:<name>"), so the main board stays small.
@@ -145,7 +156,7 @@ export default {
       await stub.fail(ip);
       return json({ error: "Wrong password" }, 401, req);
     }
-    if (role !== "owner" && !sweepAllowed(req.method, url.pathname)) return json({ error: "The background check can't do that" }, 403, req);
+    if (role !== "owner" && !sweepAllowed(req.method, url.pathname, role)) return json({ error: "The background check can't do that" }, 403, req);
     try {
       const body = ["POST", "PUT"].includes(req.method) ? await req.json().catch(() => ({})) : null;
       const [status, data] = await stub.handle(req.method, url.pathname, body, role, pkOrigin(req, env));
@@ -161,11 +172,13 @@ const uid = () => crypto.randomUUID().slice(0, 8);
 const plusDaysUTC = (iso, n) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const isDate = (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
 const KINDS = ["task", "waiting", "repeat"];
-const REPEATS = ["weekly", "monthly", "quarterly", "yearly"];
+const REPEATS = ["daily", "weekdays", "weekly", "monthly", "quarterly", "yearly"];
 function addPeriod(iso, repeat) {
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(Date.UTC(y, m - 1, d));
-  if (repeat === "weekly") dt.setUTCDate(dt.getUTCDate() + 7);
+  if (repeat === "daily") dt.setUTCDate(dt.getUTCDate() + 1);
+  else if (repeat === "weekdays") { do dt.setUTCDate(dt.getUTCDate() + 1); while ([0, 6].includes(dt.getUTCDay())); }
+  else if (repeat === "weekly") dt.setUTCDate(dt.getUTCDate() + 7);
   else {
     const months = { monthly: 1, quarterly: 3, yearly: 12 }[repeat] || 1;
     const day = dt.getUTCDate();
@@ -357,6 +370,14 @@ export class Board extends DurableObject {
     const d = await this.load();
     const p = path.replace(/\/+$/, "");
     if (p === "/api/ping") return [200, { ok: true }];
+    if (p === "/api/board" && method === "GET" && role === "work") {
+      // Work Claude sees only Simply Nootropics and Tmrw, never the personal cards.
+      const mine = (x) => WORK_CARDS.includes(x.project);
+      return [200, { projects: d.projects.filter((x) => WORK_CARDS.includes(x.id)).map(({ id, name, group, blurb }) => ({ id, name, group, blurb })),
+        tasks: d.tasks.filter(mine).map(({ id, project, kind, who, text, due, asked, repeat, done, doneDay, detail, link, source, addedBy, created }) =>
+          ({ id, project, kind, who: who || "", text, due: due || "", asked: asked || "", repeat: repeat || "", done: !!done, doneDay: doneDay || "", detail: detail || "", link: link || "", source: source || "", addedBy: addedBy || "", created })),
+        notes: d.notes.filter(mine), suggestions: d.suggestions.filter(mine), sweeps: d.sweeps || {}, updated: d.updated || d.created }];
+    }
     if (p === "/api/board" && method === "GET") {
       return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions, habits: d.habits,
                      lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated || d.created, settings: d.settings }];
@@ -395,16 +416,33 @@ export class Board extends DurableObject {
       const t = cleanTask(body);
       if (!t.text) return [400, { error: "The task needs some text" }];
       if (!hasProject(t.project)) return [400, { error: "Unknown card" }];
+      if (!mayTouch(role, t.project)) return [403, { error: "Work Claude can only add to Simply Nootropics and Tmrw" }];
+      if (role !== "owner") {
+        if (d.tasks.some((x) => !x.done && x.project === t.project && similar(x.text, t.text))) return [409, { error: "Already on the list" }];
+        t.addedBy = role;
+      }
       if (t.kind === "waiting" && !t.asked) t.asked = today;
       Object.assign(t, { id: uid(), created: new Date().toISOString(), done: false });
       d.tasks.push(t);
       await this.save();
       return board();
     }
-    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased))?$/);
+    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased|resolve))?$/);
     if (tm) {
       const t = d.tasks.find((x) => x.id === tm[1]);
       if (!t) return [404, { error: "That task isn't there any more" }];
+      if (!mayTouch(role, t.project)) return [403, { error: "That card is off limits for this check" }];
+      if (tm[2] === "resolve" && method === "POST") {
+        // Close a waiting-on item because the person delivered, keeping the evidence.
+        if (t.kind !== "waiting") return [400, { error: "Only waiting-on items can be resolved" }];
+        if (t.done) return [200, { ok: true, already: true }];
+        t.done = true; t.doneAt = new Date().toISOString(); t.doneDay = today;
+        t.resolution = { answer: String(body?.answer || "").slice(0, 1000), source: String(body?.source || "").slice(0, 200), link: String(body?.link || "").slice(0, 500) };
+        if (role !== "owner") t.closedBy = role;
+        d.stats ||= { days: {} };
+        await this.save();
+        return role === "owner" ? board() : [200, { ok: true, id: t.id }];
+      }
       if (!tm[2] && method === "PUT") {
         const next = cleanTask(body, t);
         if (!next.text) return [400, { error: "The task needs some text" }];
@@ -538,6 +576,17 @@ export class Board extends DurableObject {
       }
       if (result.posted.length) await this.save();
       return [200, result];
+    }
+    const wm = p.match(/^\/api\/suggestions\/([\w-]+)\/withdraw$/);
+    if (wm && method === "POST") {
+      const sg = d.suggestions.find((x) => x.id === wm[1]);
+      if (!sg) return [404, { error: "That suggestion has already been handled" }];
+      if (role !== "owner" && sg.by !== role) return [403, { error: "A check can only withdraw its own suggestions" }];
+      d.suggestions.splice(d.suggestions.indexOf(sg), 1);
+      d.suggestionLog.unshift({ ...sg, status: "withdrawn", why2: String(body?.why || "").slice(0, 300), closed: new Date().toISOString() });
+      d.suggestionLog.length = Math.min(d.suggestionLog.length, LOG_MAX);
+      await this.save();
+      return [200, { ok: true }];
     }
     const sm = p.match(/^\/api\/suggestions\/([\w-]+)\/(add|dismiss|comment|reply)$/);
     if (sm && method === "POST") {
@@ -703,6 +752,71 @@ export class Board extends DurableObject {
       return [200, { ok: true }];
     }
 
+    // ----- content calendar for the brands: /api/calendar (brand = sn / tmrw) -----
+    if (p === "/api/calendar" || p.startsWith("/api/calendar/")) {
+      const list = (await this.ctx.storage.get("col:calendar")) || [];
+      const put = () => this.ctx.storage.put("col:calendar", list);
+      const brandOf = (x) => x.brand || x.project || "";
+      const out = (x) => ({ id: x.id, date: x.date, brand: brandOf(x), channel: x.channel, title: x.title, status: x.status, link: x.link, source: x.source, addedBy: x.addedBy || "" });
+      const ok = (b) => role === "owner" || WORK_CARDS.includes(b);
+      const clean = (raw, base = {}) => {
+        const it = { ...base };
+        for (const k of ["title", "channel", "status", "link", "source", "note"]) if (k in (raw || {})) it[k] = String(raw[k] ?? "").slice(0, k === "note" ? 2000 : 500);
+        if ("date" in (raw || {}) && isDate(raw.date)) it.date = raw.date;
+        if ("brand" in (raw || {})) { it.brand = String(raw.brand); it.project = it.brand; }
+        return it;
+      };
+      if (p === "/api/calendar" && method === "GET") {
+        const from = isDate(body?.from) ? body.from : "";
+        return [200, { items: list.filter((x) => ok(brandOf(x))).map(out) }];
+      }
+      if (p === "/api/calendar" && method === "POST") {
+        const items = Array.isArray(body?.items) ? body.items : [body];
+        const res = { added: [], updated: [], skipped: [] };
+        for (const raw of items) {
+          const it = clean(raw);
+          if (!it.date || !it.title || !ok(it.brand)) { res.skipped.push({ title: it.title, reason: "needs date, title and brand sn or tmrw" }); continue; }
+          // Same brand + date + title = the same item: update it instead of adding a copy.
+          const same = list.find((x) => brandOf(x) === it.brand && x.date === it.date && norm(x.title) === norm(it.title));
+          if (same) { Object.assign(same, it, { edited: new Date().toISOString() }); res.updated.push(same.id); continue; }
+          const n = { ...it, id: uid(), created: new Date().toISOString(), addedBy: role === "owner" ? "" : role };
+          list.push(n); res.added.push(n.id);
+        }
+        await put();
+        return [200, res];
+      }
+      const cid = p.split("/")[3];
+      const x = list.find((y) => y.id === cid);
+      if (!x) return [404, { error: "That calendar item isn't there any more" }];
+      if (!ok(brandOf(x))) return [403, { error: "That item is off limits for this check" }];
+      if (method === "PUT") {
+        const it = clean(body, x);
+        if (!ok(brandOf(it))) return [403, { error: "Brand must be sn or tmrw" }];
+        Object.assign(x, it, { edited: new Date().toISOString() });
+        await put();
+        return [200, { item: out(x) }];
+      }
+      return [405, { error: "Not allowed" }];
+    }
+
+    // ----- brand guides: text sections per card -----
+    const GUIDE = ["voice", "spelling", "banned", "formats", "compliance", "usage", "content"];
+    const gm = p.match(/^\/api\/kits\/([\w-]+)(\/sections)?$/);
+    if (gm && (method === "GET" || (gm[2] && method === "PUT"))) {
+      if (!hasProject(gm[1])) return [400, { error: "Unknown card" }];
+      if (!mayTouch(role, gm[1])) return [403, { error: "That card is off limits for this check" }];
+      const kits = (await this.ctx.storage.get("kits")) || {};
+      const k = kits[gm[1]] || {};
+      if (method === "GET") return [200, { card: gm[1], colours: k.colours || [], fonts: k.fonts || [], notes: k.notes || "", checked: !!k.checked, sections: k.sections || {} }];
+      const sec = { ...(k.sections || {}) };
+      for (const key of GUIDE) if (body?.sections && key in body.sections) {
+        sec[key] = { text: String(body.sections[key] ?? "").slice(0, 20000), by: role === "owner" ? "nicky" : role, at: new Date().toISOString() };
+      }
+      kits[gm[1]] = { ...k, sections: sec, updated: new Date().toISOString() };
+      await this.ctx.storage.put("kits", kits);
+      return [200, { card: gm[1], sections: sec }];
+    }
+
     // ----- stage 7: tool lists -----
     const cm = p.match(/^\/api\/col\/([a-z]+)(?:\/([\w-]+))?$/);
     if (cm) {
@@ -734,7 +848,7 @@ export class Board extends DurableObject {
     if (km && method === "PUT") {
       if (!hasProject(km[1])) return [400, { error: "Unknown card" }];
       const kits = (await this.ctx.storage.get("kits")) || {};
-      kits[km[1]] = { ...cleanItem(body), updated: new Date().toISOString() };
+      kits[km[1]] = { ...cleanItem(body), sections: (kits[km[1]] || {}).sections || {}, updated: new Date().toISOString() };
       await this.ctx.storage.put("kits", kits);
       return [200, { kits }];
     }

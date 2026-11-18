@@ -110,3 +110,12 @@
   .tt-calrow>b{min-width:70px}
   .tt-proof{flex-direction:column;gap:4px}
 }
+
+.tt-guide h2{font-size:20px}
+.tt-sec{background:var(--tq-row);border-radius:12px;padding:10px 12px}
+.tt-sec summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;justify-content:space-between}
+.tt-sec summary small{color:var(--tq-muted);font-size:12px}
+.tt-sec textarea{margin-top:10px}
+.tt-sec .tq-form-btns{margin-top:8px}
+.tt-by{color:#6A4FB0}
+:root[data-theme="dark"] .tt-by{color:#CFC2FF}

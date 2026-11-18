@@ -319,3 +319,6 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
   .tq-cal-ev,.tq-cal-more{display:none}
   .tq-cal-dots{display:flex;justify-content:center}
 }
+
+.tq-by{color:#6A4FB0!important}
+:root[data-theme="dark"] .tq-by{color:#CFC2FF!important}

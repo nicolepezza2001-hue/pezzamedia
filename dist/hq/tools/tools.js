@@ -210,8 +210,13 @@
           <ul class="tt-fonts">${(k.fonts || []).map((f, i) => `<li data-i="${i}"><b style="font-family:'${esc(f.name)}',inherit">${esc(f.name)}</b> <span>${esc(f.use || "")}</span> <button type="button" class="tq-mini tq-del" data-act="delfont">🗑</button></li>`).join("") || `<li class="tt-hint">No fonts yet.</li>`}</ul>
           <form class="tt-inline" id="tt-addfont"><input class="tq-input" name="name" placeholder="Font name" required><input class="tq-input" name="use" placeholder="Used for, e.g. Headings"><button class="tq-btn tq-btn-soft" type="submit">+ Add font</button></form>
           <h3>Notes</h3>
-          <textarea class="tq-input" id="tt-kitnotes" rows="4" placeholder="Tone of voice, logo rules, where the files live…">${esc(k.notes || "")}</textarea>
+          <textarea class="tq-input" id="tt-kitnotes" rows="3" placeholder="Where the files live, anything else…">${esc(k.notes || "")}</textarea>
           <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="button" data-act="savenotes">Save notes</button></div>
+        </div>
+        <div class="tt-box tt-guide"><h2>Guide</h2><p class="tt-hint">Claude reads these before writing for ${esc(p.name)}, and can fill them in too.</p>
+          ${GUIDE.map(([id, name, ph]) => { const s = (k.sections || {})[id] || {}; return `<details class="tt-sec"${s.text ? "" : ""} data-sec="${id}"><summary><b>${esc(name)}</b>${s.text ? `<small>${s.by && s.by !== "nicky" ? `✨ by ${s.by === "work" ? "Work Claude" : "Claude"} · ` : ""}${esc(new Date(s.at).toLocaleDateString(undefined, { day: "numeric", month: "short" }))}</small>` : `<small>empty</small>`}</summary>
+            <textarea class="tq-input" rows="6" placeholder="${esc(ph)}">${esc(s.text || "")}</textarea>
+            <div class="tq-form-btns"><button class="tq-btn tq-btn-soft" type="button" data-act="savesec">Save ${esc(name.toLowerCase())}</button></div></details>`; }).join("")}
         </div>`;
       $$("img[data-src]", root).forEach(async (img) => { img.src = await fileURL(img.dataset.src); });
     }
@@ -222,6 +227,14 @@
       const k = structuredClone(kitOf(cur));
       if (b.dataset.act === "copyhex") return copy(b.textContent, b);
       if (b.dataset.act === "savenotes") { k.notes = $("#tt-kitnotes").value; await save(cur, k); toast("Saved"); return; }
+      if (b.dataset.act === "savesec") {
+        const det = b.closest("[data-sec]");
+        try {
+          const r = await api(`/api/kits/${cur}/sections`, { method: "PUT", body: JSON.stringify({ sections: { [det.dataset.sec]: $("textarea", det).value } }) });
+          kits[cur] = { ...kitOf(cur), sections: r.sections }; draw(); fx("edit", snap($(`[data-sec="${det.dataset.sec}"]`)), $(`[data-sec="${det.dataset.sec}"]`)); toast("Saved");
+        } catch (err) { toast(err.message); }
+        return;
+      }
       const del = (list, i) => armDelete(b, async () => { k[list].splice(i, 1); await save(cur, k, false); toast("Deleted"); });
       if (b.dataset.act === "delcol") del("colours", +b.closest("[data-i]").dataset.i);
       if (b.dataset.act === "delfont") del("fonts", +b.closest("[data-i]").dataset.i);
@@ -253,6 +266,10 @@
     });
     draw();
   };
+  const GUIDE = [["voice", "Voice & tone", "How the brand sounds. 3 words, do / don't, example lines."], ["spelling", "Spelling", "US or UK, brand names, capitalisation, numbers."],
+    ["banned", "Banned words", "Words and claims never to use."], ["formats", "Formats / templates", "Email, blog, FBG post and sale formats, lengths, subject line rules."],
+    ["compliance", "Compliance", "Health claims, disclaimers, FDA / ASA rules, what legal must check."], ["usage", "Usage rights", "Which photos, reviews, UGC and press can be used, and how to credit."],
+    ["content", "Content rules", "Links, UTMs, sign-offs, CTAs, anything else."]];
   // Shrink a photo before upload (logos only need to be small). SVG goes up as it is.
   function shrinkImage(file, max) {
     return new Promise((res, rej) => {
@@ -315,7 +332,8 @@
   };
 
   // ----- 4. Content calendar -----
-  const CHANNELS = ["Newsletter", "Blog", "Email campaign", "Substack", "Medium", "Instagram", "LinkedIn", "TikTok", "PR", "Other"];
+  const CHANNELS = [["email", "Email"], ["blog", "Blog"], ["FBG", "Facebook group"], ["social", "Social"], ["sale", "Sale"], "Newsletter", "Substack", "Medium", "Instagram", "LinkedIn", "TikTok", "PR", "Other"];
+  const chanName = (c) => (CHANNELS.find((x) => Array.isArray(x) && x[0] === c) || [c, c])[1];
   const STATUSES = [["idea", "Idea"], ["draft", "Drafting"], ["ready", "Ready"], ["scheduled", "Scheduled"], ["published", "Published"]];
   TOOLS.calendar = () => {
     let month = todayISO().slice(0, 7);
@@ -327,7 +345,7 @@
       top: `<div class="tt-bar tt-month"><button class="tq-btn tq-btn-soft" type="button" data-act="prev">‹</button><h2 id="tt-mname"></h2><button class="tq-btn tq-btn-soft" type="button" data-act="next">›</button><button class="tq-btn tq-btn-soft" type="button" data-act="now">Today</button></div><div id="tt-grid" class="tt-cal"></div>`,
       filter: (x) => String(x.date).startsWith(month),
       sort: (a, b) => String(a.date).localeCompare(String(b.date)),
-      item: (x) => `<div class="tt-calrow"><b>${esc(shortDate(x.date))}</b><div><p>${esc(x.title)}</p><small>${esc([x.channel, projName(x.project)].filter(Boolean).join(" · "))}</small></div><span class="tt-pill is-${esc(x.status)}">${esc((STATUSES.find((s) => s[0] === x.status) || ["", ""])[1])}</span>${x.link ? `<a class="tq-mini" href="${esc(x.link)}" target="_blank" rel="noopener">Open ↗</a>` : ""}</div>`,
+      item: (x) => `<div class="tt-calrow"><b>${esc(shortDate(x.date))}</b><div><p>${esc(x.title)}</p><small>${esc([chanName(x.channel), projName(x.project || x.brand), x.source].filter(Boolean).join(" · "))}${x.addedBy ? ` · <span class="tt-by">✨ Added by ${x.addedBy === "work" ? "Work Claude" : "Claude"}</span>` : ""}</small></div><span class="tt-pill is-${esc(x.status)}">${esc((STATUSES.find((s) => s[0] === x.status) || ["", ""])[1])}</span>${x.link ? `<a class="tq-mini" href="${esc(x.link)}" target="_blank" rel="noopener">Open ↗</a>` : ""}</div>`,
       onAct: (a) => {
         if (a === "prev" || a === "next") { const d = new Date(month + "-01T00:00:00"); d.setMonth(d.getMonth() + (a === "next" ? 1 : -1)); month = isoOf(d).slice(0, 7); t.draw(); }
         if (a === "now") { month = todayISO().slice(0, 7); t.draw(); }
@@ -530,7 +548,7 @@
   };
 
   // ===== start up =====
-  const NAMES = { notes: "Notes → Tasks", kits: "Brand kits", proof: "Proof bank", calendar: "Content calendar", swipe: "Swipe file", tallulah: "Tallulah tracker", pitches: "Pitch tracker", focus: "Focus timer" };
+  const NAMES = { notes: "Notes → Tasks", kits: "Brand guides", proof: "Proof bank", calendar: "Content calendar", swipe: "Swipe file", tallulah: "Tallulah tracker", pitches: "Pitch tracker", focus: "Focus timer" };
   function showLock(msg) {
     $("#tt-app").hidden = true; $("#tq-lock").hidden = false;
     $("#tq-lock-msg").textContent = msg || "";
