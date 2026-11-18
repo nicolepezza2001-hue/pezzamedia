@@ -131,3 +131,23 @@ Content calendar posts, Pitch follow-ups and Tallulah query deadlines. Overdue t
   its own events ("claude" = personal calendar, "work" = work calendar) in that date range. Storage key "events" (keeps the last 60 days).
 - Runbook step for the checks: "Calendar events for the HQ calendar" in /mnt/project-files/upwork/hq/SWEEP.md;
   work Claude's paste-in: /mnt/project-files/hq/message-for-work-claude-3.md.
+
+## Work Claude powers (2026-11-18)
+Nicky gave the work check (X-Sweep "work" key) extra powers, on the sn and tmrw cards ONLY (403 on any other card).
+The personal check ("claude" key) gets none of the task/calendar powers, and both keys are kept to their own cards by mayTouch().
+- GET /api/board (work key) returns only sn/tmrw: projects {id,name,group,blurb}; tasks {id, project, kind, who, text, due, asked, repeat,
+  done, doneDay, detail, link, source, addedBy, created}; notes; suggestions; sweeps.
+- POST /api/tasks {project, kind task|waiting|repeat, text, who, due, repeat, detail, link, source}: adds directly, sets addedBy = "work"
+  (row shows "✨ Added by Work Claude"). 409 if a similar open task is already on that card.
+- POST /api/tasks/:id/resolve {answer, source, link}: closes a waiting-on item, saves t.resolution and closedBy = "work"
+  (row shows "✨ Closed by Work Claude: answer (source) · Open ↗"). 400 for non-waiting items.
+- POST /api/suggestions/:id/withdraw {why}: a check can remove only its own suggestions (logged as "withdrawn").
+- Repeats: daily and weekdays (Mon to Fri, skips Sat/Sun) added to weekly/monthly/quarterly/yearly.
+- Content calendar: GET /api/calendar → {items[{id,date,brand,channel,title,status,link,source,addedBy}]};
+  POST /api/calendar {items:[{date, brand sn|tmrw, channel email|blog|FBG|social|sale, title, status, link, source}]} upserts
+  (same brand + date + title updates instead of adding a copy) → {added, updated, skipped}; PUT /api/calendar/:id edits one.
+  Same storage as the Content calendar tool ("col:calendar"); items show "✨ Added by Work Claude".
+- Brand guides (was Brand kits): GET /api/kits/:card → {card, colours, fonts, notes, checked, sections};
+  PUT /api/kits/:card/sections {sections:{voice, spelling, banned, formats, compliance, usage, content}} stores {text, by, at}.
+  Both checks may read/write guides, each on its own cards. The page's whole-kit save keeps the sections.
+- Work Claude's paste-in: /mnt/project-files/hq/message-for-work-claude-4.md.
