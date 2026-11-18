@@ -6,6 +6,7 @@
     newtask: "New task", edit: "Save an edit", del: "Delete", chased: "Chased", note: "New rule (Always remember)",
     comment: "Comment on a suggestion", sync: "Sync", record: "New record!",
     habit: "Tick a daily habit", slip: "Slipped (habit to avoid)",
+    focus: "Focus session finished", copy: "Copy (Proof bank, Swipe file)",
   };
   const OPTIONS = {
     tick: ["Confetti + DONE stamp", "Green check bloom", "Rubber stamp slam", "Party emoji burst"],
@@ -21,7 +22,9 @@
     sync: ["Card flip", "Ripple wave", "Spinning arrows", "Shimmer"],
     record: ["Trophy + confetti 🏆", "Fireworks 🎆", "Ribbon banner", "Gold rain"],
     habit: ["Flame burst 🔥", "Seedling grows 🌱", "Green confetti", "Star pop ⭐"],
-    slip: ["Gentle shake", "Counter rolls back to 0", "Soft rain 🌧", "Restart arrow 🔄"],
+    slip: ["Gentle shake", "Counter rolls back to 0", "Banana peel 🍌", "Restart arrow 🔄"],
+    focus: ["Trophy + chime 🏆", "Confetti burst", "Sunrise glow 🌅", "Big tick ✅"],
+    copy: ["Little ✓ pop", "Clipboard bounce 📋", "Sparkles ✨", "Green flash"],
   };
   const reduce = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   const R = (a, b) => a + Math.random() * (b - a);
@@ -206,8 +209,22 @@
   FX.slip = [
     (c, el) => onEl(el, [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(-5px)" }, { transform: "translateX(0)" }], { duration: 500 }),
     (c, el) => { const b = el && el.querySelector(".tq-habit-big b"); onEl(b, [{ transform: "translateY(-100%)", opacity: 0 }, { transform: "translateY(10%)", opacity: 1, offset: .7 }, { transform: "translateY(0)" }], { duration: 650, easing: "cubic-bezier(.3,1.4,.6,1)" }); },
-    (c, el) => emojis(c.rect, ["💧"], { n: 12, mode: "rain", size: 18, dur: 1200 }),
+    (c, el) => { bigEmoji(c.rect, "🍌", [{ transform: "translate(-180%,-50%) rotate(0)", opacity: 0 }, { transform: "translate(-50%,-50%) rotate(20deg)", opacity: 1, offset: .35 }, { transform: "translate(-50%,-50%) rotate(-15deg)", offset: .55 }, { transform: "translate(60%,-30%) rotate(200deg)", opacity: 0 }], 1100, 40); const b = el && el.querySelector(".tq-habit-big b"); onEl(b, [{ transform: "translateY(-100%)", opacity: 0 }, { transform: "translateY(0)", opacity: 1 }], { duration: 500, delay: 400, fill: "backwards" }); },
     (c, el) => bigEmoji(c.rect, "🔄", [{ transform: "translate(-50%,-50%) rotate(0) scale(.4)", opacity: 0 }, { transform: "translate(-50%,-50%) rotate(-360deg) scale(1.2)", opacity: 1, offset: .6 }, { transform: "translate(-50%,-50%) rotate(-360deg) scale(1)", opacity: 0 }], 1000),
+  ];
+
+  const pop = [{ transform: "translate(-50%,-50%) scale(.3)", opacity: 0 }, { transform: "translate(-50%,-50%) scale(1.25)", opacity: 1, offset: .45 }, { transform: "translate(-50%,-50%) scale(1)", opacity: 0 }];
+  FX.focus = [
+    (c, el) => { bigEmoji(c.rect, "🏆", pop, 1400, 64); confetti(c.rect, { n: 30 }); },
+    (c, el) => confetti(c.rect, { n: 60, spread: 2 }),
+    (c, el) => { onEl(el, [{ boxShadow: "0 0 0 0 rgba(245,192,78,0)" }, { boxShadow: "0 0 0 18px rgba(245,192,78,.45)", offset: .4 }, { boxShadow: "0 0 0 0 rgba(245,192,78,0)" }], { duration: 1600 }); bigEmoji(c.rect, "🌅", pop, 1500, 56); },
+    (c, el) => bigEmoji(c.rect, "✅", pop, 1100, 72),
+  ];
+  FX.copy = [
+    (c, el) => bigEmoji(c.rect, "✓", pop, 700, 30),
+    (c, el) => bigEmoji(c.rect, "📋", [{ transform: "translate(-50%,-50%) translateY(0)", opacity: 0 }, { transform: "translate(-50%,-50%) translateY(-18px)", opacity: 1, offset: .4 }, { transform: "translate(-50%,-50%) translateY(0)", opacity: 1, offset: .7 }, { transform: "translate(-50%,-50%)", opacity: 0 }], 900, 34),
+    (c, el) => emojis(c.rect, ["✨"], { n: 8, size: 18 }),
+    (c, el) => onEl(el, [{ background: "#DDF0D5" }, { background: "" }], { duration: 800 }),
   ];
 
   window.TQFX = {

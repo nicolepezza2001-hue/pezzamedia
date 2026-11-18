@@ -694,10 +694,39 @@
     if (!typing) renderPanel();
   }
 
+  // ----- Tools row (stage 7): each tool is its own page -----
+  const TOOL_CARDS = [
+    ["notes", "Notes → Tasks", "Paste notes, pick the tasks"], ["kits", "Brand kits", "Logos, colours, fonts"],
+    ["proof", "Proof bank", "Your numbers, ready to copy"], ["calendar", "Content calendar", "What goes out when"],
+    ["swipe", "Swipe file", "Lines you love"], ["tallulah", "Tallulah tracker", "Words and queries"],
+    ["pitches", "Pitch tracker", "Follow-ups and wins"], ["focus", "Focus timer", "Time on what matters"],
+  ];
+  let toolSum = null;
+  async function loadTools() { try { toolSum = await api("/api/tools/summary"); } catch (e) { toolSum = null; } renderTools(); }
+  function toolStat(id) {
+    const s = toolSum; if (!s) return "";
+    const t = todayISO(), n = (x, one, many) => `${x} ${x === 1 ? one : many}`;
+    if (id === "proof") return s.counts.proof ? n(s.counts.proof, "number", "numbers") : "Add your numbers";
+    if (id === "swipe") return s.counts.swipe ? n(s.counts.swipe, "saved", "saved") : "";
+    if (id === "kits") return s.kits ? `${s.kitsChecked} of ${s.kits} checked` : "";
+    if (id === "calendar") { const w = s.calendar.filter((d) => d >= t && d <= plusDaysISO(t, 7)).length; return w ? n(w, "post this week", "posts this week") : ""; }
+    if (id === "pitches") { const due = s.pitchesDue.filter((d) => d <= t).length; return due ? `<b class="tq-tool-hot">${n(due, "follow-up due", "follow-ups due")}</b>` : s.counts.pitches ? n(s.counts.pitches, "pitch", "pitches") : ""; }
+    if (id === "tallulah") return s.words ? `${(s.words.words || 0).toLocaleString()} words${s.queriesOpen ? ` · ${s.queriesOpen} out` : ""}` : "";
+    if (id === "focus") { const m = s.focus.filter(([d]) => d === t).reduce((a, [, x]) => a + x, 0); return m ? `${m} min today` : ""; }
+    return "";
+  }
+  function plusDaysISO(iso, k) { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + k); return isoOf(d); }
+  function renderTools() {
+    const wrap = $("#tq-tools"); if (!wrap) return;
+    wrap.innerHTML = TOOL_CARDS.map(([id, name, sub]) => `<a class="tq-tool" href="tools/${id}.html">
+      <img src="tools/icon-${id}.svg" alt="" width="44" height="44"><span><b>${esc(name)}</b><small>${toolStat(id) || esc(sub)}</small></span></a>`).join("");
+  }
+
   async function load() {
     const [b] = await Promise.all([api("/api/board"), loadJobs()]);
     board = b;
     render();
+    loadTools();
   }
 
   function showApp() { $("#tq-lock").hidden = true; $("#tq-app").hidden = false; }

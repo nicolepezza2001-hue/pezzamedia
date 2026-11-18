@@ -44,6 +44,68 @@ function sweepAllowed(method, path) {
   return false;
 }
 
+// ----- stage 7 tools -----
+// Each tool keeps its own list under its own storage key ("col:<name>"), so the main board stays small.
+const COLS = ["proof", "calendar", "swipe", "queries", "words", "pitches", "focus"];
+const COL_MAX = 3000;
+// Keep a tool item to plain fields only: strings, numbers, true/false, lists of short strings.
+function cleanItem(input, base = {}) {
+  const out = { ...base };
+  let n = 0;
+  for (const [k, v] of Object.entries(input || {})) {
+    if (!/^[a-zA-Z][\w]{0,30}$/.test(k) || ["id", "created", "today"].includes(k) || ++n > 40) continue;
+    if (typeof v === "string") out[k] = v.slice(0, 6000);
+    else if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
+    else if (typeof v === "boolean" || v === null) out[k] = v;
+    else if (Array.isArray(v)) out[k] = v.slice(0, 40).map((x) => (typeof x === "object" && x ? cleanItem(x) : String(x).slice(0, 300)));
+  }
+  return out;
+}
+const N2T_SCHEMA = {
+  type: "object", additionalProperties: false, required: ["summary", "items"],
+  properties: {
+    summary: { type: "string", description: "2-4 short plain sentences: what the notes are about and what was decided." },
+    items: { type: "array", items: {
+      type: "object", additionalProperties: false,
+      required: ["project", "kind", "text", "who", "due", "quote", "alreadyOnList"],
+      properties: {
+        project: { type: "string", description: "card id" },
+        kind: { type: "string", enum: ["task", "waiting", "repeat"] },
+        text: { type: "string", description: "Starts with a verb, plain words, max ~90 characters" },
+        who: { type: "string", description: "First name for waiting items, else empty" },
+        due: { type: "string", description: "YYYY-MM-DD only when the notes give a real date, else empty" },
+        quote: { type: "string", description: "The exact words from the notes this came from (short)" },
+        alreadyOnList: { type: "string", description: "Text of the matching open task if it's already on her list, else empty" },
+      },
+    } },
+  },
+};
+async function notesToTasks(env, { notes, projects, open, today }) {
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  const system = `You read meeting notes Nicky pasted into her private task board and pull out possible tasks.
+Today is ${today} (her local date). Cards (id: name, group, what it is):
+${projects.map((p) => `- ${p.id}: ${p.name} (${p.group}) ${p.blurb || ""}`).join("\n")}
+Rules:
+- Only real actions: something she must do (task), something she asked someone else for (waiting, who = their first name), or something recurring (repeat). Skip chit-chat and FYIs.
+- Personal things never go on a work card, and work things never on a personal card.
+- Task text starts with a verb, plain words, max ~90 characters. Turn "next Friday" etc. into YYYY-MM-DD from today's date; no date if none is given.
+- If an item is already on her open list (below), still return it but put that task's text in alreadyOnList.
+- quote: the short exact words from the notes that the item came from.
+Her open tasks:
+${open.map((t) => `- [${t.project}] ${t.text}`).join("\n") || "(none)"}`;
+  const res = await client.beta.messages.create({
+    model: "claude-opus-5-5",
+    max_tokens: 8000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: { effort: "low", format: { type: "json_schema", schema: N2T_SCHEMA } },
+    system,
+    messages: [{ role: "user", content: `Notes:\n${notes}` }],
+  });
+  if (res.stop_reason === "refusal") throw new Error("Claude declined");
+  return JSON.parse(res.content.filter((b) => b.type === "text").map((b) => b.text).join(""));
+}
+
 export default {
   async fetch(req, env) {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(req) });
@@ -248,7 +310,11 @@ export class Board extends DurableObject {
       return [200, { projects: d.projects, tasks: d.tasks, notes: d.notes, suggestions: d.suggestions, habits: d.habits,
                      lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated || d.created, settings: d.settings }];
     }
-    if (p === "/api/export" && method === "GET") return [200, { exported: new Date().toISOString(), ...d }];
+    if (p === "/api/export" && method === "GET") {
+      const tools = { kits: (await this.ctx.storage.get("kits")) || {} };
+      for (const c of COLS) tools[c] = (await this.ctx.storage.get("col:" + c)) || [];
+      return [200, { exported: new Date().toISOString(), ...d, tools }];
+    }
 
     // Projects: POST upserts by id, DELETE moves to trash.
     if (p === "/api/projects" && method === "POST") {
@@ -518,12 +584,90 @@ export class Board extends DurableObject {
       return [200, { lastSweep: d.sweeps[who].lastSweep, sweeps: d.sweeps }];
     }
 
+    // ----- stage 7: tool lists -----
+    const cm = p.match(/^\/api\/col\/([a-z]+)(?:\/([\w-]+))?$/);
+    if (cm) {
+      if (!COLS.includes(cm[1])) return [404, { error: "Unknown tool" }];
+      const key = "col:" + cm[1];
+      const list = (await this.ctx.storage.get(key)) || [];
+      const put = async () => { await this.ctx.storage.put(key, list); this.data.updated = new Date().toISOString(); };
+      if (!cm[2] && method === "GET") return [200, { items: list }];
+      if (!cm[2] && method === "POST") {
+        if (list.length >= COL_MAX) return [400, { error: "This tool is full" }];
+        const it = { ...cleanItem(body), id: uid(), created: new Date().toISOString() };
+        list.push(it); await put();
+        return [200, { items: list, added: it.id }];
+      }
+      const i = list.findIndex((x) => x.id === cm[2]);
+      if (i < 0) return [404, { error: "That isn't there any more" }];
+      if (method === "PUT") { list[i] = { ...cleanItem(body, list[i]), edited: new Date().toISOString() }; await put(); return [200, { items: list }]; }
+      if (method === "DELETE") {
+        const [it] = list.splice(i, 1);
+        this.trashItem("col", { col: cm[1], ...it });
+        await put(); await this.save();
+        return [200, { items: list, trashed: d.trash[0].tid }];
+      }
+      return [405, { error: "Not allowed" }];
+    }
+    // Brand kits: one object per card.
+    if (p === "/api/kits" && method === "GET") return [200, { kits: (await this.ctx.storage.get("kits")) || {} }];
+    const km = p.match(/^\/api\/kits\/([\w-]+)$/);
+    if (km && method === "PUT") {
+      if (!hasProject(km[1])) return [400, { error: "Unknown card" }];
+      const kits = (await this.ctx.storage.get("kits")) || {};
+      kits[km[1]] = { ...cleanItem(body), updated: new Date().toISOString() };
+      await this.ctx.storage.put("kits", kits);
+      return [200, { kits }];
+    }
+    // Uploaded files (brand logos). Shrunk in the browser first; max ~1.5 MB each.
+    if (p === "/api/files" && method === "POST") {
+      const data = String(body?.data || "");
+      if (!/^data:image\/(png|jpeg|webp|svg\+xml);base64,/.test(data)) return [400, { error: "Only images (PNG, JPG, WebP, SVG)" }];
+      if (data.length > 1500000) return [400, { error: "That file is too big" }];
+      const id = uid();
+      await this.ctx.storage.put("file:" + id, { name: String(body.name || "").slice(0, 120), data, created: new Date().toISOString() });
+      return [200, { id }];
+    }
+    const fm = p.match(/^\/api\/files\/([\w-]+)$/);
+    if (fm && method === "GET") { const f = await this.ctx.storage.get("file:" + fm[1]); return f ? [200, f] : [404, { error: "Missing file" }]; }
+    if (fm && method === "DELETE") { await this.ctx.storage.delete("file:" + fm[1]); return [200, { ok: true }]; }
+    // Little numbers for the Tools cards on the main page.
+    if (p === "/api/tools/summary" && method === "GET") {
+      const out = {};
+      for (const c of COLS) out[c] = (await this.ctx.storage.get("col:" + c)) || [];
+      const kits = (await this.ctx.storage.get("kits")) || {};
+      return [200, { counts: Object.fromEntries(COLS.map((c) => [c, out[c].length])),
+        words: out.words.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).pop() || null,
+        pitchesDue: out.pitches.filter((x) => x.followUp && !["won", "lost", "replied"].includes(x.status)).map((x) => x.followUp),
+        queriesOpen: out.queries.filter((x) => ["sent", "partial", "full"].includes(x.status)).length,
+        calendar: out.calendar.map((x) => x.date).filter(Boolean),
+        focus: out.focus.map((x) => [x.day, x.minutes || 0]),
+        kitsChecked: Object.values(kits).filter((k) => k.checked).length, kits: Object.keys(kits).length }];
+    }
+    // Notes -> Tasks: Claude reads pasted notes and returns possible tasks. Nothing is added here.
+    if (p === "/api/notes-to-tasks" && method === "POST") {
+      const notes = String(body?.notes || "").trim().slice(0, 60000);
+      if (!notes) return [400, { error: "Paste some notes first" }];
+      if (!this.env.ANTHROPIC_API_KEY) return [503, { error: "The Claude key isn't set on the Worker" }];
+      const open = d.tasks.filter((t) => !t.done).map((t) => ({ project: t.project, text: t.text }));
+      const out = await notesToTasks(this.env, { notes, projects: d.projects, open, today });
+      out.items = (out.items || []).filter((x) => hasProject(x.project)).map((x) => ({ ...x, due: isDate(x.due) ? x.due : "" }));
+      return [200, out];
+    }
+
     // ----- restore from trash -----
     const rm = p.match(/^\/api\/trash\/([\w-]+)\/restore$/);
     if (rm && method === "POST") {
       const i = d.trash.findIndex((x) => x.tid === rm[1]);
       if (i < 0) return [404, { error: "Not in the bin" }];
       const [entry] = d.trash.splice(i, 1);
+      if (entry.kind === "col") {
+        const { col, ...it } = entry.item;
+        const key = "col:" + col, list = (await this.ctx.storage.get(key)) || [];
+        if (!list.some((x) => x.id === it.id)) list.push(it);
+        await this.ctx.storage.put(key, list); await this.save();
+        return board();
+      }
       const list = { task: d.tasks, note: d.notes, project: d.projects, habit: d.habits }[entry.kind];
       if (!list) return [400, { error: "Can't restore that kind yet" }];
       if (!list.some((x) => x.id === entry.item.id)) list.push(entry.item);

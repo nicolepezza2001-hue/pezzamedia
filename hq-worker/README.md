@@ -85,3 +85,22 @@ Use clearly marked TEST items and delete them afterwards. Never tick or delete r
   - Deleted habits go to the Bin and can be restored.
 - Two new animation pickers: "Tick a daily habit" and "Slipped".
 - Family research icon: Nicky's own engraved tree picture (icons/family-site.png).
+
+## Stage 7: Tools (2026-11-18)
+Each tool is its own page in dist/hq/tools/<name>.html, all run by tools/tools.js + tools.css (on top of ../tq.css).
+Same password: the tool pages reuse the password kept for this browser session (sessionStorage "tq-key"), or show the lock screen.
+The main page shows a "Tools" row with a small live number per tool (GET /api/tools/summary).
+
+| Tool | Page | Data |
+|---|---|---|
+| Notes → Tasks | tools/notes.html | none stored; POST /api/notes-to-tasks {notes} returns {summary, items[{project, kind, text, who, due, quote, alreadyOnList}]}. Nothing is added until she ticks and presses Add (then POST /api/tasks each). Uses claude-opus-5-5, low effort, structured output. |
+| Brand kits | tools/kits.html?card=<id> | storage "kits" = {cardId: {logos[{id,name}], colours[{name,hex}], fonts[{name,use}], notes, checked}}; GET /api/kits, PUT /api/kits/:card. Logos: POST /api/files {name, data: dataURL} (shrunk to 800px in the browser, max 1.5 MB), GET/DELETE /api/files/:id. Pezza and Tmrw have built-in starting values until first saved. |
+| Proof bank | tools/proof.html | col "proof": {stat, what, brand, period, source, use: yes/anon/ask, note}. One-tap "Add my known numbers" when empty (from project memory; Tmrw press = paid). |
+| Content calendar | tools/calendar.html | col "calendar": {date, title, project, channel, status idea/draft/ready/scheduled/published, link, note}. |
+| Swipe file | tools/swipe.html | col "swipe": {text, kind, source, link, why, tags}. |
+| Tallulah tracker | tools/tallulah.html | col "words": {date, words} (one per day, total so far) + one {goal: true, words}; col "queries": {name, kind, agency, status, sent, followUp, link, note}. |
+| Pitch tracker | tools/pitches.html | col "pitches": {who, company, kind, status draft/sent/replied/won/lost, sent, followUp, project, link, note, chased}. "Followed up" pushes followUp 7 days. |
+| Focus timer | tools/focus.html | col "focus": {day, start, minutes, project, taskId, task}. Running timer lives in localStorage "tq-focus" so a reload keeps it. Ends with a soft chime (Web Audio), no browser notification. |
+
+Generic list API (owner only; background checks get 403): GET/POST /api/col/:name, PUT/DELETE /api/col/:name/:id. Each list is its own storage key "col:<name>" so the main board stays small. Deletes go to the Bin (kind "col") and restore from there. /api/export includes everything under "tools".
+New animation pickers: "Focus session finished" and "Copy". The Slipped options now include the banana peel from the spec.

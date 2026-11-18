@@ -268,3 +268,13 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 .tq-sec-habits,.tq-sec-fold{background:#FFF8E1}
 :root[data-theme="dark"] .tq-rotate{color:#FBF4D7;background:linear-gradient(transparent 62%,#5A3F4A 62%)}
 :root[data-theme="dark"] .tq-sec-habits,:root[data-theme="dark"] .tq-sec-fold{background:var(--tq-row)}
+
+/* ----- stage 7: Tools row ----- */
+.tq-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tq-tool{display:flex;gap:12px;align-items:center;background:var(--tq-card);border-radius:16px;box-shadow:var(--tq-shadow);padding:12px 14px;text-decoration:none;color:var(--tq-ink);transition:transform .15s,box-shadow .15s}
+.tq-tool:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(20,27,65,.06),0 12px 28px rgba(20,27,65,.1)}
+.tq-tool img{border-radius:12px;flex:none}
+.tq-tool b{display:block;font:600 15px Poppins,sans-serif}
+.tq-tool small{display:block;color:var(--tq-muted);font-size:13px}
+.tq-tool-hot{color:var(--tq-red)!important;font:600 13px Inter,sans-serif!important;display:inline!important}
+@media (max-width:560px){.tq-tools{grid-template-columns:1fr 1fr}.tq-tool{flex-direction:column;text-align:center;gap:6px}}
