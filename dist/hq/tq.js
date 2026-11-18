@@ -485,7 +485,7 @@
     panel.innerHTML = head + `<p class="tq-empty">Loading…</p>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
     let list = [];
-    try { list = (await api("/api/passkeys")).passkeys; } catch (e) { toast(e.message); }
+    try { [list] = await Promise.all([api("/api/passkeys").then((r) => r.passkeys), TQAUTH.prefetchSetUp(key)]); } catch (e) { toast(e.message); }
     if (openId !== "__touchid") return;
     const when = (iso) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
     panel.innerHTML = head + `
@@ -795,6 +795,7 @@
   $("#tq-touchid").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__touchid"); });
   // Touch ID / Face ID on the lock screen.
   $("#tq-passkey").hidden = !TQAUTH.supported();
+  TQAUTH.prefetchLogin();
   $("#tq-passkey").addEventListener("click", async () => {
     $("#tq-lock-msg").textContent = "";
     try { key = await TQAUTH.passkeySignIn(); await load(); showApp(); fx("sync", null, null); }

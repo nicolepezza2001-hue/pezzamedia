@@ -42,13 +42,30 @@
     return data;
   }
   function niceError(e) {
-    if (e && (e.name === "NotAllowedError" || e.name === "AbortError")) return "Cancelled. You can use your password instead.";
+    if (e && (e.name === "NotAllowedError" || e.name === "AbortError")) return "Face ID / Touch ID was cancelled or timed out. Tap the button again, or use your password.";
     if (e && e.name === "InvalidStateError") return "This device is already set up for Touch ID.";
     return (e && e.message) || "That didn't work.";
   }
   // Sign in with Touch ID / Face ID. Returns the password on success.
+  // iPhone Safari only allows Face ID / Touch ID straight after a tap. Waiting for the network in between
+  // makes it refuse, so the challenge is fetched ahead of time and the tap goes straight to Face ID.
+  const ready = { login: null, reg: null };
+  const fresh = (r) => r && Date.now() - r.at < 240000;
+  async function prefetchLogin() {
+    if (!supported()) return;
+    try { ready.login = { at: Date.now(), opts: await post("/api/passkey/login/options") }; } catch (e) { ready.login = { at: Date.now(), err: e }; }
+  }
+  async function prefetchSetUp(key) {
+    if (!supported() || !key) return;
+    try { ready.reg = { at: Date.now(), opts: await post("/api/passkey/register/options", {}, key) }; } catch (e) { ready.reg = null; }
+  }
+  setInterval(() => { if (ready.login) prefetchLogin(); if (ready.reg && ready.reg.key) prefetchSetUp(ready.reg.key); }, 200000);
   async function passkeySignIn() {
-    const optionsJSON = await post("/api/passkey/login/options");
+    let optionsJSON;
+    if (fresh(ready.login) && ready.login.opts) optionsJSON = ready.login.opts;
+    else if (fresh(ready.login) && ready.login.err && ready.login.err.status === 404) throw ready.login.err;
+    else optionsJSON = await post("/api/passkey/login/options");
+    ready.login = null; setTimeout(prefetchLogin, 1500);
     let response;
     try { response = await WA().startAuthentication({ optionsJSON }); } catch (e) { throw new Error(niceError(e)); }
     const { key } = await post("/api/passkey/login/verify", { response });
@@ -58,7 +75,8 @@
   }
   // Set up Touch ID / Face ID on this device (needs the password, i.e. signed in).
   async function passkeySetUp(key, label) {
-    const optionsJSON = await post("/api/passkey/register/options", {}, key);
+    const optionsJSON = fresh(ready.reg) ? ready.reg.opts : await post("/api/passkey/register/options", {}, key);
+    ready.reg = null;
     let response;
     try { response = await WA().startRegistration({ optionsJSON }); } catch (e) { throw new Error(niceError(e)); }
     await post("/api/passkey/register/verify", { response, label }, key);
@@ -70,5 +88,5 @@
     if (/Mac/.test(u)) return "Mac"; if (/Windows/.test(u)) return "Windows PC"; return "This device";
   };
   const hasPasskeyHere = () => { try { return localStorage.getItem("tq-has-passkey") === "1"; } catch (e) { return false; } };
-  window.TQAUTH = { get, save, clear, supported, passkeySignIn, passkeySetUp, deviceName, hasPasskeyHere };
+  window.TQAUTH = { get, save, clear, supported, passkeySignIn, passkeySetUp, prefetchLogin, prefetchSetUp, deviceName, hasPasskeyHere };
 })();

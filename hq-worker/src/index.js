@@ -328,18 +328,24 @@ export class Board extends DurableObject {
     if (!creds.length) return [404, { error: "No Touch ID set up yet. Sign in with your password, then tap Set up Touch ID." }];
     if (step === "options") {
       const opts = await generateAuthenticationOptions({ rpID: where.rpID, userVerification: "required", allowCredentials: [] });
-      await this.ctx.storage.put("pk:login", { challenge: opts.challenge, exp: Date.now() + 300000 });
+      // Several pages/devices can be waiting at once (the pages fetch this ahead of the tap), so keep a few.
+      const list = ((await this.ctx.storage.get("pk:logins")) || []).filter((c) => c.exp > Date.now()).slice(-19);
+      list.push({ challenge: opts.challenge, exp: Date.now() + 300000 });
+      await this.ctx.storage.put("pk:logins", list);
       return [200, opts];
     }
-    const ch = await this.ctx.storage.get("pk:login");
+    let sent = "";
+    try { sent = JSON.parse(new TextDecoder().decode(isoBase64URL.toBuffer(body.response.response.clientDataJSON))).challenge; } catch (e) {}
+    const list = (await this.ctx.storage.get("pk:logins")) || [];
+    const ch = list.find((c) => c.challenge === sent && c.exp > Date.now());
     const cred = creds.find((c) => c.id === body?.response?.id);
-    if (!ch || ch.exp < Date.now() || !cred) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
+    if (!ch || !cred) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
     let v;
     try {
       v = await verifyAuthenticationResponse({ response: body.response, expectedChallenge: ch.challenge, expectedOrigin: where.origin, expectedRPID: where.rpID,
         credential: { id: cred.id, publicKey: isoBase64URL.toBuffer(cred.publicKey), counter: cred.counter || 0, transports: cred.transports }, requireUserVerification: true });
     } catch (e) { v = null; }
-    await this.ctx.storage.delete("pk:login");
+    await this.ctx.storage.put("pk:logins", list.filter((c) => c !== ch));
     if (!v?.verified) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
     cred.counter = v.authenticationInfo.newCounter; cred.lastUsed = new Date().toISOString();
     await this.ctx.storage.put("passkeys", creds);

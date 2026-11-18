@@ -118,6 +118,6 @@ New animation pickers: "Focus session finished" and "Copy". The Slipped options 
     → {key}. The page then signs in with the password as usual, so the password always works as a backup.
   - With the password: GET /api/passkeys, POST /api/passkey/register/options, POST /api/passkey/register/verify {response, label}, DELETE /api/passkeys/:id.
   - Background checks get 403 on all of these.
-- Storage keys: "passkeys" = [{id, publicKey (base64url), counter, transports, label, created, lastUsed}], "pk:reg" / "pk:login" = {challenge, exp} (5 minutes).
+- Storage keys: "passkeys" = [{id, publicKey (base64url), counter, transports, label, created, lastUsed}], "pk:reg" / "pk:logins" = list of {challenge, exp} (5 minutes).
 - Footer: "Set up Touch ID" opens a panel to add this device or remove one (tap twice). Lock screens show "Use Touch ID / Face ID".
 - Local test: Playwright with a CDP virtual authenticator (WebAuthn.addVirtualAuthenticator) against wrangler dev with DEV_ORIGIN=http://localhost:8080.

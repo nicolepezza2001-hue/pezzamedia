@@ -555,6 +555,7 @@
     start();
   });
   $("#tq-passkey").hidden = !TQAUTH.supported();
+  TQAUTH.prefetchLogin();
   $("#tq-passkey").addEventListener("click", async () => {
     $("#tq-lock-msg").textContent = "";
     try { key = await TQAUTH.passkeySignIn(); start(); } catch (err) { $("#tq-lock-msg").textContent = err.message; }
