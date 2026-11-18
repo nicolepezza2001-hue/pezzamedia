@@ -448,7 +448,7 @@ export class Board extends DurableObject {
       // Her card icon picks: { jobs: 0-3, study: 0-3, ... }
       if (body.icons && typeof body.icons === "object") {
         d.settings.icons ||= {};
-        for (const [k, v] of Object.entries(body.icons)) if (/^[\w-]{1,30}$/.test(k) && [0, 1, 2, 3].includes(v)) d.settings.icons[k] = v;
+        for (const [k, v] of Object.entries(body.icons)) if (/^[\w-]{1,30}$/.test(k) && [0, 1, 2, 3, 4].includes(v)) d.settings.icons[k] = v;
       }
       // Her animation picks: { tick: 0-3, add: 0-3, ... }
       if (body.anims && typeof body.anims === "object") {

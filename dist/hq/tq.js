@@ -375,9 +375,12 @@
 
   // ----- card icons: 4 drawn options per card without a logo (picked in the Icons sheet) -----
   const ICON_CARDS = ["jobs", "study", "family", "tallulah", "frolic"];
-  const ICON_NAMES = ["Soft tile", "Solid circle", "Different symbol", "Outline"];
+  const ICON_NAMES = ["Soft tile", "Solid circle", "Different symbol", "Outline", "From the website"];
+  // Option 4 (the default) is the icon taken from the card's own website.
+  const SITE_ICON = { jobs: "icons/jobs-site.svg", study: "icons/study-site.png", family: "icons/family-site.png", tallulah: "icons/tallulah-site.png", frolic: "icons/frolic-site.png" };
+  const iconSrc = (id, v) => (v === 4 ? SITE_ICON[id] : `icons/${id}-${v}.svg`);
   function iconHTML(p, cls) {
-    if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="icons/${p.id}-${board.settings?.icons?.[p.id] ?? 0}.svg" alt="">`;
+    if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="${iconSrc(p.id, board.settings?.icons?.[p.id] ?? 4)}" alt="">`;
     return `<span class="tq-icon${cls}" aria-hidden="true">${esc(p.icon || "•")}</span>`;
   }
   function renderIcons() {
@@ -389,7 +392,7 @@
       <p class="tq-empty">Tap the icon you like for each card. It's saved straight away.</p>
       <ul class="tq-anim-list">${ICON_CARDS.map((id) => { const p = board.projects.find((x) => x.id === id); return p ? `<li class="tq-anim" data-icons="${id}">
         <h3>${esc(p.name)}</h3>
-        <div class="tq-icon-opts">${[0, 1, 2, 3].map((i) => `<button type="button" class="tq-icon-opt${(picks[id] ?? 0) === i ? " is-picked" : ""}" data-iopt="${i}" aria-label="${ICON_NAMES[i]}"><img src="icons/${id}-${i}.svg" alt=""><span>${ICON_NAMES[i]}</span></button>`).join("")}</div>
+        <div class="tq-icon-opts">${[4, 0, 1, 2, 3].map((i) => `<button type="button" class="tq-icon-opt${(picks[id] ?? 4) === i ? " is-picked" : ""}" data-iopt="${i}" aria-label="${ICON_NAMES[i]}"><img src="${iconSrc(id, i)}" alt=""><span>${ICON_NAMES[i]}</span></button>`).join("")}</div>
       </li>` : ""; }).join("")}</ul>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
   }
