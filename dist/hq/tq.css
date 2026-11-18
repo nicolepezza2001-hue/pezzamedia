@@ -53,7 +53,7 @@
 .tq-count.is-hot b{background:var(--tq-red);animation:tq-pulse 1.8s ease-in-out infinite}
 @keyframes tq-pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,72,77,.45)}50%{box-shadow:0 0 0 7px rgba(229,72,77,0)}}
 .tq-clear{display:inline-block;font:700 12px Poppins,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#4E7A45;border:2px solid #8DB585;border-radius:8px;padding:4px 10px;transform:rotate(-4deg)}
-.tq-pill{position:absolute;top:16px;right:12px;font-size:11px;font-weight:600;text-decoration:none;color:var(--tq-ink);background:var(--tq-bg);padding:3px 9px;border-radius:999px}
+.tq-pill{position:static;display:inline-block;margin:0 0 8px;font-size:11px;font-weight:600;text-decoration:none;color:var(--tq-ink);background:var(--tq-bg);padding:3px 9px;border-radius:999px}
 .tq-pill:hover{background:var(--tq-green)}
 
 /* panel */

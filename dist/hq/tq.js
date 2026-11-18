@@ -110,10 +110,10 @@
     return `
       <div class="tq-card${openId === p.id ? " is-open" : ""}" data-id="${esc(p.id)}" style="--tq-tint:${esc(p.color)}" role="button" tabindex="0" aria-expanded="${openId === p.id}">
         <span class="tq-strip"></span>
-        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}"${ext}>📊 Dashboard ↗</a>` : ""}
         <span class="tq-logo">${logo}</span>
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
+        ${p.dashboard ? `<a class="tq-pill" href="${esc(p.dashboard)}"${ext}>📊 Dashboard ↗</a>` : ""}
         ${s.sug ? `<span class="tq-sug-chip">✨ ${s.sug} suggested</span>` : ""}
         ${p.special === "admin" && (board.habits || []).length ? `<span class="tq-habit-chip">🌱 ${habitChip()}</span>` : ""}
         ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : (s.sug ? "" : `<span class="tq-clear">All clear</span>`)}
