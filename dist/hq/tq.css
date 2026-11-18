@@ -1,8 +1,8 @@
 /* Tasks HQ. All classes start with tq- so nothing clashes with the main site styles. */
 :root{
-  --tq-bg:#F6F5F2; --tq-card:#FFFFFF; --tq-ink:#1D2433; --tq-muted:#6B7280; --tq-line:#E7E5E0;
-  --tq-red:#E5484D; --tq-green:#C2D9BC; --tq-pink:#E8D8D5; --tq-blue:#DCEBFA; --tq-blue-ink:#1F4E8C;
-  --tq-yellow:#FFF4C2; --tq-radius:18px; --tq-surface:#FFFFFF; --tq-row:#FAF9F7; --tq-mix:#FFFFFF; --tq-note:rgba(255,255,255,.65);
+  --tq-bg:#FBF4D7; --tq-card:#FFFFFF; --tq-ink:#141B41; --tq-muted:#5B6080; --tq-line:#EADFC2;
+  --tq-red:#E5484D; --tq-green:#C2D9BC; --tq-pink:#E8D8D5; --tq-blue:#E8D8D5; --tq-blue-ink:#141B41;
+  --tq-yellow:#FFF4C2; --tq-radius:18px; --tq-surface:#FFFFFF; --tq-row:#FFFCF0; --tq-mix:#FFFFFF; --tq-note:rgba(255,255,255,.65);
   --tq-chase:#FDECEC; --tq-sug-ink:#6B5B1E; --tq-claude-bg:#F1ECFF; --tq-claude-ink:#3D2C7A; --tq-tickline:#B9B5AD; --tq-shadow:0 1px 2px rgba(20,27,65,.05),0 8px 24px rgba(20,27,65,.07);
 }
 *{box-sizing:border-box}
@@ -15,7 +15,7 @@
 /* buttons and inputs */
 .tq-btn{font:600 14px Inter,sans-serif;border:0;border-radius:999px;padding:10px 18px;cursor:pointer;color:var(--tq-ink);transition:transform .15s,box-shadow .15s,background .15s}
 .tq-btn:active{transform:scale(.97)}
-.tq-btn-main{background:var(--tq-green);color:#1D2433;width:100%;padding:13px}
+.tq-btn-main{background:var(--tq-green);color:#141B41;width:100%;padding:13px}
 .tq-btn-main:hover{box-shadow:0 4px 14px rgba(80,120,70,.25)}
 .tq-btn-soft{background:var(--tq-card);box-shadow:var(--tq-shadow)}
 .tq-input{width:100%;font:16px Inter,sans-serif;padding:12px 14px;border:1.5px solid var(--tq-line);border-radius:12px;background:var(--tq-surface);color:var(--tq-ink);outline:none}
@@ -182,8 +182,8 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 
 /* ----- stage 5: dark mode ----- */
 :root[data-theme="dark"]{
-  --tq-bg:#14171F; --tq-card:#1D2230; --tq-ink:#ECEEF3; --tq-muted:#9AA3B2; --tq-line:#343B4C;
-  --tq-blue:#1C2C45; --tq-blue-ink:#A9CBF5; --tq-yellow:#383220; --tq-surface:#262C3C; --tq-row:#222838; --tq-mix:#1D2230;
+  --tq-bg:#0D1230; --tq-card:#141B41; --tq-ink:#FBF4D7; --tq-muted:#AEB2CC; --tq-line:#2B3463;
+  --tq-blue:#3A2D3E; --tq-blue-ink:#F1DCD7; --tq-yellow:#36321E; --tq-surface:#1C2452; --tq-row:#19204A; --tq-mix:#141B41;
   --tq-note:rgba(255,255,255,.06); --tq-chase:#3D2228; --tq-sug-ink:#E6D49A; --tq-claude-bg:#2C2547; --tq-claude-ink:#CFC2FF; --tq-tickline:#596273;
   --tq-shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark;
 }
@@ -195,7 +195,7 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 
 /* ----- stage 5: headline, scoreboard, syncs ----- */
 .tq-top-main{min-width:0}
-.tq-rotate{display:inline-block;color:#2755C4;transition:opacity .35s,transform .35s}
+.tq-rotate{display:inline-block;color:#141B41;background:linear-gradient(transparent 62%,#E8D8D5 62%);padding:0 4px;transition:opacity .35s,transform .35s}
 :root[data-theme="dark"] .tq-rotate{color:#8FB4FF}
 .tq-rotate.is-out{opacity:0;transform:translateY(-12px)}
 .tq-actions-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
@@ -263,3 +263,8 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 :root[data-theme="dark"] .tq-slip{background:#4A2323;color:#F5B5B5}
 :root[data-theme="dark"] .tq-habit-chip{background:#253A22;color:#CDE6C4}
 @media (max-width:560px){.tq-habit{gap:8px;padding:10px}.tq-dot{width:19px;height:19px;font-size:9px}.tq-week{gap:3px}.tq-slip{padding:8px 10px;font-size:13px}.tq-habit-big,.tq-streak{min-width:40px}.tq-habit .tq-del{flex:none}}
+
+/* pezzamedia.com palette (Nicky, 2026-11-18): cream page, navy ink, pink and green accents */
+.tq-sec-habits,.tq-sec-fold{background:#FFF8E1}
+:root[data-theme="dark"] .tq-rotate{color:#FBF4D7;background:linear-gradient(transparent 62%,#5A3F4A 62%)}
+:root[data-theme="dark"] .tq-sec-habits,:root[data-theme="dark"] .tq-sec-fold{background:var(--tq-row)}
