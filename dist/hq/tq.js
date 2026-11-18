@@ -85,7 +85,8 @@
         (age >= CHASE_DAYS ? s.tasks : s.waiting).push({ ...t, chase: age >= CHASE_DAYS });
         continue;
       }
-      if (t.due && daysUntil(t.due) > LATER_DAYS) s.later.push(t); else s.tasks.push(t);
+      // A dated task only shows in Tasks from its due date on (Nicky, 2026-11-18); before that it waits in Coming up.
+      if (t.due && daysUntil(t.due) > 0) s.later.push(t); else s.tasks.push(t);
     }
     const key = (t) => (t.chase ? todayISO() : t.due || "9999");
     s.tasks.sort((a, b) => key(a).localeCompare(key(b)));
@@ -310,13 +311,13 @@
       </div>
       <div class="tq-sec tq-sec-white"><h3>Tasks <span class="tq-n">${s.tasks.length}</span></h3>
         <ul class="tq-list">${s.tasks.map(rowHTML).join("")}</ul>
-        ${s.tasks.length ? "" : `<p class="tq-empty">Nothing due this week.</p>`}
+        ${s.tasks.length ? "" : `<p class="tq-empty">Nothing due today.</p>`}
       </div>
       <div class="tq-sec tq-sec-white"><h3>Waiting on others <span class="tq-n">${s.waiting.length}</span></h3>
         <ul class="tq-list">${s.waiting.map(rowHTML).join("")}</ul>
         ${s.waiting.length ? "" : `<p class="tq-empty">Nobody to wait on. After ${CHASE_DAYS} days a waiting item jumps into Tasks as "Chase…".</p>`}
       </div>
-      ${s.later.length ? `<details class="tq-sec tq-sec-fold"><summary><h3>Later <span class="tq-n">${s.later.length}</span></h3><small>More than ${LATER_DAYS} days out, not counted yet</small></summary>
+      ${s.later.length ? `<details class="tq-sec tq-sec-fold"><summary><h3>Coming up <span class="tq-n">${s.later.length}</span></h3><small>Moves into Tasks on its due date. Not counted yet.</small></summary>
         <ul class="tq-list">${s.later.map(rowHTML).join("")}</ul></details>` : ""}
       ${s.done.length ? `<details class="tq-sec tq-sec-fold"><summary><h3>Done <span class="tq-n">${s.done.length}</span></h3><small>Last 14 days. Untick to put one back.</small></summary>
         <ul class="tq-list">${s.done.map(rowHTML).join("")}</ul></details>` : ""}
