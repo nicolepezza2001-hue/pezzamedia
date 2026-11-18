@@ -154,7 +154,9 @@ export default {
     }
     if (!role) {
       await stub.fail(ip);
-      return json({ error: "Wrong password" }, 401, req);
+      const sw = req.headers.get("X-Sweep");
+      return json({ error: sw ? "Wrong X-Sweep key: use the full sw_ key from your instructions, exactly as given"
+        : req.headers.get("X-Key") ? "Wrong password" : "No key sent. Background checks: add the header X-Sweep with your sw_ key (never the password)" }, 401, req);
     }
     if (role !== "owner" && !sweepAllowed(req.method, url.pathname, role)) return json({ error: "The background check can't do that" }, 403, req);
     try {
