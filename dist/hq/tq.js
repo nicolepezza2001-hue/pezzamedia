@@ -114,7 +114,7 @@
         <h3>${esc(p.name)}</h3>
         <p class="tq-blurb">${esc(p.blurb || "")}</p>
         ${s.sug ? `<span class="tq-sug-chip">✨ ${s.sug} suggested</span>` : ""}
-        ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : `<span class="tq-clear">All clear</span>`}
+        ${s.open ? `<span class="tq-count${s.hot ? " is-hot" : ""}"><b>${s.open}</b> ${s.label || "open"}</span>` : (s.sug ? "" : `<span class="tq-clear">All clear</span>`)}
       </div>`;
   }
 
