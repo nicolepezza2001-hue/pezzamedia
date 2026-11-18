@@ -278,3 +278,7 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 .tq-tool small{display:block;color:var(--tq-muted);font-size:13px}
 .tq-tool-hot{color:var(--tq-red)!important;font:600 13px Inter,sans-serif!important;display:inline!important}
 @media (max-width:560px){.tq-tools{grid-template-columns:1fr 1fr}.tq-tool{flex-direction:column;text-align:center;gap:6px}}
+
+/* ----- stage 8: Touch ID / Face ID ----- */
+.tq-passkey{width:100%;padding:12px}
+.tq-pk-h{font-size:14px!important;margin:16px 0 8px!important}

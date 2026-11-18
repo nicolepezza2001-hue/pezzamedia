@@ -7,7 +7,7 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  let key = sessionStorage.getItem("tq-key") || "";
+  let key = window.TQAUTH ? TQAUTH.get() : sessionStorage.getItem("tq-key") || "";
   let board = null;
 
   // ----- basics -----
@@ -540,9 +540,10 @@
     try {
       board = await api("/api/board");
     } catch (e) {
-      if (e.status === 401) { const had = !!key; sessionStorage.removeItem("tq-key"); key = ""; return showLock(had ? "Wrong password" : ""); }
+      if (e.status === 401) { const had = !!key; TQAUTH.clear(); key = ""; return showLock(had ? "That's not it. Try again." : ""); }
       return showLock(e.message);
     }
+    TQAUTH.save(key);
     $("#tq-lock").hidden = true; $("#tt-app").hidden = false;
     if (window.TQFX) TQFX.picks = { ...(board.settings?.anims || {}) };
     $("#tt-title").textContent = NAMES[TOOL] || "Tool";
@@ -550,8 +551,13 @@
   }
   $("#tq-lock-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    key = $("#tq-pw").value; sessionStorage.setItem("tq-key", key);
+    key = $("#tq-pw").value;
     start();
+  });
+  $("#tq-passkey").hidden = !TQAUTH.supported();
+  $("#tq-passkey").addEventListener("click", async () => {
+    $("#tq-lock-msg").textContent = "";
+    try { key = await TQAUTH.passkeySignIn(); start(); } catch (err) { $("#tq-lock-msg").textContent = err.message; }
   });
   $("#tt-theme")?.addEventListener("click", () => {
     const dark = document.documentElement.dataset.theme !== "dark";

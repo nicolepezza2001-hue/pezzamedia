@@ -104,3 +104,20 @@ The main page shows a "Tools" row with a small live number per tool (GET /api/to
 
 Generic list API (owner only; background checks get 403): GET/POST /api/col/:name, PUT/DELETE /api/col/:name/:id. Each list is its own storage key "col:<name>" so the main board stays small. Deletes go to the Bin (kind "col") and restore from there. /api/export includes everything under "tools".
 New animation pickers: "Focus session finished" and "Copy". The Slipped options now include the banana peel from the spec.
+
+## Stage 8: stay signed in + Touch ID / Face ID (2026-11-18)
+- dist/hq/tq-auth.js (window.TQAUTH) is shared by the main page and every tool page.
+  - Remember-me: after a good sign-in the password is saved on that device for 30 days, renewed on every visit:
+    localStorage "tq-remember" = {k, exp}, plus a backup cookie "tq_r" (Path=/hq/; Secure; SameSite=None; Partitioned).
+    Jobs HQ (dist/jobs/hq.js) also opens with it. "Sign out" clears all of it on that device.
+  - Passkeys use @simplewebauthn/server 13.3.3 in the Worker and the browser bundle in dist/hq/vendor/ (self-hosted, no CDN).
+    rpID = pezzamedia.com, so one passkey works on every HQ page. Allowed origins: https://pezzamedia.com and https://www.pezzamedia.com
+    (plus DEV_ORIGIN from .dev.vars for local tests).
+- Routes:
+  - Without the password (rate-limited like wrong passwords): POST /api/passkey/login/options, POST /api/passkey/login/verify {response}
+    → {key}. The page then signs in with the password as usual, so the password always works as a backup.
+  - With the password: GET /api/passkeys, POST /api/passkey/register/options, POST /api/passkey/register/verify {response, label}, DELETE /api/passkeys/:id.
+  - Background checks get 403 on all of these.
+- Storage keys: "passkeys" = [{id, publicKey (base64url), counter, transports, label, created, lastUsed}], "pk:reg" / "pk:login" = {challenge, exp} (5 minutes).
+- Footer: "Set up Touch ID" opens a panel to add this device or remove one (tap twice). Lock screens show "Use Touch ID / Face ID".
+- Local test: Playwright with a CDP virtual authenticator (WebAuthn.addVirtualAuthenticator) against wrangler dev with DEV_ORIGIN=http://localhost:8080.

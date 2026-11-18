@@ -1,1 +1,1 @@
-{"name":"pezza-hq","private":true,"type":"module","devDependencies":{"wrangler":"^4"},"dependencies":{"@anthropic-ai/sdk":"^1.10.0"}}
+{"name":"pezza-hq","private":true,"type":"module","devDependencies":{"wrangler":"^4"},"dependencies":{"@anthropic-ai/sdk":"^1.10.0","@simplewebauthn/server":"13.3.3"}}

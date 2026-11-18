@@ -5,7 +5,8 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const KEY_STORE = "tq-key";
-  let key = sessionStorage.getItem(KEY_STORE) || "";
+  // Stage 8: the sign-in is remembered for 30 days on this device (see tq-auth.js).
+  let key = window.TQAUTH ? TQAUTH.get() : sessionStorage.getItem(KEY_STORE) || "";
   let board = null, openId = null, editing = null, addKind = "task";
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -273,6 +274,7 @@
   function renderPanel() {
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
     if (openId === "__bin") return renderBin();
+    if (openId === "__touchid") return renderTouchId();
     if (openId === "__settings") return renderSettings();
     if (openId === "__anims") return renderAnims();
     if (openId === "__icons") return renderIcons();
@@ -474,6 +476,28 @@
   }
 
   // ----- the bin (trash) -----
+  // ----- Touch ID / Face ID set-up -----
+  async function renderTouchId() {
+    const panel = $("#tq-panel"), scrim = $("#tq-scrim");
+    panel.hidden = scrim.hidden = false;
+    panel.style.setProperty("--tq-tint", "#C2D9BC");
+    const head = `<div class="tq-panel-head"><span class="tq-icon tq-icon-sm" aria-hidden="true">👆</span><h2>Touch ID / Face ID</h2><button class="tq-x" type="button" aria-label="Close">✕</button></div>`;
+    panel.innerHTML = head + `<p class="tq-empty">Loading…</p>`;
+    $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+    let list = [];
+    try { list = (await api("/api/passkeys")).passkeys; } catch (e) { toast(e.message); }
+    if (openId !== "__touchid") return;
+    const when = (iso) => (iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "");
+    panel.innerHTML = head + `
+      <p class="tq-empty">Sign in with your fingerprint or face instead of typing the password. It works on every HQ page, Tools included. Your password still works as a backup. You also stay signed in for 30 days on each device.</p>
+      ${TQAUTH.supported() ? `<div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="button" data-act="pkadd">👆 Set up Touch ID / Face ID on this device</button></div>` : `<p class="tq-empty">This browser can't do Touch ID or Face ID.</p>`}
+      <h3 class="tq-pk-h">Set up on</h3>
+      <ul class="tq-list">${list.map((k) => `<li class="tq-row" data-pk="${esc(k.id)}"><div class="tq-row-main"><p class="tq-row-text">${esc(k.label)}</p>
+        <p class="tq-row-meta">Added ${esc(when(k.created))}${k.lastUsed ? " · last used " + esc(when(k.lastUsed)) : ""}</p></div>
+        <div class="tq-row-btns"><button type="button" class="tq-mini tq-del" data-act="pkdel">Remove</button></div></li>`).join("") || `<li class="tq-empty">Nothing yet.</li>`}</ul>`;
+    $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
+  }
+
   async function renderBin() {
     const panel = $("#tq-panel"), scrim = $("#tq-scrim");
     panel.hidden = scrim.hidden = false;
@@ -487,7 +511,7 @@
     panel.innerHTML = `<div class="tq-panel-head"><span class="tq-icon tq-icon-sm" aria-hidden="true">🗑</span><h2>Bin</h2><button class="tq-x" type="button" aria-label="Close">✕</button></div>
       <p class="tq-empty">Nothing is ever really deleted. The last 500 things you deleted are here.</p>
       <ul class="tq-list">${trash.map((e) => `<li class="tq-row" data-tid="${esc(e.tid)}">
-        <div class="tq-row-main"><p class="tq-row-text">${esc(e.item.text || e.item.name || "(no text)")}</p>
+        <div class="tq-row-main"><p class="tq-row-text">${esc(e.item.text || e.item.name || e.item.title || e.item.stat || e.item.who || "(no text)")}</p>
         <p class="tq-row-meta">${esc(e.kind)}${e.item.project ? " · " + esc(name(e.item.project)) : ""} · deleted ${esc(new Date(e.deleted).toLocaleDateString(undefined, { day: "numeric", month: "short" }))}</p></div>
         <div class="tq-row-btns">${e.tid ? `<button type="button" class="tq-mini" data-act="restore">Restore</button>` : ""}</div></li>`).join("")}</ul>`;
     $(".tq-x", panel).addEventListener("click", () => togglePanel(openId));
@@ -546,6 +570,17 @@
         const b = await change(`/api/habits/${hid}`, "DELETE");
         fx("del", c);
         toast("Habit deleted", "Undo", undoRestore(b.trashed));
+      });
+      return;
+    }
+    const pk = e.target.closest("[data-act=pkadd], [data-act=pkdel]");
+    if (pk) {
+      if (pk.dataset.act === "pkadd") {
+        pk.disabled = true;
+        try { await TQAUTH.passkeySetUp(key, TQAUTH.deviceName()); fx("tick", snap(pk), pk); toast("👆 Touch ID is set up on this device"); renderTouchId(); }
+        catch (err) { toast(err.message); pk.disabled = false; }
+      } else armDelete(pk, async () => {
+        try { await api(`/api/passkeys/${encodeURIComponent(pk.closest("[data-pk]").dataset.pk)}`, { method: "DELETE" }); toast("Removed"); renderTouchId(); } catch (err) { toast(err.message); }
       });
       return;
     }
@@ -742,7 +777,7 @@
     key = $("#tq-pw").value;
     try {
       await load();
-      sessionStorage.setItem(KEY_STORE, key);
+      TQAUTH.save(key);
       showApp();
     } catch (err) {
       key = "";
@@ -756,7 +791,15 @@
     try { await load(); fx("sync", c, null); toast("Up to date"); } catch (e) { toast(e.message); }
   });
   $("#tq-scrim").addEventListener("click", () => togglePanel(openId));
-  $("#tq-signout").addEventListener("click", (e) => { e.preventDefault(); sessionStorage.removeItem(KEY_STORE); key = ""; showLock(); });
+  $("#tq-signout").addEventListener("click", (e) => { e.preventDefault(); TQAUTH.clear(); key = ""; showLock(); });
+  $("#tq-touchid").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__touchid"); });
+  // Touch ID / Face ID on the lock screen.
+  $("#tq-passkey").hidden = !TQAUTH.supported();
+  $("#tq-passkey").addEventListener("click", async () => {
+    $("#tq-lock-msg").textContent = "";
+    try { key = await TQAUTH.passkeySignIn(); await load(); showApp(); fx("sync", null, null); }
+    catch (err) { key = ""; $("#tq-lock-msg").textContent = err.message; }
+  });
   $("#tq-bin").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__bin"); });
   $("#tq-settings").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__settings"); });
   $("#tq-anims").addEventListener("click", (e) => { e.preventDefault(); togglePanel("__anims"); });
@@ -766,7 +809,7 @@
   const setTheme = (t) => {
     document.documentElement.dataset.theme = t;
     $("#tq-theme").textContent = t === "dark" ? "☀️ Light" : "🌙 Dark";
-    $("meta[name=theme-color]").content = t === "dark" ? "#14171F" : "#F6F5F2";
+    $("meta[name=theme-color]").content = t === "dark" ? "#0D1230" : "#FBF4D7";
   };
   try { setTheme(localStorage.getItem("tq-theme") === "dark" ? "dark" : "light"); } catch (e) { setTheme("light"); }
   $("#tq-theme").addEventListener("click", () => {
@@ -797,6 +840,6 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden && board && key && !editing) load().catch(() => {}); });
 
   if (!API) showLock("Not connected to Cloudflare yet.");
-  else if (key) load().then(showApp).catch(() => { sessionStorage.removeItem(KEY_STORE); key = ""; showLock(); });
+  else if (key) load().then(() => { TQAUTH.save(key); showApp(); }).catch((e) => { if (e.status === 401) TQAUTH.clear(); key = ""; showLock(e.status === 401 ? "" : e.message); });
   else showLock();
 })();

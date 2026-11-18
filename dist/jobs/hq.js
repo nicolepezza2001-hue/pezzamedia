@@ -12,6 +12,8 @@
   function set(kind, k, v) { try { var s = store(kind); if (s) s.setItem(k, v); } catch (e) {} }
   function del(k) { try { localStorage.removeItem(k); sessionStorage.removeItem(k); } catch (e) {} }
 
+  // Tasks HQ remembers the shared password for 30 days; use it so Jobs HQ opens straight away.
+  function fromTasksHQ() { try { var r = JSON.parse(localStorage.getItem("tq-remember") || "null"); return r && r.k && r.exp > Date.now() ? r.k : null; } catch (e) { return null; } }
   function b64(s) { var bin = atob(s), out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
 
   async function decrypt(pw) {
@@ -226,6 +228,6 @@
     e.preventDefault();
     open(document.getElementById("pw").value, document.getElementById("remember").checked);
   });
-  var saved = get("l", PW_KEY) || get("s", PW_KEY);
+  var saved = get("l", PW_KEY) || get("s", PW_KEY) || fromTasksHQ();
   if (saved) open(saved, !!get("l", PW_KEY));
 })();

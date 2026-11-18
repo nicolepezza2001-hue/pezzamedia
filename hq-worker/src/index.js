@@ -1,3 +1,5 @@
+import { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } from "@simplewebauthn/server";
+import { isoBase64URL } from "@simplewebauthn/server/helpers";
 // Tasks HQ Worker: one Durable Object ("Board") holds everything.
 // Every /api call needs the password in the X-Key header (Worker secret KEY).
 import { DurableObject } from "cloudflare:workers";
@@ -46,6 +48,15 @@ function sweepAllowed(method, path) {
 
 // ----- stage 7 tools -----
 // Each tool keeps its own list under its own storage key ("col:<name>"), so the main board stays small.
+// ----- stage 8: passkeys (Touch ID / Face ID) -----
+// One passkey works on every page of pezzamedia.com (the rpID is the bare domain).
+const PK_ORIGINS = ["https://pezzamedia.com", "https://www.pezzamedia.com"];
+function pkOrigin(req, env) {
+  const o = req.headers.get("Origin") || "";
+  const ok = PK_ORIGINS.includes(o) || (env.DEV_ORIGIN && o === env.DEV_ORIGIN);
+  return ok ? { origin: o, rpID: new URL(o).hostname.replace(/^www\./, "") } : null;
+}
+
 const COLS = ["proof", "calendar", "swipe", "queries", "words", "pitches", "focus"];
 const COL_MAX = 3000;
 // Keep a tool item to plain fields only: strings, numbers, true/false, lists of short strings.
@@ -117,6 +128,14 @@ export default {
     if (await stub.tooManyFails(ip)) return json({ error: "Too many wrong tries. Wait 10 minutes." }, 429, req);
     // Owner = the password. Background checks use their own limited key (X-Sweep),
     // derived from the password, so no extra secret is needed and they can't edit tasks.
+    // Touch ID / Face ID sign-in: the only routes that work without the password.
+    if (url.pathname === "/api/passkey/login/options" || url.pathname === "/api/passkey/login/verify") {
+      const where = pkOrigin(req, env);
+      if (!where || req.method !== "POST") return json({ error: "Not allowed here" }, 403, req);
+      const body = await req.json().catch(() => ({}));
+      const [status, data] = await stub.passkeyLogin(url.pathname.endsWith("options") ? "options" : "verify", body, where, ip);
+      return json(data, status, req);
+    }
     let role = null;
     if (sameKey(req.headers.get("X-Key"), env.KEY)) role = "owner";
     else if (req.headers.get("X-Sweep")) {
@@ -129,7 +148,7 @@ export default {
     if (role !== "owner" && !sweepAllowed(req.method, url.pathname)) return json({ error: "The background check can't do that" }, 403, req);
     try {
       const body = ["POST", "PUT"].includes(req.method) ? await req.json().catch(() => ({})) : null;
-      const [status, data] = await stub.handle(req.method, url.pathname, body, role);
+      const [status, data] = await stub.handle(req.method, url.pathname, body, role, pkOrigin(req, env));
       return json(data, status, req);
     } catch (e) {
       return json({ error: String(e.message || e) }, 500, req);
@@ -302,7 +321,32 @@ export class Board extends DurableObject {
     this.data.trash.length = Math.min(this.data.trash.length, TRASH_MAX);
   }
 
-  async handle(method, path, body, role = "owner") {
+  // Passkey sign-in (no password). On success the Worker hands back the password, so the page signs in as usual.
+  async passkeyLogin(step, body, where, ip) {
+    if (this.tooManyFails(ip)) return [429, { error: "Too many tries. Wait 10 minutes." }];
+    const creds = (await this.ctx.storage.get("passkeys")) || [];
+    if (!creds.length) return [404, { error: "No Touch ID set up yet. Sign in with your password, then tap Set up Touch ID." }];
+    if (step === "options") {
+      const opts = await generateAuthenticationOptions({ rpID: where.rpID, userVerification: "required", allowCredentials: [] });
+      await this.ctx.storage.put("pk:login", { challenge: opts.challenge, exp: Date.now() + 300000 });
+      return [200, opts];
+    }
+    const ch = await this.ctx.storage.get("pk:login");
+    const cred = creds.find((c) => c.id === body?.response?.id);
+    if (!ch || ch.exp < Date.now() || !cred) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
+    let v;
+    try {
+      v = await verifyAuthenticationResponse({ response: body.response, expectedChallenge: ch.challenge, expectedOrigin: where.origin, expectedRPID: where.rpID,
+        credential: { id: cred.id, publicKey: isoBase64URL.toBuffer(cred.publicKey), counter: cred.counter || 0, transports: cred.transports }, requireUserVerification: true });
+    } catch (e) { v = null; }
+    await this.ctx.storage.delete("pk:login");
+    if (!v?.verified) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
+    cred.counter = v.authenticationInfo.newCounter; cred.lastUsed = new Date().toISOString();
+    await this.ctx.storage.put("passkeys", creds);
+    return [200, { key: this.env.KEY }];
+  }
+
+  async handle(method, path, body, role = "owner", where = null) {
     const d = await this.load();
     const p = path.replace(/\/+$/, "");
     if (p === "/api/ping") return [200, { ok: true }];
@@ -582,6 +626,46 @@ export class Board extends DurableObject {
       d.sweepLog = [{ at, who, kind, summary: d.sweeps[who].summary, failed: d.sweeps[who].failed }, ...(d.sweepLog || [])].slice(0, 300);
       await this.save();
       return [200, { lastSweep: d.sweeps[who].lastSweep, sweeps: d.sweeps }];
+    }
+
+    // ----- stage 8: set up / list / remove passkeys (password needed) -----
+    if (p === "/api/passkeys" && method === "GET") {
+      const creds = (await this.ctx.storage.get("passkeys")) || [];
+      return [200, { passkeys: creds.map(({ id, label, created, lastUsed }) => ({ id, label, created, lastUsed })) }];
+    }
+    if (p === "/api/passkey/register/options" && method === "POST") {
+      if (!where) return [403, { error: "Set up Touch ID from pezzamedia.com" }];
+      const creds = (await this.ctx.storage.get("passkeys")) || [];
+      const opts = await generateRegistrationOptions({
+        rpName: "Tasks HQ", rpID: where.rpID, userName: "nicky", userDisplayName: "Nicky",
+        userID: new TextEncoder().encode("tasks-hq-nicky"), attestationType: "none",
+        excludeCredentials: creds.map((c) => ({ id: c.id, transports: c.transports })),
+        authenticatorSelection: { residentKey: "required", userVerification: "required" },
+      });
+      await this.ctx.storage.put("pk:reg", { challenge: opts.challenge, exp: Date.now() + 300000 });
+      return [200, opts];
+    }
+    if (p === "/api/passkey/register/verify" && method === "POST") {
+      if (!where) return [403, { error: "Set up Touch ID from pezzamedia.com" }];
+      const ch = await this.ctx.storage.get("pk:reg");
+      if (!ch || ch.exp < Date.now()) return [400, { error: "That took too long. Try again." }];
+      let v;
+      try { v = await verifyRegistrationResponse({ response: body?.response, expectedChallenge: ch.challenge, expectedOrigin: where.origin, expectedRPID: where.rpID, requireUserVerification: true }); }
+      catch (e) { return [400, { error: "Touch ID setup didn't work: " + String(e.message || e).slice(0, 120) }]; }
+      await this.ctx.storage.delete("pk:reg");
+      if (!v.verified) return [400, { error: "Touch ID setup didn't work. Try again." }];
+      const c = v.registrationInfo.credential;
+      const creds = (await this.ctx.storage.get("passkeys")) || [];
+      creds.push({ id: c.id, publicKey: isoBase64URL.fromBuffer(c.publicKey), counter: c.counter, transports: c.transports || [],
+                   label: String(body?.label || "This device").slice(0, 60), created: new Date().toISOString() });
+      await this.ctx.storage.put("passkeys", creds.slice(-20));
+      return [200, { ok: true }];
+    }
+    const pkm = p.match(/^\/api\/passkeys\/([\w-]+)$/);
+    if (pkm && method === "DELETE") {
+      const creds = ((await this.ctx.storage.get("passkeys")) || []).filter((c) => c.id !== pkm[1]);
+      await this.ctx.storage.put("passkeys", creds);
+      return [200, { ok: true }];
     }
 
     // ----- stage 7: tool lists -----
