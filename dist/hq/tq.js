@@ -377,7 +377,7 @@
   const ICON_CARDS = ["jobs", "study", "family", "tallulah", "frolic"];
   const ICON_NAMES = ["Soft tile", "Solid circle", "Different symbol", "Outline", "From the website"];
   // Option 4 (the default) is the icon taken from the card's own website.
-  const SITE_ICON = { jobs: "icons/jobs-site.svg", study: "icons/study-site.png", family: "icons/family-site.png", tallulah: "icons/tallulah-site.png", frolic: "icons/frolic-site.png" };
+  const SITE_ICON = { jobs: "icons/jobs-site.svg", study: "icons/study-site.png", family: "icons/family-site.png", tallulah: "icons/tallulah-site.svg", frolic: "icons/frolic-site.png" };
   const iconSrc = (id, v) => (v === 4 ? SITE_ICON[id] : `icons/${id}-${v}.svg`);
   function iconHTML(p, cls) {
     if (ICON_CARDS.includes(p.id)) return `<img class="tq-icon-img${cls}" src="${iconSrc(p.id, board.settings?.icons?.[p.id] ?? 4)}" alt="">`;
