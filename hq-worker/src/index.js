@@ -43,7 +43,7 @@ function sweepAllowed(method, path, who) {
   // Brand guide text sections: both checkers may read and write them (cards checked in the handler).
   if (/^\/api\/kits\/[\w-]+(\/sections)?$/.test(p) && (method === "GET" || (method === "PUT" && p.endsWith("/sections")))) return true;
   if (method === "GET" && ["/api/board", "/api/suggestions/log", "/api/ping"].includes(p)) return true;
-  if (method === "POST" && (p === "/api/suggestions" || p === "/api/sweep" || p === "/api/events" ||
+  if (method === "POST" && (p === "/api/suggestions" || p === "/api/sweep" || p === "/api/events" || p === "/api/events/add" ||
     /^\/api\/suggestions\/[\w-]+\/(reply|withdraw)$/.test(p) || /^\/api\/tasks\/[\w-]+\/done$/.test(p))) return true;
   // Extra powers Nicky gave her work Claude (2026-11-18), on the sn and tmrw cards only.
   if (who === "work") {
@@ -702,6 +702,32 @@ export class Board extends DurableObject {
       const next = [...keep, ...items].filter((e) => e.date >= plusDaysUTC(today, -60)).slice(-3000);
       await this.ctx.storage.put("events", next);
       return [200, { saved: items.length }];
+    }
+    // One-off calendar entries (Nicky adds them, or a check adds a booking it found, e.g. Cal.com).
+    // Kept as who "nicky" / "booking", so the daily calendar syncs (which replace only "claude"/"work") never wipe them.
+    if (p === "/api/events/add" && method === "POST") {
+      const x = cleanItem(body || {});
+      if (!isDate(x.date) || !x.title) return [400, { error: "Needs a date and a title" }];
+      if (x.project && !hasProject(x.project)) return [400, { error: "Unknown card" }];
+      if (role !== "owner" && x.project && !mayTouch(role, x.project)) return [403, { error: "That card is off limits for this check" }];
+      const all = (await this.ctx.storage.get("events")) || [];
+      const title = String(x.title).slice(0, 200), time = String(x.time || "").slice(0, 5);
+      if (all.some((e) => e.date === x.date && e.time === time && norm(e.title) === norm(title))) return [200, { ok: true, already: true }];
+      const ev = { id: uid(), who: role === "owner" ? "nicky" : "booking", by: role, date: x.date, time, end: String(x.end || "").slice(0, 5), title,
+        where: String(x.where || "").slice(0, 200), link: String(x.link || "").slice(0, 500), calendar: String(x.calendar || "").slice(0, 60),
+        project: x.project || "", group: x.group === "personal" ? "personal" : x.group === "work" ? "work" : "" };
+      all.push(ev);
+      await this.ctx.storage.put("events", all);
+      return [200, { ok: true, id: ev.id }];
+    }
+    const evm = p.match(/^\/api\/events\/([\w-]+)$/);
+    if (evm && method === "DELETE") {
+      const all = (await this.ctx.storage.get("events")) || [];
+      const e = all.find((y) => y.id === evm[1]);
+      if (!e) return [404, { error: "That event isn't there any more" }];
+      if (!["nicky", "booking"].includes(e.who)) return [400, { error: "This one comes from Google Calendar; change it there" }];
+      await this.ctx.storage.put("events", all.filter((y) => y !== e));
+      return [200, { ok: true }];
     }
     if (p === "/api/agenda" && method === "GET") {
       const col = async (c) => (await this.ctx.storage.get("col:" + c)) || [];

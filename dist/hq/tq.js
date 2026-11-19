@@ -761,7 +761,12 @@
       } else if (t.due) out.push({ date: t.due, title: t.text, kind: t.kind === "repeat" ? "repeat" : "task", project: t.project, group: grp(t.project), id: t.id });
     }
     if (agenda) {
-      for (const e of agenda.events || []) out.push({ date: e.date, time: e.time, title: e.title, kind: "event", group: e.who === "work" ? "work" : (e.project ? grp(e.project) : "personal"), project: e.project, where: e.where, link: e.link, label: e.who === "work" ? "Work calendar" : "Calendar" });
+      for (const e of agenda.events || []) {
+        const mine = e.who === "nicky" || e.who === "booking";
+        out.push({ date: e.date, time: e.time, end: e.end, title: e.title, kind: "event", evId: mine ? e.id : "",
+          group: e.group || (e.who === "work" ? "work" : (e.project ? grp(e.project) : "personal")), project: e.project, where: e.where, link: e.link,
+          label: e.who === "work" ? "Work calendar" : e.who === "nicky" ? "Added by you" : e.who === "booking" ? "Booking, added by Claude" : "Calendar" });
+      }
       for (const x of agenda.posts || []) out.push({ date: x.date, title: x.title, kind: "post", project: x.project, group: x.project ? grp(x.project) : "work", label: x.channel, href: "tools/calendar.html" });
       for (const x of agenda.pitches || []) out.push({ date: x.date, title: `Follow up ${x.who} (${x.company})`, kind: "pitch", project: x.project, group: "work", href: "tools/pitches.html" });
       for (const x of agenda.queries || []) out.push({ date: x.date, title: `${x.kind}: ${x.name}`, kind: "query", project: "tallulah", group: "personal", href: "tools/tallulah.html" });
@@ -791,8 +796,9 @@
     const row = (x) => `<li class="tq-cal-item" ${x.id ? `data-calopen="${esc(x.project)}"` : ""}>
         <span class="tq-cal-bar" style="background:${esc(calColour(x))}"></span>
         <div><p>${x.time ? `<b>${esc(x.time)}</b> · ` : ""}${esc(x.title)}</p>
-        <small>${esc(CAL_KIND[x.kind])}${x.label && x.kind !== "event" ? " · " + esc(x.label) : x.label ? " · " + esc(x.label) : ""}${x.project ? " · " + esc(board.projects.find((p) => p.id === x.project)?.name || "") : ""}${x.where ? " · " + esc(x.where) : ""}${x.date < t ? " · was due " + esc(shortDate(x.date)) : ""}</small></div>
-        ${x.href ? `<a class="tq-mini" href="${esc(x.href)}">Open</a>` : x.link ? `<a class="tq-mini" href="${esc(x.link)}" target="_blank" rel="noopener">Open ↗</a>` : x.id ? `<span class="tq-mini">Open card</span>` : ""}</li>`;
+        <small>${x.kind === "event" ? esc(x.label || "Calendar") : esc(CAL_KIND[x.kind]) + (x.label ? " · " + esc(x.label) : "")}${x.project ? " · " + esc(board.projects.find((p) => p.id === x.project)?.name || "") : ""}${x.where ? " · " + esc(x.where) : ""}${x.date < t ? " · was due " + esc(shortDate(x.date)) : ""}</small></div>
+        ${x.href ? `<a class="tq-mini" href="${esc(x.href)}">Open</a>` : x.link ? `<a class="tq-mini" href="${esc(x.link)}" target="_blank" rel="noopener">Open ↗</a>` : x.id ? `<span class="tq-mini">Open card</span>` : ""}
+        ${x.evId ? `<button type="button" class="tq-mini" data-evdel="${esc(x.evId)}" aria-label="Remove">🗑</button>` : ""}</li>`;
     const noEvents = !(agenda?.events || []).length;
     wrap.innerHTML = `<h2 class="tq-group-h">Calendar</h2>
       <div class="tq-cal-box">
@@ -806,10 +812,38 @@
         <div class="tq-cal">${["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => `<b class="tq-cal-h">${d}</b>`).join("")}${[...Array(start)].map(() => `<span class="tq-cal-d is-blank"></span>`).join("")}${[...Array(days)].map((_, i) => cell(i)).join("")}</div>
         <div class="tq-cal-day"><h3>${esc(shortDate(calDay))}${calDay === t ? " · today" : ""}</h3>
           <ul class="tq-cal-list">${[...overdue, ...sel].map(row).join("") || `<li class="tq-empty">Nothing on this day.</li>`}</ul>
+          <details class="tq-add-note tq-cal-add"><summary>+ Add to this day</summary>
+            <form class="tq-form" id="tq-ev-form">
+              <input class="tq-input" name="title" maxlength="200" placeholder="What, e.g. Call with Chris (Monte)" required>
+              <div class="tq-form-row">
+                <label>Starts<input class="tq-input" type="time" name="time"></label>
+                <label>Ends<input class="tq-input" type="time" name="end"></label>
+                <label>Card<select class="tq-input" name="project"><option value="">Work, no card</option><option value="-personal">Personal, no card</option>${board.projects.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("")}</select></label>
+              </div>
+              <input class="tq-input" name="link" placeholder="Meeting link (https://…)">
+              <div class="tq-form-btns"><button class="tq-btn tq-btn-tint" type="submit">Add</button></div>
+            </form></details>
           ${noEvents ? `<p class="tq-empty tq-cal-note">Your Google Calendar events (personal and work) will appear here after the next background check.</p>` : ""}</div>
       </div>`;
   }
-  $("#tq-calendar").addEventListener("click", (e) => {
+  $("#tq-calendar").addEventListener("submit", async (e) => {
+    if (e.target.id !== "tq-ev-form") return;
+    e.preventDefault();
+    const f = new FormData(e.target), proj = f.get("project");
+    const body = { date: calDay, title: f.get("title"), time: f.get("time"), end: f.get("end"), link: f.get("link"),
+      where: /meet\.google|zoom\.us|cal\.com|teams\./.test(f.get("link")) ? "Video call" : "",
+      project: proj && proj !== "-personal" ? proj : "", group: proj === "-personal" ? "personal" : proj ? "" : "work" };
+    try { await api("/api/events/add", { method: "POST", body: JSON.stringify(body) }); agenda = await api("/api/agenda"); renderCalendar(); toast("Added to the calendar"); }
+    catch (err) { toast(err.message); }
+  });
+  $("#tq-calendar").addEventListener("click", async (e) => {
+    const del = e.target.closest("[data-evdel]");
+    if (del) {
+      e.stopPropagation();
+      if (!del.classList.contains("is-armed")) { del.classList.add("is-armed"); del.textContent = "Tap again"; setTimeout(() => { del.classList.remove("is-armed"); del.textContent = "🗑"; }, 3000); return; }
+      try { await api("/api/events/" + del.dataset.evdel, { method: "DELETE" }); agenda = await api("/api/agenda"); renderCalendar(); toast("Removed"); } catch (err) { toast(err.message); }
+      return;
+    }
     const nav = e.target.closest("[data-calnav]"), show = e.target.closest("[data-calshow]"), day = e.target.closest("[data-calday]"), open = e.target.closest("[data-calopen]");
     if (nav) {
       if (nav.dataset.calnav === "0") { calMonth = todayISO().slice(0, 7); calDay = todayISO(); }

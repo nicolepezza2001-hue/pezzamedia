@@ -151,3 +151,9 @@ The personal check ("claude" key) gets none of the task/calendar powers, and bot
   PUT /api/kits/:card/sections {sections:{voice, spelling, banned, formats, compliance, usage, content}} stores {text, by, at}.
   Both checks may read/write guides, each on its own cards. The page's whole-kit save keeps the sections.
 - Work Claude's paste-in: /mnt/project-files/hq/message-for-work-claude-4.md.
+
+## One-off calendar entries (2026-11-19)
+Calendar day panel has "+ Add to this day" (title, start, end, card, meeting link) for things that aren't in a synced Google Calendar,
+e.g. Cal.com bookings that land in another inbox. POST /api/events/add {date, title, time, end, where, link, project, group} stores
+who "nicky" (owner) or "booking" (a check found it). The daily syncs only replace "claude"/"work" events, so these stay.
+DELETE /api/events/:id (owner) removes only nicky/booking entries (🗑, tap twice).
