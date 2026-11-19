@@ -68,7 +68,9 @@
       const doneJ = (id) => (local.jobs || {})[id] || D.jobs.find((j) => j.id === id)?.done;
       const doneL = (id) => (local.leads || {})[id];
       const today = (D.today || []).filter((t) => !(t.job && doneJ(t.job)) && !(t.lead && doneL(t.lead)));
-      jobs = { open: today.length, hot: today.some((t) => t.hot) };
+      // Only count things Nicky has to do; "fyi" items (waiting on someone else, news) don't count (Nicky, 2026-11-19).
+      const mine = today.filter((t) => !t.fyi && !/^(new platform today|.*waiting on)/i.test(t.title || ""));
+      jobs = { open: mine.length, hot: mine.some((t) => t.hot) };
       try { sessionStorage.setItem("hq-pw", key); } catch (e) {} // so Jobs HQ opens without asking again
     } catch (e) { jobs = null; }
   }
