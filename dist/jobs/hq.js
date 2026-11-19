@@ -111,6 +111,7 @@
       (st ? '<span class="status-' + esc(st.s) + '">● ' + (st.s === "applied" ? "Sent" : "Skipped") + "</span>" : '<span class="status-todo">● Not sent yet</span>') + "</div>" +
       '<h3><a href="' + esc(j.link) + '" target="_blank" rel="noopener">' + esc(j.title) + "</a></h3>" +
       (facts ? '<div class="facts">' + facts + "</div>" : "") +
+      (j.want ? '<p class="why"><b>What they want:</b> ' + linkify(j.want) + "</p>" : "") +
       '<p class="why"><b>Why it fits:</b> ' + linkify(j.why || "") + "</p>" +
       (j.flags && j.flags.length ? '<ul class="flags">' + j.flags.map(function (f) { return "<li>" + linkify(f) + "</li>"; }).join("") + "</ul>" : "") +
       (j.letter ? '<div class="letter" id="letter">' + linkify(j.letter) + "</div>" : '<p class="why" style="color:var(--muted)">No letter drafted yet. Tell me in the project chat and I\'ll write it.</p>') +
