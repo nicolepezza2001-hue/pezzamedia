@@ -345,7 +345,7 @@ export class Board extends DurableObject {
 
   // Passkey sign-in (no password). On success the Worker hands back the password, so the page signs in as usual.
   async passkeyLogin(step, body, where, ip) {
-    if (this.tooManyFails(ip)) return [429, { error: "Too many tries. Wait 10 minutes." }];
+    // No lock here: a passkey can't be guessed, and Touch ID must still work while wrong passwords are blocked.
     const creds = (await this.ctx.storage.get("passkeys")) || [];
     if (!creds.length) return [404, { error: "No Touch ID set up yet. Sign in with your password, then tap Set up Touch ID." }];
     if (step === "options") {
@@ -361,14 +361,14 @@ export class Board extends DurableObject {
     const list = (await this.ctx.storage.get("pk:logins")) || [];
     const ch = list.find((c) => c.challenge === sent && c.exp > Date.now());
     const cred = creds.find((c) => c.id === body?.response?.id);
-    if (!ch || !cred) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
+    if (!ch || !cred) { return [401, { error: "That didn't work. Try again or use your password." }]; }
     let v;
     try {
       v = await verifyAuthenticationResponse({ response: body.response, expectedChallenge: ch.challenge, expectedOrigin: where.origin, expectedRPID: where.rpID,
         credential: { id: cred.id, publicKey: isoBase64URL.toBuffer(cred.publicKey), counter: cred.counter || 0, transports: cred.transports }, requireUserVerification: true });
     } catch (e) { v = null; }
     await this.ctx.storage.put("pk:logins", list.filter((c) => c !== ch));
-    if (!v?.verified) { this.fail(ip); return [401, { error: "That didn't work. Try again or use your password." }]; }
+    if (!v?.verified) { return [401, { error: "That didn't work. Try again or use your password." }]; }
     cred.counter = v.authenticationInfo.newCounter; cred.lastUsed = new Date().toISOString();
     await this.ctx.storage.put("passkeys", creds);
     return [200, { key: this.env.KEY }];
