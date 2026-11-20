@@ -169,3 +169,11 @@ Page dist/hq/tools/meetings.html (focus.html now redirects there). Storage key "
   owner only: POST /api/notes/:id/raise|reopen, PUT/DELETE /api/notes/item/:id, PUT /api/notes/prep {key, text}, DELETE /api/notes/meeting/:id.
   POST /api/notes with {project, text} and no "person" is still an "Always remember" rule from the main page.
 - Work key: GET/POST /api/notes, answer, meeting; sees and adds sn/tmrw items only. The personal check gets 403.
+
+## Planned meetings + task badges (2026-11-20)
+- Meeting notes: "+ Plan a meeting (date not fixed yet)" {title, person, when (free text), date (optional), brand}. They sit at the top of the
+  call picker ("Planned, date not fixed"), get prep notes and items like a call, and leave the list once their after-call notes are saved
+  (with the date it happened). Owner routes: POST /api/notes/planned, PUT/DELETE /api/notes/planned/:id. GET /api/notes returns "planned".
+- Task rows: "◐ In progress" toggle (POST /api/tasks/:id/progress {on}) with an IN PROGRESS badge; "🔔 Chased" on every open task
+  (waiting items restart the 5-day clock; normal tasks store chasedAt); "Nd waiting" badge (waiting items since asked, tasks since chased);
+  "Added N days ago" in the meta line.

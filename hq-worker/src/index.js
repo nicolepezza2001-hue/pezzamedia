@@ -432,7 +432,7 @@ export class Board extends DurableObject {
       await this.save();
       return board();
     }
-    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased|resolve))?$/);
+    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased|resolve|progress))?$/);
     if (tm) {
       const t = d.tasks.find((x) => x.id === tm[1]);
       if (!t) return [404, { error: "That task isn't there any more" }];
@@ -459,8 +459,12 @@ export class Board extends DurableObject {
         await this.save();
         return board({ trashed: d.trash[0].tid });
       } else if (tm[2] === "chased" && method === "POST") {
-        t.asked = today;
+        // Waiting-on items restart their 5-day clock; a normal task just remembers when she chased.
+        if (t.kind === "waiting") t.asked = today;
+        t.chasedAt = today;
         t.chasedCount = (t.chasedCount || 0) + 1;
+      } else if (tm[2] === "progress" && method === "POST") {
+        if (body?.on === false) { delete t.progress; delete t.progressAt; } else { t.progress = true; t.progressAt = today; }
       } else if (tm[2] === "done" && method === "POST") {
         const done = body?.done !== false;
         // A background check may only tick things done, with its evidence; never untick.
@@ -538,16 +542,17 @@ export class Board extends DurableObject {
     // ----- Meeting notes: things to raise, prep per call, notes after the call (storage key "meet") -----
     // POST /api/notes from the main page with {project, text} and no person is still an "Always remember" rule (handled below).
     const isRule = p === "/api/notes" && method === "POST" && role === "owner" && body && "project" in body && !("person" in body);
-    if (!isRule && (p === "/api/notes" || p.startsWith("/api/notes/meeting") || p === "/api/notes/prep" || /^\/api\/notes\/item\/[\w-]+$/.test(p) || /^\/api\/notes\/[\w-]+\/(answer|raise|reopen)$/.test(p))) {
+    if (!isRule && (p === "/api/notes" || p.startsWith("/api/notes/meeting") || p.startsWith("/api/notes/planned") || p === "/api/notes/prep" || /^\/api\/notes\/item\/[\w-]+$/.test(p) || /^\/api\/notes\/[\w-]+\/(answer|raise|reopen)$/.test(p))) {
       const M = (await this.ctx.storage.get("meet")) || { items: [], meetings: [], prep: {} };
-      M.items ||= []; M.meetings ||= []; M.prep ||= {};
+      M.items ||= []; M.meetings ||= []; M.prep ||= {}; M.planned ||= [];
       const saveM = () => this.ctx.storage.put("meet", M);
       const BR = ["sn", "tmrw"];
       const seeItem = (x) => role === "owner" || BR.includes(x.brand);
       const seeMeet = (x) => role === "owner" || !x.brand || BR.includes(x.brand);
       const str = (v, n) => String(v ?? "").trim().slice(0, n);
       const all = () => [200, { items: M.items.filter(seeItem), meetings: M.meetings.filter(seeMeet).slice().sort((a, b) => b.date.localeCompare(a.date)),
-        prep: role === "owner" ? M.prep : {}, people: [...new Set(M.items.map((x) => x.person))].sort() }];
+        prep: role === "owner" ? M.prep : {}, planned: M.planned.filter((x) => !x.done && seeMeet(x)),
+        people: [...new Set([...M.items.map((x) => x.person), ...M.planned.filter((x) => !x.done).map((x) => x.person)].filter(Boolean))].sort() }];
       if (p === "/api/notes" && method === "GET") return all();
       if (p === "/api/notes" && method === "POST") {
         const it = { text: str(body?.text, 500), person: str(body?.person, 80), brand: BR.includes(body?.brand) ? body.brand : "",
@@ -571,6 +576,26 @@ export class Board extends DurableObject {
         M.meetings.sort((a, b) => b.date.localeCompare(a.date)); M.meetings.length = Math.min(M.meetings.length, 300);
         await saveM();
         return role === "owner" ? all() : [200, { ok: true, id }];
+      }
+      // Planned meetings whose date isn't fixed yet (Nicky, 2026-11-20): {title, person, when (free text), date (optional), brand}.
+      const pm = p.match(/^\/api\/notes\/planned(?:\/([\w-]+))?$/);
+      if (pm && role === "owner") {
+        const clean = (b, base = {}) => {
+          const x = { ...base };
+          for (const [k, n] of [["title", 200], ["person", 80], ["when", 120]]) if (k in (b || {})) x[k] = str(b[k], n);
+          if ("date" in (b || {})) x.date = isDate(b.date) ? b.date : "";
+          if ("brand" in (b || {})) x.brand = BR.includes(b.brand) ? b.brand : "";
+          return x;
+        };
+        if (!pm[1] && method === "POST") {
+          const x = clean(body);
+          if (!x.title) return [400, { error: "Give the meeting a name" }];
+          M.planned.push({ id: uid(), ...x, created: new Date().toISOString() }); await saveM(); return all();
+        }
+        const x = M.planned.find((y) => y.id === pm[1]);
+        if (!x) return [404, { error: "That planned meeting isn't there any more" }];
+        if (method === "PUT") { Object.assign(x, clean(body)); if (body?.done) x.done = true; await saveM(); return all(); }
+        if (method === "DELETE") { M.planned = M.planned.filter((y) => y !== x); delete M.prep["planned:" + x.id]; await saveM(); return all(); }
       }
       const dm = p.match(/^\/api\/notes\/meeting\/([\w-]+)$/);
       if (dm && method === "DELETE" && role === "owner") { M.meetings = M.meetings.filter((x) => x.id !== dm[1]); await saveM(); return all(); }

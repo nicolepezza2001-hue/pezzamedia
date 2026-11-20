@@ -322,3 +322,11 @@ textarea.tq-input{resize:vertical;font-family:Inter,sans-serif}
 
 .tq-by{color:#6A4FB0!important}
 :root[data-theme="dark"] .tq-by{color:#CFC2FF!important}
+
+/* in progress + waiting badges (2026-11-20) */
+.tq-badges{display:inline-flex;gap:6px;vertical-align:middle;margin-left:4px}
+.tq-badge{font:700 11px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--tq-line);color:var(--tq-muted);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.tq-badge.is-prog{background:#E3DBF7;border-color:#E3DBF7;color:#4B3A8C}
+.tq-row.is-prog{box-shadow:inset 4px 0 0 #7A64C9}
+.tq-progbtn.is-on{background:#7A64C9;color:#fff}
+:root[data-theme="dark"] .tq-badge.is-prog{background:#3A3166;border-color:#3A3166;color:#E3DBF7}

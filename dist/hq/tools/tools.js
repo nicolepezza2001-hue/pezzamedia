@@ -557,6 +557,12 @@
       .sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")))
       .sort((a, b) => (b.who === "work") - (a.who === "work"));
     const evKey = (e) => `${e.date} ${e.time || ""} ${e.title}`.trim();
+    const planKey = (x) => "planned:" + x.id;
+    const planned = () => (M.planned || []).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"));
+    // The chosen call: a calendar event, or a planned meeting whose date isn't fixed yet.
+    const chosen = () => { const pl = planned().find((x) => planKey(x) === sel); if (pl) return { planned: pl, date: pl.date || "", title: pl.title };
+      return upcoming().find((e) => evKey(e) === sel); };
+    let planEdit = "";
     let sel = "", show = "open", answering = "", editing = "";
     const STOP = new Set(["nicole", "nicky", "pezza", "call", "catch", "meeting", "check", "weekly", "with", "and", "the", "sync", "chat", "google", "meet"]);
     const words = (s) => String(s || "").toLowerCase().split(/[^a-zà-ÿ0-9]+/).filter((w) => w.length > 1 && !STOP.has(w));
@@ -593,12 +599,23 @@
     };
 
     function prepHTML() {
-      const ev = upcoming().find((e) => evKey(e) === sel);
-      if (!ev) return `<p class="tt-hint">Pick a call to see what to raise and to write prep notes.</p>`;
-      const person = $("#tt-mnp")?.dataset.for === sel ? $("#tt-mnp").value : guessPerson(ev.title);
+      const ev = chosen();
+      const planForm = (x) => `<form class="tt-form tt-planform" data-form="plan"${x ? ` data-pid="${esc(x.id)}"` : ""}>
+          <div class="tt-grid"><label class="tt-f">Meeting<input class="tq-input" name="title" placeholder="MM agency meeting" value="${esc(x?.title || "")}" required></label>
+            <label class="tt-f">With<input class="tq-input" name="person" list="tt-people" placeholder="Same name as the items" value="${esc(x?.person || "")}"></label>
+            <label class="tt-f">Roughly when<input class="tq-input" name="when" placeholder="early December, after BF, TBC…" value="${esc(x?.when || "")}"></label>
+            <label class="tt-f">Date, if known<input class="tq-input" type="date" name="date" value="${esc(x?.date || "")}"></label>
+            <label class="tt-f">Brand<select class="tq-input" name="brand">${opts(BRANDS, x?.brand || "")}</select></label></div>
+          <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">${x ? "Save" : "Add planned meeting"}</button>${x ? `<button class="tq-btn tq-btn-soft" type="button" data-act="cancel">Cancel</button>` : ""}</div></form>`;
+      const addPlan = `<details class="tt-add tt-plan"${ev ? "" : ""}><summary>+ Plan a meeting (date not fixed yet)</summary>${planForm(null)}</details>`;
+      if (!ev) return `<p class="tt-hint">Pick a call to see what to raise and to write prep notes.</p>${addPlan}`;
+      if (ev.planned && planEdit === ev.planned.id) return planForm(ev.planned);
+      const person = $("#tt-mnp")?.dataset.for === sel ? $("#tt-mnp").value : ev.planned ? ev.planned.person || guessPerson(ev.title) : guessPerson(ev.title);
       const mine = M.items.filter((x) => x.person === person && x.status !== "answered");
       const met = M.meetings.find((m) => m.event === sel) || M.meetings.find((m) => m.date === ev.date && m.title === ev.title);
-      return `<div class="tt-grid"><label class="tt-f">Whose items<select class="tq-input" id="tt-mnp" data-for="${esc(sel)}"><option value="">Nobody picked</option>${M.people.map((p) => `<option${p === person ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label></div>
+      const planHead = ev.planned ? `<p class="tt-planhead">📌 ${ev.date ? "Planned for " + esc(shortDate(ev.date)) : "Date not fixed"}${ev.planned.when ? " · " + esc(ev.planned.when) : ""}
+          <button class="tq-mini" type="button" data-act="planedit">Edit</button><button class="tq-mini" type="button" data-act="plandel">🗑</button></p>` : "";
+      return `${planHead}<div class="tt-grid"><label class="tt-f">Whose items<select class="tq-input" id="tt-mnp" data-for="${esc(sel)}"><option value="">Nobody picked</option>${M.people.map((p) => `<option${p === person ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label></div>
         <h3>To raise${person ? ` with ${esc(person)}` : ""}</h3>
         <ul class="tt-list">${mine.map(itemHTML).join("") || `<li class="tt-empty">${person ? "Nothing open for " + esc(person) + "." : "Pick whose items to show."}</li>`}</ul>
         <h3>Prep notes</h3>
@@ -607,12 +624,13 @@
         <h3>After the call</h3>
         <form class="tt-form" data-form="meeting">
           <textarea class="tq-input" name="notes" rows="7" placeholder="Paste the meeting notes or summary here">${esc(met?.notes || "")}</textarea>
+          ${ev.planned ? `<label class="tt-f">Date it happened<input class="tq-input" type="date" name="date" value="${esc(ev.date && ev.date <= t0 ? ev.date : t0)}"></label>` : ""}
           <div class="tt-inline"><input class="tq-input" name="link" placeholder="MeetGeek or recording link" value="${esc(met?.link || "")}">
             <label class="tq-btn tq-btn-soft tt-file">📄 Upload notes<input type="file" accept=".txt,.md,.vtt,.srt,.csv,.json,text/*" hidden></label></div>
           <small class="tt-hint">Upload takes text files (.txt, .md, .vtt, .srt). For Word or PDF, paste the text.</small>
           <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">${met ? "Update meeting notes" : "Save meeting notes"}</button></div>
           ${met ? `<small class="tt-hint">Saved ${esc(shortDate(met.date))}${met.addedBy ? ` · ✨ by ${by(met.addedBy)}` : ""}. Mark the items above Raised or Answered.</small>` : ""}
-        </form>`;
+        </form>${addPlan}`;
     }
 
     function draw() {
@@ -621,7 +639,7 @@
       const list = M.items.filter((x) => x.status === show).sort((a, b) => b.added.localeCompare(a.added));
       root.innerHTML = `<datalist id="tt-people">${M.people.map((p) => `<option value="${esc(p)}">`).join("")}</datalist>
         <div class="tt-box"><h2 class="tt-h2">Prep for a call</h2>
-          <select class="tq-input" id="tt-mnev"><option value="">Choose a call…</option>${ev.map((e) => `<option value="${esc(evKey(e))}"${evKey(e) === sel ? " selected" : ""}>${esc(shortDate(e.date))}${e.time ? " " + esc(e.time) : ""} · ${esc(e.title)}${e.who === "work" ? " (work)" : ""}</option>`).join("")}</select>
+          <select class="tq-input" id="tt-mnev"><option value="">Choose a call…</option>${planned().length ? `<optgroup label="Planned, date not fixed">${planned().map((x) => `<option value="${esc(planKey(x))}"${planKey(x) === sel ? " selected" : ""}>📌 ${esc(x.title)} · ${esc(x.date ? shortDate(x.date) : x.when || "date TBC")}</option>`).join("")}</optgroup>` : ""}<optgroup label="Calendar">${ev.map((e) => `<option value="${esc(evKey(e))}"${evKey(e) === sel ? " selected" : ""}>${esc(shortDate(e.date))}${e.time ? " " + esc(e.time) : ""} · ${esc(e.title)}${e.who === "work" ? " (work)" : ""}</option>`).join("")}</optgroup></select>
           <div id="tt-prepbox">${prepHTML()}</div></div>
         <details class="tt-add"><summary>+ Add something to raise</summary>
           <form class="tt-form" data-form="add">
@@ -661,9 +679,18 @@
           toast("Answered");
         }
         if (e.target.dataset.form === "meeting") {
-          const ev = upcoming().find((x) => evKey(x) === sel); if (!ev) return;
-          set(await api("/api/notes/meeting", { method: "POST", body: JSON.stringify({ date: ev.date, title: ev.title, notes: f.notes, link: f.link, person: $("#tt-mnp")?.value || "", event: sel }) }));
-          toast("Meeting notes saved");
+          const ev = chosen(); if (!ev) return;
+          const date = ev.planned ? f.date || t0 : ev.date;
+          M = await api("/api/notes/meeting", { method: "POST", body: JSON.stringify({ date, title: ev.title, notes: f.notes, link: f.link, person: $("#tt-mnp")?.value || "", brand: ev.planned?.brand || "", event: sel }) });
+          // A planned meeting that has happened leaves the planned list once its notes are saved.
+          if (ev.planned) { M = await api(`/api/notes/planned/${ev.planned.id}`, { method: "PUT", body: JSON.stringify({ date, done: true }) }); sel = ""; }
+          draw(); toast("Meeting notes saved");
+        }
+        if (e.target.dataset.form === "plan") {
+          const pid = e.target.dataset.pid;
+          M = await api(pid ? `/api/notes/planned/${pid}` : "/api/notes/planned", { method: pid ? "PUT" : "POST", body: JSON.stringify(f) });
+          if (!pid) { const x = M.planned[M.planned.length - 1]; sel = x ? planKey(planned().find((y) => y.title === f.title) || x) : sel; }
+          planEdit = ""; draw(); toast(pid ? "Saved" : "Planned meeting added");
         }
       } catch (err) { toast(err.message); }
     });
@@ -672,14 +699,16 @@
       if (b.dataset.show) { show = b.dataset.show; draw(); return; }
       const id = b.closest("[data-id]")?.dataset.id, act = b.dataset.act;
       try {
-        if (act === "cancel") { answering = editing = ""; draw(); }
+        if (act === "cancel") { answering = editing = planEdit = ""; draw(); }
+        else if (act === "planedit") { planEdit = chosen()?.planned?.id || ""; draw(); }
+        else if (act === "plandel") { const pid = chosen()?.planned?.id; armDelete(b, async () => { M = await api(`/api/notes/planned/${pid}`, { method: "DELETE" }); sel = ""; draw(); toast("Deleted"); }); }
         else if (act === "answer") { answering = id; editing = ""; draw(); $(`[data-id="${id}"] [name=answer]`)?.focus(); }
         else if (act === "edit") { editing = id; answering = ""; draw(); }
         else if (act === "raise") { set(await api(`/api/notes/${id}/raise`, { method: "POST", body: "{}" })); toast("Marked raised"); }
         else if (act === "reopen") { set(await api(`/api/notes/${id}/reopen`, { method: "POST", body: "{}" })); toast("Back to open"); }
         else if (act === "del") armDelete(b, async () => { set(await api(`/api/notes/item/${id}`, { method: "DELETE" })); toast("Deleted"); });
         else if (act === "delmeet") { const mid = b.closest("[data-mid]").dataset.mid; armDelete(b, async () => { set(await api(`/api/notes/meeting/${mid}`, { method: "DELETE" })); toast("Deleted"); }); }
-        else if (act === "saveprep") { set(await api("/api/notes/prep", { method: "PUT", body: JSON.stringify({ key: sel, text: $("#tt-prep").value }) })); toast("Prep saved"); }
+        else if (act === "saveprep") { if (!chosen()) return; set(await api("/api/notes/prep", { method: "PUT", body: JSON.stringify({ key: sel, text: $("#tt-prep").value }) })); toast("Prep saved"); }
       } catch (err) { toast(err.message); }
     });
     draw();

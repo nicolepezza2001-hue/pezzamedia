@@ -202,19 +202,25 @@
   function rowHTML(t) {
     if (editing === t.id) return formHTML(t);
     const bits = [];
+    if (t.created && !t.done) bits.push(`Added ${ago(t.created.slice(0, 10))}`);
     if (t.kind === "waiting") bits.push(`Asked ${ago(t.asked)}`);
     else if (t.due) { const d = dueLabel(t.due); bits.push(`<span class="tq-due ${d.cls}">${esc(d.text)}</span>`); }
     if (t.kind === "repeat") bits.push(`🔁 ${esc(t.repeat)}`);
     if (t.source) bits.push(`from ${esc(t.source)}`);
+    if (t.chasedAt && t.kind !== "waiting") bits.push(`Chased ${ago(t.chasedAt)}`);
+    // Badges: in progress, and how long she's been waiting (waiting-on items, or a task she chased).
+    const waitFrom = t.kind === "waiting" ? t.asked || t.created.slice(0, 10) : t.chasedAt;
+    const waitDays = waitFrom && !t.done ? Math.max(0, -daysUntil(waitFrom)) : null;
+    const badges = (t.progress && !t.done ? `<span class="tq-badge is-prog">In progress</span>` : "") + (waitDays !== null ? `<span class="tq-badge">${waitDays}d waiting</span>` : "");
     if (t.link) bits.push(`<a href="${esc(t.link)}" target="_blank" rel="noopener">Open ↗</a>`);
     const title = t.kind === "waiting"
       ? (t.chase ? `Chase ${esc(t.who || "them")}: ${esc(t.text)}` : `<b>${esc(t.who || "Someone")}</b>: ${esc(t.text)}`)
       : esc(t.text);
     return `
-      <li class="tq-row${t.done ? " is-done" : ""}${t.chase ? " is-chase" : ""}" data-id="${esc(t.id)}">
+      <li class="tq-row${t.done ? " is-done" : ""}${t.chase ? " is-chase" : ""}${t.progress && !t.done ? " is-prog" : ""}" data-id="${esc(t.id)}">
         <label class="tq-tick"><input type="checkbox" data-act="tick" ${t.done ? "checked" : ""} aria-label="${t.done ? "Put back on the list" : "Mark done"}"><span></span></label>
         <div class="tq-row-main">
-          <p class="tq-row-text">${title}</p>
+          <p class="tq-row-text">${title}${badges ? ` <span class="tq-badges">${badges}</span>` : ""}</p>
           ${bits.length ? `<p class="tq-row-meta">${bits.join(" · ")}</p>` : ""}
           ${t.done && t.doneBy ? `<p class="tq-row-meta">✨ Ticked by ${t.doneBy === "work" ? "Work Claude" : "Claude"}${t.doneWhy ? `: ${esc(t.doneWhy)}` : ""}</p>` : ""}
           ${t.addedBy ? `<p class="tq-row-meta tq-by">✨ Added by ${t.addedBy === "work" ? "Work Claude" : "Claude"}</p>` : ""}
@@ -222,8 +228,9 @@
           ${t.detail ? `<details class="tq-row-detail"><summary>Details</summary><p>${esc(t.detail)}</p></details>` : ""}
         </div>
         <div class="tq-row-btns">
-          ${t.kind === "waiting" && !t.done ? `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>` : ""}
           ${t.done ? "" : `<a class="tq-mini tq-start" href="${esc(startHref(t))}" title="Open a new Claude Code session filled in with this task">Start ▶</a>`}
+          ${t.done ? "" : `<button type="button" class="tq-mini tq-progbtn${t.progress ? " is-on" : ""}" data-act="progress" aria-pressed="${!!t.progress}">◐ In progress</button>`}
+          ${t.done ? "" : `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="edit">Edit</button>`}
           <button type="button" class="tq-mini tq-del" data-act="del" aria-label="Delete">🗑</button>
         </div>
@@ -609,7 +616,8 @@
     if (act === "ccancel") { btn.closest(".tq-c-form").hidden = true; return; }
     if (act === "edit") { editing = id; renderPanel(); $("#tq-panel .tq-form [name=text]")?.focus(); }
     else if (act === "cancel") { editing = null; renderPanel(); }
-    else if (act === "chased") { const c = snap(row); await change(`/api/tasks/${id}/chased`, "POST"); fx("chased", c, rowEl(id)); toast("🔔 Chased. The 5-day clock starts again."); }
+    else if (act === "chased") { const c = snap(row); const w = board.tasks.find((x) => x.id === id)?.kind === "waiting"; await change(`/api/tasks/${id}/chased`, "POST"); fx("chased", c, rowEl(id)); toast(w ? "🔔 Chased. The 5-day clock starts again." : "🔔 Marked as chased today"); }
+    else if (act === "progress") { const on = !board.tasks.find((x) => x.id === id)?.progress; await change(`/api/tasks/${id}/progress`, "POST", { on }); toast(on ? "◐ In progress" : "Not in progress"); }
     else if (act === "del") armDelete(btn, async () => {
       const c = snap(row);
       const b = await change(`/api/tasks/${id}`, "DELETE");
