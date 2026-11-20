@@ -546,9 +546,11 @@ export class Board extends DurableObject {
       const M = (await this.ctx.storage.get("meet")) || { items: [], meetings: [], prep: {} };
       M.items ||= []; M.meetings ||= []; M.prep ||= {}; M.planned ||= [];
       const saveM = () => this.ctx.storage.put("meet", M);
-      const BR = ["sn", "tmrw"];
-      const seeItem = (x) => role === "owner" || BR.includes(x.brand);
-      const seeMeet = (x) => role === "owner" || !x.brand || BR.includes(x.brand);
+      // Brands: sn, tmrw, both (sn + tmrw), personal (Nicky, 2026-11-20). Work Claude sees and adds sn / tmrw / both only.
+      const WB = ["sn", "tmrw", "both"];
+      const BR = role === "owner" ? [...WB, "personal"] : WB;
+      const seeItem = (x) => role === "owner" || WB.includes(x.brand);
+      const seeMeet = (x) => role === "owner" || !x.brand || WB.includes(x.brand);
       const str = (v, n) => String(v ?? "").trim().slice(0, n);
       const all = () => [200, { items: M.items.filter(seeItem), meetings: M.meetings.filter(seeMeet).slice().sort((a, b) => b.date.localeCompare(a.date)),
         prep: role === "owner" ? M.prep : {}, planned: M.planned.filter((x) => !x.done && seeMeet(x)),
@@ -558,7 +560,7 @@ export class Board extends DurableObject {
         const it = { text: str(body?.text, 500), person: str(body?.person, 80), brand: BR.includes(body?.brand) ? body.brand : "",
           source: str(body?.source, 200), link: str(body?.link, 500), detail: str(body?.detail, 2000) };
         if (!it.text || !it.person) return [400, { error: "Needs the text and who to raise it with" }];
-        if (role !== "owner" && !it.brand) return [403, { error: "Work Claude can only add Simply Nootropics (sn) or Tmrw (tmrw) items" }];
+        if (role !== "owner" && !it.brand) return [403, { error: "Work Claude can only add Simply Nootropics (sn), Tmrw (tmrw) or both items" }];
         if (M.items.some((x) => x.status !== "answered" && norm(x.person) === norm(it.person) && similar(x.text, it.text))) return [409, { error: "Already on the list for " + it.person }];
         const n = { id: uid(), ...it, status: "open", added: isDate(body?.date) ? body.date : today, created: new Date().toISOString(), addedBy: role === "owner" ? "" : role };
         M.items.push(n); await saveM();

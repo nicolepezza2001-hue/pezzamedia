@@ -567,7 +567,7 @@
     const STOP = new Set(["nicole", "nicky", "pezza", "call", "catch", "meeting", "check", "weekly", "with", "and", "the", "sync", "chat", "google", "meet"]);
     const words = (s) => String(s || "").toLowerCase().split(/[^a-zà-ÿ0-9]+/).filter((w) => w.length > 1 && !STOP.has(w));
     const guessPerson = (title) => { const w = new Set(words(title)); return M.people.find((p) => words(p).some((x) => w.has(x))) || ""; };
-    const BRANDS = [["", "No brand"], ["sn", "Simply Nootropics"], ["tmrw", "Tmrw"]];
+    const BRANDS = [["", "No brand"], ["sn", "Simply Nootropics"], ["tmrw", "Tmrw"], ["both", "Both (SN + Tmrw)"], ["personal", "Personal"]];
     const brandName = (b) => (BRANDS.find((x) => x[0] === b) || ["", ""])[1];
     const by = (w) => (w === "work" ? "Work Claude" : "Claude");
     const STATUS = { open: "Open", raised: "Raised", answered: "Answered" };

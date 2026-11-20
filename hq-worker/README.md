@@ -171,7 +171,7 @@ Page dist/hq/tools/meetings.html (focus.html now redirects there). Storage key "
 - Work key: GET/POST /api/notes, answer, meeting; sees and adds sn/tmrw items only. The personal check gets 403.
 
 ## Planned meetings + task badges (2026-11-20)
-- Meeting notes: "+ Plan a meeting (date not fixed yet)" {title, person, when (free text), date (optional), brand}. They sit at the top of the
+- Meeting notes: "+ Plan a meeting (date not fixed yet)" {title, person, when (free text), date (optional), brand sn|tmrw|both|personal}. They sit at the top of the
   call picker ("Planned, date not fixed"), get prep notes and items like a call, and leave the list once their after-call notes are saved
   (with the date it happened). Owner routes: POST /api/notes/planned, PUT/DELETE /api/notes/planned/:id. GET /api/notes returns "planned".
 - Task rows: "◐ In progress" toggle (POST /api/tasks/:id/progress {on}) with an IN PROGRESS badge; "🔔 Chased" on every open task

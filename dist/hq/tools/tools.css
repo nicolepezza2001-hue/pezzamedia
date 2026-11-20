@@ -137,3 +137,5 @@
 .tt-answer small{display:inline!important}
 .tt-planhead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0;font-weight:600}
 .tt-plan{box-shadow:none;background:var(--tq-row);margin-top:6px}
+.tt-pill.tt-b-both{background:linear-gradient(90deg,#141B41 50%,#A9D3EE 50%);color:#fff;text-shadow:0 0 3px #141B41}
+.tt-pill.tt-b-personal{background:#E8D8D5;color:#5A2E34}
