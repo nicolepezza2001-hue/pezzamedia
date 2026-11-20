@@ -119,3 +119,19 @@
 .tt-sec .tq-form-btns{margin-top:8px}
 .tt-by{color:#6A4FB0}
 :root[data-theme="dark"] .tt-by{color:#CFC2FF}
+
+/* meeting notes */
+.tt-mn-top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.tt-mn-h{font-size:15px;margin:10px 0 6px!important;display:flex;gap:8px;align-items:center}
+.tt-mn small{margin-top:2px}
+.tt-mn small a{color:var(--tq-ink)}
+.tt-answer{margin-top:6px!important;font-weight:500!important;background:var(--tq-row);border-radius:10px;padding:6px 10px}
+.tt-ansform{margin-top:8px}
+.tt-file{cursor:pointer;flex:none}
+.tt-mn-notes p{white-space:pre-wrap;font-weight:400;font-size:14px;margin-top:6px}
+.tt-pill.is-open{background:#FBE7A6;color:#5A430B}
+.tt-pill.is-raised{background:#E8D8D5;color:#5A2E34}
+.tt-pill.is-answered{background:#C2D9BC;color:#1E3B19}
+.tt-pill.tt-b-sn{background:#141B41;color:#FBF4D7}
+.tt-pill.tt-b-tmrw{background:#A9D3EE;color:#0E2A44}
+.tt-answer small{display:inline!important}

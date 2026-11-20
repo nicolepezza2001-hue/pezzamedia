@@ -740,7 +740,7 @@
     ["notes", "Notes → Tasks", "Paste notes, pick the tasks"], ["kits", "Brand guides", "Voice, rules, logos, colours"],
     ["proof", "Proof bank", "Your numbers, ready to copy"], ["calendar", "Content calendar", "What goes out when"],
     ["swipe", "Swipe file", "Lines you love"], ["tallulah", "Tallulah tracker", "Words and queries"],
-    ["pitches", "Pitch tracker", "Follow-ups and wins"], ["focus", "Focus timer", "Time on what matters"],
+    ["pitches", "Pitch tracker", "Follow-ups and wins"], ["meetings", "Meeting notes", "Raise, prep, follow up"],
   ];
   let toolSum = null;
   async function loadTools() {
@@ -865,6 +865,7 @@
     if (id === "calendar") { const w = s.calendar.filter((d) => d >= t && d <= plusDaysISO(t, 7)).length; return w ? n(w, "post this week", "posts this week") : ""; }
     if (id === "pitches") { const due = s.pitchesDue.filter((d) => d <= t).length; return due ? `<b class="tq-tool-hot">${n(due, "follow-up due", "follow-ups due")}</b>` : s.counts.pitches ? n(s.counts.pitches, "pitch", "pitches") : ""; }
     if (id === "tallulah") return s.words ? `${(s.words.words || 0).toLocaleString()} words${s.queriesOpen ? ` · ${s.queriesOpen} out` : ""}` : "";
+    if (id === "meetings") return s.meetOpen ? `${s.meetOpen} to raise` : "";
     if (id === "focus") { const m = s.focus.filter(([d]) => d === t).reduce((a, [, x]) => a + x, 0); return m ? `${m} min today` : ""; }
     return "";
   }

@@ -547,8 +547,146 @@
     show();
   };
 
+  // ----- Meeting notes: raise at next meeting, prep for a call, notes after the call -----
+  TOOLS.meetings = async () => {
+    const root = $("#tt-main");
+    let M = await api("/api/notes"), events = [];
+    try { events = ((await api("/api/agenda")).events || []); } catch (e) {}
+    const t0 = todayISO();
+    const upcoming = () => events.filter((e) => e.date >= plusDays(t0, -7) && e.date <= plusDays(t0, 21))
+      .sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")))
+      .sort((a, b) => (b.who === "work") - (a.who === "work"));
+    const evKey = (e) => `${e.date} ${e.time || ""} ${e.title}`.trim();
+    let sel = "", show = "open", answering = "", editing = "";
+    const STOP = new Set(["nicole", "nicky", "pezza", "call", "catch", "meeting", "check", "weekly", "with", "and", "the", "sync", "chat", "google", "meet"]);
+    const words = (s) => String(s || "").toLowerCase().split(/[^a-zà-ÿ0-9]+/).filter((w) => w.length > 1 && !STOP.has(w));
+    const guessPerson = (title) => { const w = new Set(words(title)); return M.people.find((p) => words(p).some((x) => w.has(x))) || ""; };
+    const BRANDS = [["", "No brand"], ["sn", "Simply Nootropics"], ["tmrw", "Tmrw"]];
+    const brandName = (b) => (BRANDS.find((x) => x[0] === b) || ["", ""])[1];
+    const by = (w) => (w === "work" ? "Work Claude" : "Claude");
+    const STATUS = { open: "Open", raised: "Raised", answered: "Answered" };
+    const set = (data) => { M = data; draw(); };
+
+    const itemHTML = (x) => editing === x.id ? `<li class="tt-item is-editing" data-id="${esc(x.id)}"><form class="tt-form" data-form="edit">
+        <textarea class="tq-input" name="text" rows="2" required>${esc(x.text)}</textarea>
+        <div class="tt-grid"><label class="tt-f">Who / which meeting<input class="tq-input" name="person" list="tt-people" value="${esc(x.person)}" required></label>
+          <label class="tt-f">Brand<select class="tq-input" name="brand">${opts(BRANDS, x.brand)}</select></label>
+          <label class="tt-f">Source link<input class="tq-input" name="link" value="${esc(x.link)}" placeholder="https://…"></label></div>
+        <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">Save</button><button class="tq-btn tq-btn-soft" type="button" data-act="cancel">Cancel</button></div></form></li>`
+      : `<li class="tt-item tt-mn" data-id="${esc(x.id)}"><div>
+        <p>${esc(x.text)}</p>
+        <small>${[x.brand ? `<span class="tt-pill tt-b-${esc(x.brand)}">${esc(brandName(x.brand))}</span>` : "", "Added " + esc(shortDate(x.added)), x.source ? esc(x.source) : "", x.link ? `<a href="${esc(x.link)}" target="_blank" rel="noopener">Source ↗</a>` : "", x.addedBy ? `<span class="tt-by">✨ Added by ${by(x.addedBy)}</span>` : ""].filter(Boolean).join(" · ")}</small>
+        ${x.status === "raised" ? `<small>Raised ${esc(shortDate(x.raisedOn))}, waiting for an answer</small>` : ""}
+        ${x.answer ? `<p class="tt-answer">↳ ${esc(x.answer.text || "Answered")}${x.answer.source ? ` <small>(${esc(x.answer.source)})</small>` : ""}${x.answer.link ? ` <a href="${esc(x.answer.link)}" target="_blank" rel="noopener">Open ↗</a>` : ""}${x.answer.by && x.answer.by !== "nicky" ? ` <span class="tt-by">✨ ${by(x.answer.by)}</span>` : ""}</p>` : ""}
+        ${answering === x.id ? `<form class="tt-form tt-ansform" data-form="answer"><textarea class="tq-input" name="answer" rows="2" placeholder="What did they say?" required></textarea>
+          <div class="tt-inline"><input class="tq-input" name="link" placeholder="Link (MeetGeek, Slack…)"><button class="tq-btn tq-btn-main" type="submit">Save answer</button><button class="tq-btn tq-btn-soft" type="button" data-act="cancel">Cancel</button></div></form>` : ""}
+      </div><div class="tt-item-btns">
+        <span class="tt-pill is-${esc(x.status)}">${STATUS[x.status]}</span>
+        ${x.status === "open" ? `<button class="tq-mini" type="button" data-act="raise">Raised</button>` : ""}
+        ${x.status !== "answered" ? `<button class="tq-mini" type="button" data-act="answer">Answered…</button>` : `<button class="tq-mini" type="button" data-act="reopen">Reopen</button>`}
+        <button class="tq-mini" type="button" data-act="edit">Edit</button><button class="tq-mini" type="button" data-act="del">🗑</button></div></li>`;
+
+    const groups = (list) => {
+      const g = {};
+      for (const x of list) (g[x.person] ||= []).push(x);
+      return Object.keys(g).sort().map((p) => `<h3 class="tt-mn-h">${esc(p)} <span class="tq-n">${g[p].length}</span></h3><ul class="tt-list">${g[p].map(itemHTML).join("")}</ul>`).join("");
+    };
+
+    function prepHTML() {
+      const ev = upcoming().find((e) => evKey(e) === sel);
+      if (!ev) return `<p class="tt-hint">Pick a call to see what to raise and to write prep notes.</p>`;
+      const person = $("#tt-mnp")?.dataset.for === sel ? $("#tt-mnp").value : guessPerson(ev.title);
+      const mine = M.items.filter((x) => x.person === person && x.status !== "answered");
+      const met = M.meetings.find((m) => m.event === sel) || M.meetings.find((m) => m.date === ev.date && m.title === ev.title);
+      return `<div class="tt-grid"><label class="tt-f">Whose items<select class="tq-input" id="tt-mnp" data-for="${esc(sel)}"><option value="">Nobody picked</option>${M.people.map((p) => `<option${p === person ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label></div>
+        <h3>To raise${person ? ` with ${esc(person)}` : ""}</h3>
+        <ul class="tt-list">${mine.map(itemHTML).join("") || `<li class="tt-empty">${person ? "Nothing open for " + esc(person) + "." : "Pick whose items to show."}</li>`}</ul>
+        <h3>Prep notes</h3>
+        <textarea class="tq-input" id="tt-prep" rows="5" placeholder="What you want out of this call, numbers to bring, questions…">${esc(M.prep[sel]?.text || "")}</textarea>
+        <div class="tq-form-btns"><button class="tq-btn tq-btn-soft" type="button" data-act="saveprep">Save prep</button></div>
+        <h3>After the call</h3>
+        <form class="tt-form" data-form="meeting">
+          <textarea class="tq-input" name="notes" rows="7" placeholder="Paste the meeting notes or summary here">${esc(met?.notes || "")}</textarea>
+          <div class="tt-inline"><input class="tq-input" name="link" placeholder="MeetGeek or recording link" value="${esc(met?.link || "")}">
+            <label class="tq-btn tq-btn-soft tt-file">📄 Upload notes<input type="file" accept=".txt,.md,.vtt,.srt,.csv,.json,text/*" hidden></label></div>
+          <small class="tt-hint">Upload takes text files (.txt, .md, .vtt, .srt). For Word or PDF, paste the text.</small>
+          <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">${met ? "Update meeting notes" : "Save meeting notes"}</button></div>
+          ${met ? `<small class="tt-hint">Saved ${esc(shortDate(met.date))}${met.addedBy ? ` · ✨ by ${by(met.addedBy)}` : ""}. Mark the items above Raised or Answered.</small>` : ""}
+        </form>`;
+    }
+
+    function draw() {
+      const ev = upcoming();
+      const counts = { open: 0, raised: 0, answered: 0 }; for (const x of M.items) counts[x.status]++;
+      const list = M.items.filter((x) => x.status === show).sort((a, b) => b.added.localeCompare(a.added));
+      root.innerHTML = `<datalist id="tt-people">${M.people.map((p) => `<option value="${esc(p)}">`).join("")}</datalist>
+        <div class="tt-box"><h2 class="tt-h2">Prep for a call</h2>
+          <select class="tq-input" id="tt-mnev"><option value="">Choose a call…</option>${ev.map((e) => `<option value="${esc(evKey(e))}"${evKey(e) === sel ? " selected" : ""}>${esc(shortDate(e.date))}${e.time ? " " + esc(e.time) : ""} · ${esc(e.title)}${e.who === "work" ? " (work)" : ""}</option>`).join("")}</select>
+          <div id="tt-prepbox">${prepHTML()}</div></div>
+        <details class="tt-add"><summary>+ Add something to raise</summary>
+          <form class="tt-form" data-form="add">
+            <textarea class="tq-input" name="text" rows="2" placeholder="The doubt or request, e.g. Can we move the Tmrw Lab send to Tuesday?" required></textarea>
+            <div class="tt-grid"><label class="tt-f">Who / which meeting<input class="tq-input" name="person" list="tt-people" placeholder="Anthony check-in" required></label>
+              <label class="tt-f">Brand<select class="tq-input" name="brand">${opts(BRANDS, "")}</select></label>
+              <label class="tt-f">Source link<input class="tq-input" name="link" placeholder="https://… (Slack, ClickUp, email)"></label></div>
+            <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">Add</button></div></form></details>
+        <div class="tt-box"><div class="tt-mn-top"><h2 class="tt-h2">Raise at next meeting</h2>
+          <div class="tt-tabs">${Object.keys(STATUS).map((k) => `<button class="tt-tab${show === k ? " is-on" : ""}" type="button" data-show="${k}">${STATUS[k]} ${counts[k]}</button>`).join("")}</div></div>
+          ${groups(list) || `<p class="tt-empty">${show === "open" ? "Nothing to raise. Add something above." : "Nothing here yet."}</p>`}</div>
+        <div class="tt-box"><h2 class="tt-h2">Past meetings</h2>
+          <ul class="tt-list">${M.meetings.slice(0, 30).map((m) => `<li class="tt-item" data-mid="${esc(m.id)}"><div>
+            <p>${esc(m.title)}</p><small>${esc(shortDate(m.date))}${m.person ? " · " + esc(m.person) : ""}${m.link ? ` · <a href="${esc(m.link)}" target="_blank" rel="noopener">Recording / notes ↗</a>` : ""}${m.addedBy ? ` · <span class="tt-by">✨ ${by(m.addedBy)}</span>` : ""}</small>
+            ${m.notes ? `<details class="tt-mn-notes"><summary>Notes</summary><p>${esc(m.notes)}</p></details>` : ""}</div>
+            <div class="tt-item-btns"><button class="tq-mini" type="button" data-act="delmeet">🗑</button></div></li>`).join("") || `<li class="tt-empty">No meetings logged yet.</li>`}</ul></div>`;
+    }
+
+    root.addEventListener("change", (e) => {
+      if (e.target.id === "tt-mnev") { sel = e.target.value; draw(); }
+      if (e.target.id === "tt-mnp") { $("#tt-prepbox").innerHTML = prepHTML(); }
+      if (e.target.type === "file" && e.target.files[0]) {
+        const f = e.target.files[0], ta = $("[data-form=meeting] [name=notes]");
+        if (f.size > 2e6) { toast("That file is too big. Paste the text instead."); return; }
+        f.text().then((txt) => { ta.value = (ta.value ? ta.value + "\n\n" : "") + txt; toast("Added the file's text. Tap Save."); });
+      }
+    });
+    root.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(e.target)), li = e.target.closest("[data-id]");
+      try {
+        if (e.target.dataset.form === "add") { set(await api("/api/notes", { method: "POST", body: JSON.stringify(f) })); show = "open"; draw(); toast("Added"); }
+        if (e.target.dataset.form === "edit") { editing = ""; set(await api(`/api/notes/item/${li.dataset.id}`, { method: "PUT", body: JSON.stringify(f) })); toast("Saved"); }
+        if (e.target.dataset.form === "answer") {
+          answering = ""; const met = M.meetings.find((m) => m.event === sel);
+          set(await api(`/api/notes/${li.dataset.id}/answer`, { method: "POST", body: JSON.stringify({ answer: f.answer, link: f.link, source: met ? met.title : "", meeting: met?.id || "" }) }));
+          toast("Answered");
+        }
+        if (e.target.dataset.form === "meeting") {
+          const ev = upcoming().find((x) => evKey(x) === sel); if (!ev) return;
+          set(await api("/api/notes/meeting", { method: "POST", body: JSON.stringify({ date: ev.date, title: ev.title, notes: f.notes, link: f.link, person: $("#tt-mnp")?.value || "", event: sel }) }));
+          toast("Meeting notes saved");
+        }
+      } catch (err) { toast(err.message); }
+    });
+    root.addEventListener("click", async (e) => {
+      const b = e.target.closest("[data-act],[data-show]"); if (!b) return;
+      if (b.dataset.show) { show = b.dataset.show; draw(); return; }
+      const id = b.closest("[data-id]")?.dataset.id, act = b.dataset.act;
+      try {
+        if (act === "cancel") { answering = editing = ""; draw(); }
+        else if (act === "answer") { answering = id; editing = ""; draw(); $(`[data-id="${id}"] [name=answer]`)?.focus(); }
+        else if (act === "edit") { editing = id; answering = ""; draw(); }
+        else if (act === "raise") { set(await api(`/api/notes/${id}/raise`, { method: "POST", body: "{}" })); toast("Marked raised"); }
+        else if (act === "reopen") { set(await api(`/api/notes/${id}/reopen`, { method: "POST", body: "{}" })); toast("Back to open"); }
+        else if (act === "del") armDelete(b, async () => { set(await api(`/api/notes/item/${id}`, { method: "DELETE" })); toast("Deleted"); });
+        else if (act === "delmeet") { const mid = b.closest("[data-mid]").dataset.mid; armDelete(b, async () => { set(await api(`/api/notes/meeting/${mid}`, { method: "DELETE" })); toast("Deleted"); }); }
+        else if (act === "saveprep") { set(await api("/api/notes/prep", { method: "PUT", body: JSON.stringify({ key: sel, text: $("#tt-prep").value }) })); toast("Prep saved"); }
+      } catch (err) { toast(err.message); }
+    });
+    draw();
+  };
+
   // ===== start up =====
-  const NAMES = { notes: "Notes → Tasks", kits: "Brand guides", proof: "Proof bank", calendar: "Content calendar", swipe: "Swipe file", tallulah: "Tallulah tracker", pitches: "Pitch tracker", focus: "Focus timer" };
+  const NAMES = { notes: "Notes → Tasks", kits: "Brand guides", proof: "Proof bank", calendar: "Content calendar", swipe: "Swipe file", tallulah: "Tallulah tracker", pitches: "Pitch tracker", focus: "Focus timer", meetings: "Meeting notes" };
   function showLock(msg) {
     $("#tt-app").hidden = true; $("#tq-lock").hidden = false;
     $("#tq-lock-msg").textContent = msg || "";

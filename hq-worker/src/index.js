@@ -50,6 +50,9 @@ function sweepAllowed(method, path, who) {
     if (method === "POST" && (p === "/api/tasks" || /^\/api\/tasks\/[\w-]+\/resolve$/.test(p))) return true;
     if (p === "/api/calendar" && (method === "GET" || method === "POST")) return true;
     if (/^\/api\/calendar\/[\w-]+$/.test(p) && method === "PUT") return true;
+    // Meeting notes (Nicky, 2026-11-20): read, add items, answer items, log a meeting.
+    if (p === "/api/notes" && (method === "GET" || method === "POST")) return true;
+    if (method === "POST" && (p === "/api/notes/meeting" || /^\/api\/notes\/[\w-]+\/answer$/.test(p))) return true;
   }
   return false;
 }
@@ -385,7 +388,7 @@ export class Board extends DurableObject {
                      lastSweep: d.lastSweep, sweeps: d.sweeps || {}, stats: d.stats || { days: {} }, updated: d.updated || d.created, settings: d.settings }];
     }
     if (p === "/api/export" && method === "GET") {
-      const tools = { kits: (await this.ctx.storage.get("kits")) || {} };
+      const tools = { kits: (await this.ctx.storage.get("kits")) || {}, meetings: (await this.ctx.storage.get("meet")) || {} };
       for (const c of COLS) tools[c] = (await this.ctx.storage.get("col:" + c)) || [];
       return [200, { exported: new Date().toISOString(), ...d, tools }];
     }
@@ -530,6 +533,79 @@ export class Board extends DurableObject {
       } else return [405, { error: "Not allowed" }];
       await this.save();
       return board();
+    }
+
+    // ----- Meeting notes: things to raise, prep per call, notes after the call (storage key "meet") -----
+    // POST /api/notes from the main page with {project, text} and no person is still an "Always remember" rule (handled below).
+    const isRule = p === "/api/notes" && method === "POST" && role === "owner" && body && "project" in body && !("person" in body);
+    if (!isRule && (p === "/api/notes" || p.startsWith("/api/notes/meeting") || p === "/api/notes/prep" || /^\/api\/notes\/item\/[\w-]+$/.test(p) || /^\/api\/notes\/[\w-]+\/(answer|raise|reopen)$/.test(p))) {
+      const M = (await this.ctx.storage.get("meet")) || { items: [], meetings: [], prep: {} };
+      M.items ||= []; M.meetings ||= []; M.prep ||= {};
+      const saveM = () => this.ctx.storage.put("meet", M);
+      const BR = ["sn", "tmrw"];
+      const seeItem = (x) => role === "owner" || BR.includes(x.brand);
+      const seeMeet = (x) => role === "owner" || !x.brand || BR.includes(x.brand);
+      const str = (v, n) => String(v ?? "").trim().slice(0, n);
+      const all = () => [200, { items: M.items.filter(seeItem), meetings: M.meetings.filter(seeMeet).slice().sort((a, b) => b.date.localeCompare(a.date)),
+        prep: role === "owner" ? M.prep : {}, people: [...new Set(M.items.map((x) => x.person))].sort() }];
+      if (p === "/api/notes" && method === "GET") return all();
+      if (p === "/api/notes" && method === "POST") {
+        const it = { text: str(body?.text, 500), person: str(body?.person, 80), brand: BR.includes(body?.brand) ? body.brand : "",
+          source: str(body?.source, 200), link: str(body?.link, 500), detail: str(body?.detail, 2000) };
+        if (!it.text || !it.person) return [400, { error: "Needs the text and who to raise it with" }];
+        if (role !== "owner" && !it.brand) return [403, { error: "Work Claude can only add Simply Nootropics (sn) or Tmrw (tmrw) items" }];
+        if (M.items.some((x) => x.status !== "answered" && norm(x.person) === norm(it.person) && similar(x.text, it.text))) return [409, { error: "Already on the list for " + it.person }];
+        const n = { id: uid(), ...it, status: "open", added: isDate(body?.date) ? body.date : today, created: new Date().toISOString(), addedBy: role === "owner" ? "" : role };
+        M.items.push(n); await saveM();
+        return role === "owner" ? all() : [200, { ok: true, id: n.id }];
+      }
+      if (p === "/api/notes/meeting" && method === "POST") {
+        const mt = { date: isDate(body?.date) ? body.date : today, title: str(body?.title, 200), notes: str(body?.notes, 100000), link: str(body?.link, 500),
+          person: str(body?.person, 80), brand: BR.includes(body?.brand) ? body.brand : "", event: str(body?.event, 300) };
+        if (!mt.title) return [400, { error: "Needs a title" }];
+        const same = M.meetings.find((x) => x.date === mt.date && norm(x.title) === norm(mt.title));
+        if (same && !seeMeet(same)) return [403, { error: "That meeting is off limits for this check" }];
+        let id;
+        if (same) { for (const k of Object.keys(mt)) if (mt[k] || k === "notes") same[k] = mt[k] || same[k]; same.edited = new Date().toISOString(); id = same.id; }
+        else { id = uid(); M.meetings.push({ id, ...mt, created: new Date().toISOString(), addedBy: role === "owner" ? "" : role }); }
+        M.meetings.sort((a, b) => b.date.localeCompare(a.date)); M.meetings.length = Math.min(M.meetings.length, 300);
+        await saveM();
+        return role === "owner" ? all() : [200, { ok: true, id }];
+      }
+      const dm = p.match(/^\/api\/notes\/meeting\/([\w-]+)$/);
+      if (dm && method === "DELETE" && role === "owner") { M.meetings = M.meetings.filter((x) => x.id !== dm[1]); await saveM(); return all(); }
+      if (p === "/api/notes/prep" && method === "PUT" && role === "owner") {
+        const k = str(body?.key, 300); if (!k) return [400, { error: "Which call?" }];
+        if (str(body?.text, 20000)) M.prep[k] = { text: str(body.text, 20000), at: new Date().toISOString() }; else delete M.prep[k];
+        await saveM(); return all();
+      }
+      const am = p.match(/^\/api\/notes\/([\w-]+)\/(answer|raise|reopen)$/);
+      if (am && method === "POST") {
+        const it = M.items.find((x) => x.id === am[1]);
+        if (!it) return [404, { error: "That item isn't there any more" }];
+        if (!seeItem(it)) return [403, { error: "That item is off limits for this check" }];
+        if (role !== "owner" && am[2] !== "answer") return [403, { error: "Not allowed" }];
+        if (am[2] === "raise") { it.status = "raised"; it.raisedOn = isDate(body?.date) ? body.date : today; }
+        if (am[2] === "reopen") { it.status = "open"; delete it.answer; delete it.raisedOn; delete it.answeredOn; }
+        if (am[2] === "answer") {
+          it.status = "answered"; it.answeredOn = isDate(body?.date) ? body.date : today;
+          it.answer = { text: str(body?.answer, 2000), source: str(body?.source, 200), link: str(body?.link, 500), meeting: str(body?.meeting, 20), by: role === "owner" ? "nicky" : role };
+        }
+        await saveM();
+        return role === "owner" ? all() : [200, { ok: true, id: it.id }];
+      }
+      const im = p.match(/^\/api\/notes\/item\/([\w-]+)$/);
+      if (im && role === "owner") {
+        const it = M.items.find((x) => x.id === im[1]);
+        if (!it) return [404, { error: "That item isn't there any more" }];
+        if (method === "DELETE") { M.items = M.items.filter((x) => x !== it); await saveM(); return all(); }
+        if (method === "PUT") {
+          for (const [k, n] of [["text", 500], ["person", 80], ["source", 200], ["link", 500], ["detail", 2000]]) if (k in body) it[k] = str(body[k], n) || (k === "text" || k === "person" ? it[k] : "");
+          if ("brand" in body) it.brand = BR.includes(body.brand) ? body.brand : "";
+          await saveM(); return all();
+        }
+      }
+      return [405, { error: "Not allowed" }];
     }
 
     // ----- Always remember notes -----
@@ -903,7 +979,8 @@ export class Board extends DurableObject {
         queriesOpen: out.queries.filter((x) => ["sent", "partial", "full"].includes(x.status)).length,
         calendar: out.calendar.map((x) => x.date).filter(Boolean),
         focus: out.focus.map((x) => [x.day, x.minutes || 0]),
-        kitsChecked: Object.values(kits).filter((k) => k.checked).length, kits: Object.keys(kits).length }];
+        kitsChecked: Object.values(kits).filter((k) => k.checked).length, kits: Object.keys(kits).length,
+        meetOpen: (((await this.ctx.storage.get("meet")) || {}).items || []).filter((x) => x.status === "open").length }];
     }
     // Notes -> Tasks: Claude reads pasted notes and returns possible tasks. Nothing is added here.
     if (p === "/api/notes-to-tasks" && method === "POST") {

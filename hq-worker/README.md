@@ -157,3 +157,15 @@ Calendar day panel has "+ Add to this day" (title, start, end, card, meeting lin
 e.g. Cal.com bookings that land in another inbox. POST /api/events/add {date, title, time, end, where, link, project, group} stores
 who "nicky" (owner) or "booking" (a check found it). The daily syncs only replace "claude"/"work" events, so these stay.
 DELETE /api/events/:id (owner) removes only nicky/booking entries (🗑, tap twice).
+
+## Meeting notes (replaced the Focus timer, 2026-11-20)
+Page dist/hq/tools/meetings.html (focus.html now redirects there). Storage key "meet" = {items, meetings, prep}.
+- Item {id, text, person (person or meeting, e.g. "Anthony check-in"), brand sn|tmrw|"", added, source, link, status open|raised|answered,
+  raisedOn, answeredOn, answer {text, source, link, meeting, by}, addedBy}.
+- Prep: pick a call from /api/agenda events (work first, last 7 to next 21 days); whose items is guessed from the event title; prep text saved per call.
+- After the call: notes (paste or upload a text file), MeetGeek/recording link, saved as a meeting; mark items Raised / Answered with the answer.
+- Routes: GET /api/notes; POST /api/notes {text, person, brand, source, link} (409 on a similar open item for that person);
+  POST /api/notes/:id/answer {answer, source, link}; POST /api/notes/meeting {date, title, notes, link, person, brand} (same date + title updates);
+  owner only: POST /api/notes/:id/raise|reopen, PUT/DELETE /api/notes/item/:id, PUT /api/notes/prep {key, text}, DELETE /api/notes/meeting/:id.
+  POST /api/notes with {project, text} and no "person" is still an "Always remember" rule from the main page.
+- Work key: GET/POST /api/notes, answer, meeting; sees and adds sn/tmrw items only. The personal check gets 403.
