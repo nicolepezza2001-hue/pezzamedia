@@ -740,6 +740,7 @@
       board = await api("/api/board");
     } catch (e) {
       if (e.status === 401) { const had = !!key; TQAUTH.clear(); key = ""; return showLock(had ? "That's not it. Try again." : ""); }
+      if (key) { showLock("Couldn't reach Tasks HQ just now. Retrying…"); setTimeout(() => location.reload(), 8000); return; }
       return showLock(e.message);
     }
     TQAUTH.save(key);

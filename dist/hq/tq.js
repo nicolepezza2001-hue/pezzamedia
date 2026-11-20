@@ -968,6 +968,11 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden && board && key && !editing) load().catch(() => {}); });
 
   if (!API) showLock("Not connected to Cloudflare yet.");
-  else if (key) load().then(() => { TQAUTH.save(key); showApp(); }).catch((e) => { if (e.status === 401) TQAUTH.clear(); key = ""; showLock(e.status === 401 ? "" : e.message); });
+  else if (key) load().then(() => { TQAUTH.save(key); showApp(); }).catch((e) => {
+    // Only a wrong password signs her out. A network blip or a busy server keeps the saved sign-in and retries.
+    if (e.status === 401) { TQAUTH.clear(); key = ""; showLock(""); return; }
+    showLock("Couldn't reach Tasks HQ just now. Retrying…");
+    setTimeout(() => location.reload(), 8000);
+  });
   else showLock();
 })();

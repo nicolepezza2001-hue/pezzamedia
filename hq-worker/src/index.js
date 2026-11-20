@@ -139,7 +139,6 @@ export default {
     if (!env.KEY) return json({ error: "Password not set on the Worker yet" }, 503, req);
     const stub = env.BOARD.get(env.BOARD.idFromName("main"));
     const ip = req.headers.get("CF-Connecting-IP") || "local";
-    if (await stub.tooManyFails(ip)) return json({ error: "Too many wrong tries. Wait 10 minutes." }, 429, req);
     // Owner = the password. Background checks use their own limited key (X-Sweep),
     // derived from the password, so no extra secret is needed and they can't edit tasks.
     // Touch ID / Face ID sign-in: the only routes that work without the password.
@@ -156,7 +155,11 @@ export default {
       for (const who of SWEEPERS) if (sameKey(req.headers.get("X-Sweep"), await sweepKey(env.KEY, who))) role = who;
     }
     if (!role) {
-      await stub.fail(ip);
+      // Only wrong guesses count towards the 10-minute lock, and the right password always works, even during a lock
+      // (Nicky got logged out 2026-11-20: her work Claude's keyless calls from the same Mac were locking her out).
+      const guessed = req.headers.get("X-Key") || req.headers.get("X-Sweep");
+      if (await stub.tooManyFails(ip)) return json({ error: "Too many wrong tries. Wait 10 minutes." }, 429, req);
+      if (guessed) await stub.fail(ip);
       const sw = req.headers.get("X-Sweep");
       return json({ error: sw ? "Wrong X-Sweep key: use the full sw_ key from your instructions, exactly as given"
         : req.headers.get("X-Key") ? "Wrong password" : "No key sent. Background checks: add the header X-Sweep with your sw_ key (never the password)" }, 401, req);
