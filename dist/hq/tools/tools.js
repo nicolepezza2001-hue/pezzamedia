@@ -637,14 +637,22 @@
       const ev = upcoming();
       const counts = { open: 0, raised: 0, answered: 0 }; for (const x of M.items) counts[x.status]++;
       const list = M.items.filter((x) => x.status === show).sort((a, b) => b.added.localeCompare(a.added));
-      root.innerHTML = `<datalist id="tt-people">${M.people.map((p) => `<option value="${esc(p)}">`).join("")}</datalist>
+      // Everything she can raise things at: people/meetings already used, planned meetings, and calendar calls.
+      const uniq = (a) => [...new Set(a.filter(Boolean))];
+      const plannedNames = uniq(planned().map((x) => x.person || x.title)).filter((n) => !M.people.includes(n));
+      const calNames = uniq(ev.map((e) => e.title)).filter((n) => !M.people.includes(n) && !plannedNames.includes(n));
+      const cur = chosen(), curName = cur ? (cur.planned ? cur.planned.person || cur.title : guessPerson(cur.title) || cur.title) : "";
+      const og = (label, list) => list.length ? `<optgroup label="${esc(label)}">${list.map((n) => `<option${n === curName ? " selected" : ""}>${esc(n)}</option>`).join("")}</optgroup>` : "";
+      const pickHTML = `<select class="tq-input" name="pick" required><option value="">Choose…</option>${og("People and meetings", M.people)}${og("Planned meetings", plannedNames)}${og("Calendar", calNames)}<option value="__new">+ Someone or something new…</option></select>
+        <input class="tq-input" name="person" placeholder="Name, e.g. Yana or MM agency meeting" hidden>`;
+      root.innerHTML = `<datalist id="tt-people">${uniq([...M.people, ...plannedNames, ...calNames]).map((p) => `<option value="${esc(p)}">`).join("")}</datalist>
         <div class="tt-box"><h2 class="tt-h2">Prep for a call</h2>
           <select class="tq-input" id="tt-mnev"><option value="">Choose a call…</option>${planned().length ? `<optgroup label="Planned, date not fixed">${planned().map((x) => `<option value="${esc(planKey(x))}"${planKey(x) === sel ? " selected" : ""}>📌 ${esc(x.title)} · ${esc(x.date ? shortDate(x.date) : x.when || "date TBC")}</option>`).join("")}</optgroup>` : ""}<optgroup label="Calendar">${ev.map((e) => `<option value="${esc(evKey(e))}"${evKey(e) === sel ? " selected" : ""}>${esc(shortDate(e.date))}${e.time ? " " + esc(e.time) : ""} · ${esc(e.title)}${e.who === "work" ? " (work)" : ""}</option>`).join("")}</optgroup></select>
           <div id="tt-prepbox">${prepHTML()}</div></div>
         <details class="tt-add"><summary>+ Add something to raise</summary>
           <form class="tt-form" data-form="add">
             <textarea class="tq-input" name="text" rows="2" placeholder="The doubt or request, e.g. Can we move the Tmrw Lab send to Tuesday?" required></textarea>
-            <div class="tt-grid"><label class="tt-f">Who / which meeting<input class="tq-input" name="person" list="tt-people" placeholder="Anthony check-in" required></label>
+            <div class="tt-grid"><label class="tt-f">Who / which meeting${pickHTML}</label>
               <label class="tt-f">Brand<select class="tq-input" name="brand">${opts(BRANDS, "")}</select></label>
               <label class="tt-f">Source link<input class="tq-input" name="link" placeholder="https://… (Slack, ClickUp, email)"></label></div>
             <div class="tq-form-btns"><button class="tq-btn tq-btn-main" type="submit">Add</button></div></form></details>
@@ -661,6 +669,7 @@
     root.addEventListener("change", (e) => {
       if (e.target.id === "tt-mnev") { sel = e.target.value; draw(); }
       if (e.target.id === "tt-mnp") { $("#tt-prepbox").innerHTML = prepHTML(); }
+      if (e.target.name === "pick") { const n = $("[data-form=add] [name=person]"); n.hidden = e.target.value !== "__new"; n.required = !n.hidden; if (!n.hidden) n.focus(); }
       if (e.target.type === "file" && e.target.files[0]) {
         const f = e.target.files[0], ta = $("[data-form=meeting] [name=notes]");
         if (f.size > 2e6) { toast("That file is too big. Paste the text instead."); return; }
@@ -671,7 +680,12 @@
       e.preventDefault();
       const f = Object.fromEntries(new FormData(e.target)), li = e.target.closest("[data-id]");
       try {
-        if (e.target.dataset.form === "add") { set(await api("/api/notes", { method: "POST", body: JSON.stringify(f) })); show = "open"; draw(); toast("Added"); }
+        if (e.target.dataset.form === "add") {
+          if (f.pick !== "__new") f.person = f.pick;
+          if (!f.person) { toast("Choose who or which meeting"); return; }
+          delete f.pick;
+          set(await api("/api/notes", { method: "POST", body: JSON.stringify(f) })); show = "open"; draw(); toast("Added");
+        }
         if (e.target.dataset.form === "edit") { editing = ""; set(await api(`/api/notes/item/${li.dataset.id}`, { method: "PUT", body: JSON.stringify(f) })); toast("Saved"); }
         if (e.target.dataset.form === "answer") {
           answering = ""; const met = M.meetings.find((m) => m.event === sel);
