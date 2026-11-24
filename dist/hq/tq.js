@@ -67,10 +67,11 @@
       let local = {}; try { local = JSON.parse(localStorage.getItem("hq-state-v2") || "{}"); } catch (e) {}
       const doneJ = (id) => (local.jobs || {})[id] || D.jobs.find((j) => j.id === id)?.done;
       const doneL = (id) => (local.leads || {})[id];
-      const today = (D.today || []).filter((t) => !(t.job && doneJ(t.job)) && !(t.lead && doneL(t.lead)));
-      // Only count things Nicky has to do; "fyi" items (waiting on someone else, news) don't count (Nicky, 2026-11-19).
-      const mine = today.filter((t) => !t.fyi && !/^(new platform today|.*waiting on)/i.test(t.title || ""));
-      jobs = { open: mine.length, hot: mine.some((t) => t.hot) };
+      // "To do" = job cards she hasn't sent or skipped yet (Jobs HQ's own marks, saved in this browser, count too).
+      // The Today list is news and suggestions, so it no longer drives the number (Nicky, 2026-11-24: "why 4 if its 0").
+      const open = (D.jobs || []).filter((j) => !doneJ(j.id));
+      const hotIds = new Set((D.today || []).filter((t) => t.hot && t.job).map((t) => t.job));
+      jobs = { open: open.length, hot: open.some((j) => hotIds.has(j.id)) };
       try { sessionStorage.setItem("hq-pw", key); } catch (e) {} // so Jobs HQ opens without asking again
     } catch (e) { jobs = null; }
   }
