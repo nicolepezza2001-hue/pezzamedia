@@ -234,7 +234,7 @@
           ${t.done ? "" : `<a class="tq-mini tq-start" href="${esc(startHref(t))}" title="Open a new Claude Code session filled in with this task">Start ▶</a>`}
           ${t.done ? "" : `<button type="button" class="tq-mini tq-progbtn${t.progress ? " is-on" : ""}" data-act="progress" aria-pressed="${!!t.progress}">◐ In progress</button>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>`}
-          ${t.chase && !t.done ? `<span class="tq-snooze"><button type="button" class="tq-mini" data-act="snooze" aria-expanded="false" title="Back to Waiting on others for a few days, not counted as a chase">💤 Snooze</button><span class="tq-snooze-opts" hidden>${[3, 5, 7].map((n) => `<button type="button" class="tq-mini" data-act="snoozeN" data-days="${n}">${n} days</button>`).join("")}</span></span>` : ""}
+          ${t.chase && !t.done ? `<span class="tq-snooze"><button type="button" class="tq-mini" data-act="snooze" aria-expanded="false" title="Back to Waiting on others for a few days, not counted as a chase">💤 Snooze</button><span class="tq-snooze-opts" hidden>${[3, 5, 7].map((n) => `<button type="button" class="tq-mini" data-act="snoozeN" data-days="${n}" aria-label="Snooze for ${n} days">${n} days</button>`).join("")}</span></span>` : ""}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="edit">Edit</button>`}
           <button type="button" class="tq-mini tq-del" data-act="del" aria-label="Delete">🗑</button>
         </div>
