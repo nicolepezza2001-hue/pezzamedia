@@ -31,6 +31,12 @@
   function linkify(s) { return esc(s).replace(/(https?:\/\/[^\s)]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
   var state = { jobs: {}, leads: {} };
   function loadState() { try { var s = JSON.parse(get("l", STATE_KEY) || "{}"); state.jobs = s.jobs || {}; state.leads = s.leads || {}; } catch (e) {}
+    D.jobs = (D.jobs || []).filter(function (j) { return j && j.id; });
+    D.jobs.forEach(function (j) {
+      var f = j.facts; if (typeof f === "string") f = [f]; if (!Array.isArray(f)) f = [];
+      j.facts = f.map(function (x) { return Array.isArray(x) ? [String(x[0] == null ? "" : x[0]), String(x[1] == null ? "" : x[1])] : ["", String(x)]; });
+      var g = j.flags; if (typeof g === "string") g = [g]; j.flags = Array.isArray(g) ? g.map(String) : [];
+    });
     D.jobs.forEach(function (j) { if (j.done && !state.jobs[j.id]) state.jobs[j.id] = { s: j.done, t: 0, auto: 1 }; });
     (D.leads || []).forEach(function (l) { if (l.sent && !state.leads[l.id]) state.leads[l.id] = { t: 0, auto: 1 }; }); }
   function saveState() { set("l", STATE_KEY, JSON.stringify(state)); }
