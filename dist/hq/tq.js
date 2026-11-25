@@ -85,7 +85,8 @@
       if (t.done) { if (t.doneDay && -daysUntil(t.doneDay) <= 14) s.done.push(t); continue; }
       if (t.kind === "waiting") {
         const age = -daysUntil(t.asked || t.created.slice(0, 10));
-        (age >= CHASE_DAYS ? s.tasks : s.waiting).push({ ...t, chase: age >= CHASE_DAYS });
+        const due = age >= CHASE_DAYS && !(t.snoozeUntil && daysUntil(t.snoozeUntil) > 0);
+        (due ? s.tasks : s.waiting).push({ ...t, chase: due });
         continue;
       }
       // A dated task only shows in Tasks from its due date on (Nicky, 2026-11-18); before that it waits in Coming up.
@@ -209,10 +210,11 @@
     if (t.kind === "repeat") bits.push(`🔁 ${esc(t.repeat)}`);
     if (t.source) bits.push(`from ${esc(t.source)}`);
     if (t.chasedAt && t.kind !== "waiting") bits.push(`Chased ${ago(t.chasedAt)}`);
+    if (t.kind === "waiting" && !t.chase && t.snoozeUntil && daysUntil(t.snoozeUntil) > 0) bits.push(`💤 Snoozed until ${esc(shortDate(t.snoozeUntil))}`);
     // Badges: in progress, and how long she's been waiting (waiting-on items, or a task she chased).
     const waitFrom = t.kind === "waiting" ? t.asked || t.created.slice(0, 10) : t.chasedAt;
     const waitDays = waitFrom && !t.done ? Math.max(0, -daysUntil(waitFrom)) : null;
-    const badges = (t.progress && !t.done ? `<span class="tq-badge is-prog">In progress</span>` : "") + (waitDays !== null ? `<span class="tq-badge">${waitDays}d waiting</span>` : "");
+    const badges = (t.progress && !t.done ? `<span class="tq-tag is-prog">In progress</span>` : "") + (waitDays !== null ? `<span class="tq-tag">${waitDays}d waiting</span>` : "");
     if (t.link) bits.push(`<a href="${esc(t.link)}" target="_blank" rel="noopener">Open ↗</a>`);
     const title = t.kind === "waiting"
       ? (t.chase ? `Chase ${esc(t.who || "them")}: ${esc(t.text)}` : `<b>${esc(t.who || "Someone")}</b>: ${esc(t.text)}`)
@@ -221,7 +223,7 @@
       <li class="tq-row${t.done ? " is-done" : ""}${t.chase ? " is-chase" : ""}${t.progress && !t.done ? " is-prog" : ""}" data-id="${esc(t.id)}">
         <label class="tq-tick"><input type="checkbox" data-act="tick" ${t.done ? "checked" : ""} aria-label="${t.done ? "Put back on the list" : "Mark done"}"><span></span></label>
         <div class="tq-row-main">
-          <p class="tq-row-text">${title}${badges ? ` <span class="tq-badges">${badges}</span>` : ""}</p>
+          <p class="tq-row-text">${title}${badges ? ` <span class="tq-tags">${badges}</span>` : ""}</p>
           ${bits.length ? `<p class="tq-row-meta">${bits.join(" · ")}</p>` : ""}
           ${t.done && t.doneBy ? `<p class="tq-row-meta">✨ Ticked by ${t.doneBy === "work" ? "Work Claude" : "Claude"}${t.doneWhy ? `: ${esc(t.doneWhy)}` : ""}</p>` : ""}
           ${t.addedBy ? `<p class="tq-row-meta tq-by">✨ Added by ${t.addedBy === "work" ? "Work Claude" : "Claude"}</p>` : ""}
@@ -232,6 +234,7 @@
           ${t.done ? "" : `<a class="tq-mini tq-start" href="${esc(startHref(t))}" title="Open a new Claude Code session filled in with this task">Start ▶</a>`}
           ${t.done ? "" : `<button type="button" class="tq-mini tq-progbtn${t.progress ? " is-on" : ""}" data-act="progress" aria-pressed="${!!t.progress}">◐ In progress</button>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>`}
+          ${t.chase && !t.done ? `<span class="tq-snooze"><button type="button" class="tq-mini" data-act="snooze" aria-expanded="false" title="Back to Waiting on others for a few days, not counted as a chase">💤 Snooze</button><span class="tq-snooze-opts" hidden>${[3, 5, 7].map((n) => `<button type="button" class="tq-mini" data-act="snoozeN" data-days="${n}">${n} days</button>`).join("")}</span></span>` : ""}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="edit">Edit</button>`}
           <button type="button" class="tq-mini tq-del" data-act="del" aria-label="Delete">🗑</button>
         </div>
@@ -618,6 +621,8 @@
     if (act === "edit") { editing = id; renderPanel(); $("#tq-panel .tq-form [name=text]")?.focus(); }
     else if (act === "cancel") { editing = null; renderPanel(); }
     else if (act === "chased") { const c = snap(row); const w = board.tasks.find((x) => x.id === id)?.kind === "waiting"; await change(`/api/tasks/${id}/chased`, "POST"); fx("chased", c, rowEl(id)); toast(w ? "🔔 Chased. The 5-day clock starts again." : "🔔 Marked as chased today"); }
+    else if (act === "snooze") { const o = btn.nextElementSibling; o.hidden = !o.hidden; btn.setAttribute("aria-expanded", String(!o.hidden)); }
+    else if (act === "snoozeN") { const n = +btn.dataset.days; await change(`/api/tasks/${id}/snooze`, "POST", { days: n }); toast(`💤 Back in Waiting on others. Chase again in ${n} days.`); }
     else if (act === "progress") { const on = !board.tasks.find((x) => x.id === id)?.progress; await change(`/api/tasks/${id}/progress`, "POST", { on }); toast(on ? "◐ In progress" : "Not in progress"); }
     else if (act === "del") armDelete(btn, async () => {
       const c = snap(row);
@@ -767,7 +772,8 @@
     for (const t of board.tasks || []) {
       if (t.done) continue;
       if (t.kind === "waiting") {
-        const d = plusDaysISO(t.asked || t.created.slice(0, 10), CHASE_DAYS);
+        let d = plusDaysISO(t.asked || t.created.slice(0, 10), CHASE_DAYS);
+        if (t.snoozeUntil && t.snoozeUntil > d) d = t.snoozeUntil;
         out.push({ date: d, title: `Chase ${t.who || ""}: ${t.text}`, kind: "chase", project: t.project, group: grp(t.project), id: t.id });
       } else if (t.due) out.push({ date: t.due, title: t.text, kind: t.kind === "repeat" ? "repeat" : "task", project: t.project, group: grp(t.project), id: t.id });
     }

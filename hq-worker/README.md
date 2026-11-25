@@ -177,3 +177,8 @@ Page dist/hq/tools/meetings.html (focus.html now redirects there). Storage key "
 - Task rows: "◐ In progress" toggle (POST /api/tasks/:id/progress {on}) with an IN PROGRESS badge; "🔔 Chased" on every open task
   (waiting items restart the 5-day clock; normal tasks store chasedAt); "Nd waiting" badge (waiting items since asked, tasks since chased);
   "Added N days ago" in the meta line.
+
+## Snooze on Chase rows (2026-11-25)
+"💤 Snooze" on a Chase row → 3 / 5 / 7 days. POST /api/tasks/:id/snooze {days} sets snoozeUntil; the item sits in Waiting on others
+until then and shows "💤 Snoozed until …". It does NOT count as a chase (asked/chasedAt unchanged). "🔔 Chased" clears the snooze.
+Waiting/in-progress pills use classes .tq-tag/.tq-tags (.tq-badge is the card counter).

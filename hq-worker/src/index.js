@@ -435,7 +435,7 @@ export class Board extends DurableObject {
       await this.save();
       return board();
     }
-    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased|resolve|progress))?$/);
+    let tm = p.match(/^\/api\/tasks\/([\w-]+)(?:\/(done|chased|resolve|progress|snooze))?$/);
     if (tm) {
       const t = d.tasks.find((x) => x.id === tm[1]);
       if (!t) return [404, { error: "That task isn't there any more" }];
@@ -464,8 +464,12 @@ export class Board extends DurableObject {
       } else if (tm[2] === "chased" && method === "POST") {
         // Waiting-on items restart their 5-day clock; a normal task just remembers when she chased.
         if (t.kind === "waiting") t.asked = today;
-        t.chasedAt = today;
+        t.chasedAt = today; delete t.snoozeUntil;
         t.chasedCount = (t.chasedCount || 0) + 1;
+      } else if (tm[2] === "snooze" && method === "POST") {
+        // Back to Waiting on others for 3/5/7 days, without counting as a chase (Nicky, 2026-11-25).
+        const n = [3, 5, 7].includes(+body?.days) ? +body.days : 3;
+        t.snoozeUntil = plusDaysUTC(today, n);
       } else if (tm[2] === "progress" && method === "POST") {
         if (body?.on === false) { delete t.progress; delete t.progressAt; } else { t.progress = true; t.progressAt = today; }
       } else if (tm[2] === "done" && method === "POST") {
