@@ -455,6 +455,8 @@ export class Board extends DurableObject {
         const next = cleanTask(body, t);
         if (!next.text) return [400, { error: "The task needs some text" }];
         if (!hasProject(next.project)) return [400, { error: "Unknown card" }];
+        // Changing the date by hand ends a snooze on a task.
+        if (t.kind !== "waiting" && next.due !== t.due) delete t.snoozeUntil;
         Object.assign(t, next, { edited: new Date().toISOString() });
       } else if (!tm[2] && method === "DELETE") {
         d.tasks.splice(d.tasks.indexOf(t), 1);
@@ -467,9 +469,11 @@ export class Board extends DurableObject {
         t.chasedAt = today; delete t.snoozeUntil;
         t.chasedCount = (t.chasedCount || 0) + 1;
       } else if (tm[2] === "snooze" && method === "POST") {
-        // Back to Waiting on others for 3/5/7 days, without counting as a chase (Nicky, 2026-11-25).
-        const n = [3, 5, 7].includes(+body?.days) ? +body.days : 3;
-        t.snoozeUntil = plusDaysUTC(today, n);
+        // Waiting-on items: back to Waiting on others for N days, not counted as a chase (Nicky, 2026-11-25).
+        // Tasks and repeats: the due date moves forward N days so the row drops into Coming up (Nicky, 2026-11-26).
+        const n = [1, 3, 5, 7].includes(+body?.days) ? +body.days : 3;
+        if (t.kind === "waiting") t.snoozeUntil = plusDaysUTC(today, n);
+        else { const base = t.due && t.due > today ? t.due : today; t.due = t.snoozeUntil = plusDaysUTC(base, n); }
       } else if (tm[2] === "progress" && method === "POST") {
         if (body?.on === false) { delete t.progress; delete t.progressAt; } else { t.progress = true; t.progressAt = today; }
       } else if (tm[2] === "done" && method === "POST") {
@@ -487,7 +491,7 @@ export class Board extends DurableObject {
           if (t.kind === "repeat" && t.repeat && !t.nextId) {
             const copy = { ...t, id: uid(), created: new Date().toISOString(), done: false,
                            due: addPeriod(t.due || today, t.repeat), prevId: t.id };
-            for (const k of ["doneAt", "doneDay", "nextId", "edited"]) delete copy[k];
+            for (const k of ["doneAt", "doneDay", "nextId", "edited", "snoozeUntil", "progress", "progressAt", "chasedAt"]) delete copy[k];
             t.nextId = copy.id;
             d.tasks.push(copy);
           }

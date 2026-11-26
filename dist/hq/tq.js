@@ -210,7 +210,7 @@
     if (t.kind === "repeat") bits.push(`🔁 ${esc(t.repeat)}`);
     if (t.source) bits.push(`from ${esc(t.source)}`);
     if (t.chasedAt && t.kind !== "waiting") bits.push(`Chased ${ago(t.chasedAt)}`);
-    if (t.kind === "waiting" && !t.chase && t.snoozeUntil && daysUntil(t.snoozeUntil) > 0) bits.push(`💤 Snoozed until ${esc(shortDate(t.snoozeUntil))}`);
+    if (!t.done && !t.chase && t.snoozeUntil && daysUntil(t.snoozeUntil) > 0) bits.push(`💤 Snoozed until ${esc(shortDate(t.snoozeUntil))}`);
     // Badges: in progress, and how long she's been waiting (waiting-on items, or a task she chased).
     const waitFrom = t.kind === "waiting" ? t.asked || t.created.slice(0, 10) : t.chasedAt;
     const waitDays = waitFrom && !t.done ? Math.max(0, -daysUntil(waitFrom)) : null;
@@ -234,7 +234,7 @@
           ${t.done ? "" : `<a class="tq-mini tq-start" href="${esc(startHref(t))}" title="Open a new Claude Code session filled in with this task">Start ▶</a>`}
           ${t.done ? "" : `<button type="button" class="tq-mini tq-progbtn${t.progress ? " is-on" : ""}" data-act="progress" aria-pressed="${!!t.progress}">◐ In progress</button>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="chased" title="I chased them today">🔔 Chased</button>`}
-          ${t.chase && !t.done ? `<span class="tq-snooze"><button type="button" class="tq-mini" data-act="snooze" aria-expanded="false" title="Back to Waiting on others for a few days, not counted as a chase">💤 Snooze</button><span class="tq-snooze-opts" hidden>${[3, 5, 7].map((n) => `<button type="button" class="tq-mini" data-act="snoozeN" data-days="${n}" aria-label="Snooze for ${n} days">${n} days</button>`).join("")}</span></span>` : ""}
+          ${t.done ? "" : `<span class="tq-snooze"><button type="button" class="tq-mini" data-act="snooze" aria-expanded="false" title="${t.kind === "waiting" ? "Back to Waiting on others for a few days, not counted as a chase" : "Move the due date forward a few days"}">💤 Snooze</button><span class="tq-snooze-opts" hidden>${[1, 3, 5, 7].map((n) => `<button type="button" class="tq-mini" data-act="snoozeN" data-days="${n}" aria-label="Snooze for ${n} day${n > 1 ? "s" : ""}">${n} day${n > 1 ? "s" : ""}</button>`).join("")}</span></span>`}
           ${t.done ? "" : `<button type="button" class="tq-mini" data-act="edit">Edit</button>`}
           <button type="button" class="tq-mini tq-del" data-act="del" aria-label="Delete">🗑</button>
         </div>
@@ -622,7 +622,9 @@
     else if (act === "cancel") { editing = null; renderPanel(); }
     else if (act === "chased") { const c = snap(row); const w = board.tasks.find((x) => x.id === id)?.kind === "waiting"; await change(`/api/tasks/${id}/chased`, "POST"); fx("chased", c, rowEl(id)); toast(w ? "🔔 Chased. The 5-day clock starts again." : "🔔 Marked as chased today"); }
     else if (act === "snooze") { const o = btn.nextElementSibling; o.hidden = !o.hidden; btn.setAttribute("aria-expanded", String(!o.hidden)); }
-    else if (act === "snoozeN") { const n = +btn.dataset.days; await change(`/api/tasks/${id}/snooze`, "POST", { days: n }); toast(`💤 Back in Waiting on others. Chase again in ${n} days.`); }
+    else if (act === "snoozeN") { const n = +btn.dataset.days; const w = board.tasks.find((x) => x.id === id)?.kind === "waiting"; const b = await change(`/api/tasks/${id}/snooze`, "POST", { days: n });
+      const s = b?.tasks?.find((x) => x.id === id)?.snoozeUntil; const until = s ? shortDate(s) : `${n} day${n > 1 ? "s" : ""}`;
+      toast(w ? `💤 Back in Waiting on others. Chase again on ${until}.` : `💤 Snoozed until ${until}. It's in Coming up.`); }
     else if (act === "progress") { const on = !board.tasks.find((x) => x.id === id)?.progress; await change(`/api/tasks/${id}/progress`, "POST", { on }); toast(on ? "◐ In progress" : "Not in progress"); }
     else if (act === "del") armDelete(btn, async () => {
       const c = snap(row);

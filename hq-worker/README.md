@@ -182,3 +182,6 @@ Page dist/hq/tools/meetings.html (focus.html now redirects there). Storage key "
 "💤 Snooze" on a Chase row → 3 / 5 / 7 days. POST /api/tasks/:id/snooze {days} sets snoozeUntil; the item sits in Waiting on others
 until then and shows "💤 Snoozed until …". It does NOT count as a chase (asked/chasedAt unchanged). "🔔 Chased" clears the snooze.
 Waiting/in-progress pills use classes .tq-tag/.tq-tags (.tq-badge is the card counter).
+
+### Snooze on every row (2026-11-26)
+💤 Snooze shows on every open row, with 1, 3, 5 or 7 days. Tasks and repeats: the due date moves forward that many days (from today, or from the due date if it is already in the future), so the row drops into Coming up; `snoozeUntil` is set to the new due date for the "💤 Snoozed until" label and is cleared if she edits the date. Waiting-on and Chase rows keep the old behaviour (`snoozeUntil`, not counted as a chase). The next copy of a repeat starts without snooze, progress or chased marks.
