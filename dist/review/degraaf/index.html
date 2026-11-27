@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>De Graaf Website Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single reading column like a consultant's report, findings as before/after "fix sheets", Pezza Media colours */
+:root{
+  --bg:#FBF4D7; --paper:#FFFBEA; --ink:#141B41; --muted:#4a5070; --line:#e6dcb6;
+  --pink:#E8D8D5; --pink-ink:#7a2e3b; --green:#C2D9BC; --green-ink:#2d5a2a; --gold:#f1e2a6; --gold-ink:#6b5410;
+  --display:"EB Garamond",Georgia,"Times New Roman",serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141B41; --paper:#1c2452; --ink:#FBF4D7; --muted:#c3c6db; --line:#2e376b;
+  --pink:#4a2f3d; --pink-ink:#f3d3d9; --green:#2c4630; --green-ink:#d2ecc9; --gold:#4a4220; --gold-ink:#f4e3a3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141B41; --paper:#1c2452; --ink:#FBF4D7; --muted:#c3c6db; --line:#2e376b;
+  --pink:#4a2f3d; --pink-ink:#f3d3d9; --green:#2c4630; --green-ink:#d2ecc9; --gold:#4a4220; --gold-ink:#f4e3a3; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.7rem,6vw,3.6rem);overflow-wrap:anywhere}
+h2{font-size:clamp(1.7rem,4vw,2.2rem)}
+h3{font-size:1.35rem}
+p{margin:0}
+a{color:inherit;text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.eyebrow{font:600 .74rem/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+header.top{padding-block:56px 40px;display:grid;gap:18px;border-bottom:1px solid var(--line)}
+.lede{font-family:var(--display);font-size:1.45rem;line-height:1.4;max-width:34ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted);font-size:.9rem}
+section{padding-block:48px;border-bottom:1px solid var(--line);display:grid;gap:22px}
+.intro p{max-width:65ch}
+.top3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.top3 div{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:6px;align-content:start}
+.top3 b{font-family:var(--display);font-size:1.15rem;font-weight:600}
+.top3 span{color:var(--muted);font-size:.92rem}
+.legend{display:flex;line-height:2.2;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85rem;color:var(--muted)}
+.chip{display:inline-block;font:600 .7rem/1 var(--body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px;white-space:nowrap}
+.c1{background:var(--pink);color:var(--pink-ink)} .c2{background:var(--gold);color:var(--gold-ink)} .c3{background:var(--green);color:var(--green-ink)}
+.group{display:grid;gap:16px}
+.group>h3{font-size:1.1rem;font-family:var(--body);font-weight:600;letter-spacing:.02em;color:var(--muted);padding-top:8px}
+.find{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;gap:14px}
+.find-h{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.find-h h4{font:500 1.35rem/1.25 var(--display);margin:0;flex:1 1 300px;min-width:0}
+.rows{display:grid;grid-template-columns:120px 1fr;gap:10px 18px}
+.rows dt{font:600 .74rem/1.9 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rows dd{margin:0;min-width:0}
+q{font-family:var(--display);font-style:italic;font-size:1.06em}
+ul.plain{margin:0;padding-left:1.1em;display:grid;gap:6px}
+.ba{display:grid;gap:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.pair>div{padding:20px;display:grid;gap:8px;align-content:start;min-width:0}
+.pair>div+div{border-left:1px solid var(--line)}
+.pair .before{color:var(--muted)}
+.pair .before p{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--pink-ink) 55%,transparent)}
+.pair .after p{font-family:var(--display);font-size:1.18rem;line-height:1.45}
+.pair-label{font-weight:600;font-size:.95rem}
+.note{font-size:.88rem;color:var(--muted)}
+ol.flow{margin:0;padding:0;list-style:none;counter-reset:f;display:grid;gap:10px}
+ol.flow li{counter-increment:f;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;padding:14px 0;border-top:1px solid var(--line)}
+ol.flow li::before{content:counter(f);font:500 1.6rem/1 var(--display);color:var(--muted)}
+ol.flow b{display:block;font-family:var(--display);font-size:1.2rem;font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two>div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:10px;align-content:start;min-width:0}
+.sign{display:grid;gap:14px;padding-block:52px 64px}
+.sign p{max-width:62ch}
+.signature{font-family:var(--display);font-style:italic;font-size:1.6rem}
+footer{padding-block:0 40px;color:var(--muted);font-size:.82rem}
+@media (max-width:680px){
+  .top3,.two{grid-template-columns:1fr}
+  .pair{grid-template-columns:1fr}
+  .pair>div+div{border-left:0;border-top:1px solid var(--line)}
+  .rows{grid-template-columns:1fr;gap:2px}
+  .rows dd{margin-bottom:10px}
+}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Website review · prepared for Quinten de Graaf · 27 November 2026</p>
+    <h1>degraafconsultingservices.com.au</h1>
+    <p class="lede">Thirty years of real hospitality experience, on a website that doesn't show it yet.</p>
+    <div class="meta"><span>By Nicole Pezza, Pezza Media</span><span>Pages reviewed: Home, About, Services, Projects, Contact</span></div>
+  </header>
+
+  <section class="intro">
+    <h2>The short version</h2>
+    <p>You've opened and fixed venues for some of the biggest names in Australian hospitality. A visitor landing on your site today wouldn't know that. The headline could belong to any consultant, the copy reads like early AI writing from 2023, there isn't a single review, and a booking popup asks for their time before they know who you are. The good news is that every one of these is fixable, and most of the fixes are words, not a rebuild.</p>
+    <div class="top3" aria-label="Top three fixes">
+      <div><b>Say what you do</b><span>One plain first line: who you help and how.</span></div>
+      <div><b>Show the proof</b><span>Reviews, your story and a result for every project.</span></div>
+      <div><b>Earn the call</b><span>Popup later, one clear button, and say what they get.</span></div>
+    </div>
+    <div class="legend"><span class="chip c1">Fix first</span> costs you enquiries now <span class="chip c2">Fix soon</span> weakens trust <span class="chip c3">Quick fix</span> under an hour</div>
+  </section>
+
+  <section>
+    <h2>What I found, and how I'd fix it</h2>
+
+    <div class="group">
+      <h3>First impression</h3>
+
+      <article class="find">
+        <div class="find-h"><h4>The first line doesn't say what you do</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>The headline is <q>Your Partner in Hospitality Growth</q>. It's friendly, but it doesn't say whether you design venues, fix struggling ones, train staff or do the books.</dd>
+          <dt>Why it matters</dt><dd>People decide in a few seconds whether they're in the right place. If they have to scroll to find out, many won't.</dd>
+          <dt>The fix</dt><dd>Open with who you help and what you do for them, in plain words. A rewrite is in the samples below.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>The copy reads like early AI writing</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Lines like <q>excellence, innovation, and integrity</q>, <q>achieve greatness</q>, <q>360-degree support</q> and <q>Take Your Hospitality Business to the Next Level</q>, some of them repeated across pages.</dd>
+          <dt>Why it matters</dt><dd>Readers now spot this style instantly, and it makes a real expert sound like a template. It also hides everything that makes you different.</dd>
+          <dt>The fix</dt><dd>Write in your voice, in the first person, with specifics: the brands, the problems, what changed. Every claim should be something only you could say.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>The layout is hard to follow, and the photo feels distant</h4><span class="chip c2">Fix soon</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>The home page jumps between services, projects, a blog and forms, with no clear path through it. The main photo feels formal and a little cold for a business built on relationships.</dd>
+          <dt>Why it matters</dt><dd>Consulting is bought on trust. People want to feel they know you before they pick up the phone.</dd>
+          <dt>The fix</dt><dd>One simple story from top to bottom (see the page flow below) and a warmer, more relaxed photo, ideally of you on the floor of a venue.</dd>
+        </dl>
+      </article>
+    </div>
+
+    <div class="group">
+      <h3>Trust and proof</h3>
+
+      <article class="find">
+        <div class="find-h"><h4>There are no reviews anywhere</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Client logos, but not one testimonial on any page.</dd>
+          <dt>Why it matters</dt><dd>Logos show who you've worked with. Reviews show they'd hire you again. For a consultant, that's the difference between interesting and trusted.</dd>
+          <dt>The fix</dt><dd>Ask three to five past clients for two or three sentences each, with their name, role and venue. Put one near the top and the rest beside the projects.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>Your own story is missing</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd><q>30+ years</q> is almost all we learn about you. We don't hear which businesses you've run, what you've turned around or why operators call you.</dd>
+          <dt>Why it matters</dt><dd>You are the product. Your track record is the strongest selling point on the site, and right now it's a single number.</dd>
+          <dt>The fix</dt><dd>A short, human About section: where you started, the brands you've worked inside, two or three problems you've solved and how you like to work.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>Projects are store names with no outcome</h4><span class="chip c2">Fix soon</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Entries like <q>Oporto Gladesville</q> and <q>Red Rooster Dalby</q>, with nothing about the brief or the result. The <q>Load More</q> button doesn't load anything.</dd>
+          <dt>Why it matters</dt><dd>A name tells a visitor you were there. A result tells them what you could do for them.</dd>
+          <dt>The fix</dt><dd>Turn each project into a three-line case study: the challenge, what you did, what changed (opened on time, back to profit, sales up). Add a photo of the finished venue.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>A tyre chain sits in the hospitality line-up</h4><span class="chip c3">Quick fix</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Bob Jane T-Marts appears among the client logos directly under <q>Trusted by Leading Hospitality Brands</q>.</dd>
+          <dt>The fix</dt><dd>Move it to a separate "other industries" line, or leave it out, so the hospitality message stays sharp.</dd>
+        </dl>
+      </article>
+    </div>
+
+    <div class="group">
+      <h3>Getting the call</h3>
+
+      <article class="find">
+        <div class="find-h"><h4>The booking popup appears too early</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>A free-session popup appears before a visitor has read anything about you.</dd>
+          <dt>Why it matters</dt><dd>Asking for someone's time before they understand what you offer feels pushy, and most people close it without reading.</dd>
+          <dt>The fix</dt><dd>Show it only once someone has scrolled past your proof, or when they're about to leave. Better still, make the call the main button on the page and drop the popup.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>The free call isn't explained</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd><q>Get a free 15-minute session!</q> and nothing else. Who is it for, what happens on the call, what do they leave with?</dd>
+          <dt>The fix</dt><dd>One or two lines that promise a clear result, for example "Tell me what's not working and leave with your top three fixes." A rewrite is in the samples below.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>Too many buttons, all saying different things</h4><span class="chip c2">Fix soon</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Around 25 buttons on the home page: <q>Get In Touch</q>, <q>Know More</q>, <q>Learn More</q>, <q>View More</q>, <q>View All</q>, <q>Schedule your appointment</q>. The contact form also asks for "Name", "URL" or "Company" depending on the page.</dd>
+          <dt>The fix</dt><dd>One main action everywhere, "Book a free 15-minute call", and one contact form used on every page.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>Six services with equal weight, and no "how it works"</h4><span class="chip c2">Fix soon</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>Coaching, design and construction, finance, strategy, turnarounds and operations all sit side by side, and nothing explains what working with you actually looks like.</dd>
+          <dt>The fix</dt><dd>Lead with the one or two services that match your new direction, then add a simple three-step "how it works": free call, on-site review, plan and support.</dd>
+        </dl>
+      </article>
+    </div>
+
+    <div class="group">
+      <h3>Name and housekeeping</h3>
+
+      <article class="find">
+        <div class="find-h"><h4>The old name is still everywhere</h4><span class="chip c1">Fix first</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>"Sixth Sense Consulting" still appears in:
+            <ul class="plain">
+              <li>the page titles for Home, Services and Contact, which is what Google shows</li>
+              <li>the preview text and image when the site is shared</li>
+              <li>the first email address on every page</li>
+              <li>the Instagram and YouTube handles, and the map link</li>
+              <li>the hidden labels on the client logos</li>
+            </ul></dd>
+          <dt>Why it matters</dt><dd>Google and new visitors see two businesses, which splits your search ranking and makes people wonder which one is real.</dd>
+          <dt>The fix</dt><dd>A one-off clean-up so every title, preview, email and handle says De Graaf Consulting.</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>The blog stopped in May 2025</h4><span class="chip c2">Fix soon</span></div>
+        <dl class="rows">
+          <dt>What I see</dt><dd>The latest posts are from April and May 2025.</dd>
+          <dt>Why it matters</dt><dd>A blog that stopped 18 months ago makes the business look inactive, which is the opposite of what you want.</dd>
+          <dt>The fix</dt><dd>Either hide it, or bring it back with one useful, search-friendly article a month on the questions operators actually ask (opening costs, menu pricing, turning around a slow venue).</dd>
+        </dl>
+      </article>
+
+      <article class="find">
+        <div class="find-h"><h4>Small errors that are easy to fix</h4><span class="chip c3">Quick fix</span></div>
+        <ul class="plain">
+          <li>The Outlook address is spelt <q>deraaf</q> instead of degraaf, and doesn't match your website domain.</li>
+          <li>The booking widget still shows a slot from Wednesday 30 April 2025.</li>
+          <li>Typos and stray capitals: <q>OUR Services</q>, <q>Why Our clients prefer Us</q>, <q>Faq</q>.</li>
+          <li>US and Australian spelling are mixed (<q>customizes</q> and <q>prioritize</q> next to <q>optimise</q> and <q>analysed</q>).</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the fixes could sound like</h2>
+    <p class="note">Draft copy to show the direction. The details would come from you.</p>
+    <div class="ba">
+      <p class="pair-label">The first screen</p>
+      <div class="pair">
+        <div class="before"><span class="eyebrow">Now</span><p>Your Partner in Hospitality Growth. 30+ Years of Experience | Trusted by Leading Hospitality Brands Across Australia.</p></div>
+        <div class="after"><span class="eyebrow">Could be</span><p>Hospitality consulting for restaurants, cafes and QSR chains across Australia. 30 years of opening, fixing and growing venues for brands like Oporto, Red Rooster and The Coffee Club.</p></div>
+      </div>
+
+      <p class="pair-label">The free call</p>
+      <div class="pair">
+        <div class="before"><span class="eyebrow">Now</span><p>Get a free 15-minute session!</p></div>
+        <div class="after"><span class="eyebrow">Could be</span><p>Book a free 15-minute call. Tell me what's not working in your venue, and you'll leave with your top three fixes, whether or not we work together.</p></div>
+      </div>
+
+      <p class="pair-label">A service</p>
+      <div class="pair">
+        <div class="before"><span class="eyebrow">Now</span><p>Turnaround &amp; Transformation, delivered with excellence, innovation and integrity. Know More.</p></div>
+        <div class="after"><span class="eyebrow">Could be</span><p>Turnarounds. Sales slipping, costs creeping up, staff turning over? I come in, find what's really going wrong and stay until the numbers move.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>A simpler home page</h2>
+    <p>One story, top to bottom, with the same button at every step.</p>
+    <ol class="flow">
+      <li><div><b>What you do</b>The plain first line, a warm photo and the "Book a free call" button.</div></li>
+      <li><div><b>Proof</b>Client logos with one strong review right underneath.</div></li>
+      <li><div><b>Services</b>Your one or two lead services, each in two or three plain sentences.</div></li>
+      <li><div><b>How it works</b>Free call, on-site review, plan and support.</div></li>
+      <li><div><b>Results</b>Three short case studies with photos and outcomes.</div></li>
+      <li><div><b>About Quinten</b>Your story and why operators call you.</div></li>
+      <li><div><b>Book the call</b>What they'll get from the 15 minutes, and the booking calendar.</div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Where I'd start</h2>
+    <div class="two">
+      <div>
+        <h3>This week</h3>
+        <ul class="plain">
+          <li>Fix the email spelling and the April 2025 booking slot</li>
+          <li>Change every "Sixth Sense" title, preview and handle</li>
+          <li>Move or remove the booking popup</li>
+          <li>Ask three past clients for a review</li>
+        </ul>
+      </div>
+      <div>
+        <h3>The refresh</h3>
+        <ul class="plain">
+          <li>A new first screen and home page in your own voice</li>
+          <li>A proper About section and service pages</li>
+          <li>Projects rewritten as short case studies</li>
+          <li>A blog plan, or a clean exit from it</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sign">
+    <h2>About me</h2>
+    <p>I'm a senior content strategist and copywriter. I've written the full websites for two seven-figure brands, Tmrw, a longevity powder brand, and Simply Nootropics, a supplement brand selling across the US, UK, EU and Australia. I've also written 600+ SEO blogs, and one ranked #1 on Google UK.</p>
+    <p>I'd love to help you turn thirty years of experience into a website that brings in the right calls.</p>
+    <p class="signature">Nicole Pezza</p>
+    <p><a href="https://pezzamedia.com" target="_blank" rel="noopener">pezzamedia.com</a></p>
+  </div>
+  <footer>Review based on the public pages of degraafconsultingservices.com.au as of 27 November 2026.</footer>
+</div>
+
+</body>
+</html>
